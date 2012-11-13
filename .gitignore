@@ -3,6 +3,7 @@
 target/
 out/
 build/
+!lib/build/
 
 .idea/
 *.ipr
