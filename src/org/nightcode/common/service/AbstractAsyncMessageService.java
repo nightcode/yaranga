@@ -1,0 +1,87 @@
+/*
+ * Copyright (C) 2008 The NightCode Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.nightcode.common.service;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
+
+/**
+ * Abstract async message service.
+ *
+ * @param <M> The message type accepted by this MessageService's <tt>submit</tt> method
+ */
+public abstract class AbstractAsyncMessageService<M> extends AbstractThreadService
+    implements MessageService<M> {
+
+  private static final boolean DEFAULT_SKIP_MESSAGE_STRATEGY = false;
+
+  protected final BlockingQueue<M> queue;
+  private final boolean skipMessageStrategy;
+
+  public AbstractAsyncMessageService(String serviceName) {
+    this(serviceName, new LinkedBlockingQueue<M>(), DEFAULT_SKIP_MESSAGE_STRATEGY);
+  }
+
+  public AbstractAsyncMessageService(String serviceName, boolean skipMessageStrategy) {
+    this(serviceName, new LinkedBlockingQueue<M>(), skipMessageStrategy);
+  }
+
+  public AbstractAsyncMessageService(String serviceName, BlockingQueue<M> queue) {
+    this(serviceName, queue, DEFAULT_SKIP_MESSAGE_STRATEGY);
+  }
+
+  public AbstractAsyncMessageService(String serviceName, BlockingQueue<M> queue,
+      boolean skipMessageStrategy) {
+    super(serviceName);
+    this.queue = queue;
+    this.skipMessageStrategy = skipMessageStrategy;
+  }
+
+  public boolean submit(M message) {
+    boolean submitted;
+    if (skipMessageStrategy) {
+      submitted = queue.offer(message);
+      if (!submitted) {
+        LOGGER.log(Level.INFO, "[%s]: Message <%s> has been skipped. Queue remaining capacity %s"
+            , serviceName(), message, queue.remainingCapacity());
+      }
+    } else {
+      try {
+        if (queue.remainingCapacity() == 0) {
+          LOGGER.log(Level.INFO
+              , "[%s]: Queue capacity has been reached <%s>. Waiting for space to become available."
+              , serviceName(), queue.size());
+        }
+        queue.put(message);
+        submitted = true;
+      } catch (InterruptedException ex) {
+        LOGGER.log(Level.WARNING, "[%s]: Exception:", ex, serviceName());
+        submitted = false;
+      }
+    }
+    return submitted;
+  }
+
+  protected abstract void process(M message) throws Exception;
+
+  @Override protected void service() throws Exception {
+    while (!exit) {
+      process(queue.take());
+    }
+  }
+}
