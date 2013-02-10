@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common;
+package org.nightcode.common.util.monitoring;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -22,9 +22,6 @@ import org.junit.runners.Suite;
 /**
  */
 @RunWith(Suite.class) 
-@Suite.SuiteClasses({org.nightcode.common.base.AllTests.class, 
-                     org.nightcode.common.service.AllTests.class,
-                     org.nightcode.common.util.concurrent.AllTests.class,
-                     org.nightcode.common.util.monitoring.AllTests.class})
+@Suite.SuiteClasses({MonitoringImplTest.class})
 public class AllTests {
 }

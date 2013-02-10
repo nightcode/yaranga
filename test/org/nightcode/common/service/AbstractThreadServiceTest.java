@@ -298,7 +298,6 @@ public class AbstractThreadServiceTest {
       }
     };
     service.start().get();
-    assertEquals(State.RUNNING, service.state());
     Thread.sleep(100);
     try {
       service.stop().get(1000, TimeUnit.MILLISECONDS);

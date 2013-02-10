@@ -14,17 +14,8 @@
  * limitations under the License.
  */
 
-package org.nightcode.common;
-
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-
 /**
+ * This package contains classes and interfaces for monitoring.
  */
-@RunWith(Suite.class) 
-@Suite.SuiteClasses({org.nightcode.common.base.AllTests.class, 
-                     org.nightcode.common.service.AllTests.class,
-                     org.nightcode.common.util.concurrent.AllTests.class,
-                     org.nightcode.common.util.monitoring.AllTests.class})
-public class AllTests {
-}
+
+package org.nightcode.common.util.monitoring;

@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package org.nightcode.common;
+package org.nightcode.common.util.monitoring;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import java.io.IOException;
 
 /**
+ * A {@link MonitoringComponent} provides events for monitoring.
  */
-@RunWith(Suite.class) 
-@Suite.SuiteClasses({org.nightcode.common.base.AllTests.class, 
-                     org.nightcode.common.service.AllTests.class,
-                     org.nightcode.common.util.concurrent.AllTests.class,
-                     org.nightcode.common.util.monitoring.AllTests.class})
-public class AllTests {
+public interface MonitoringComponent {
+
+  /**
+   * Retrieves data from monitoring component.
+   *
+   * @param visitor monitoring visitor
+   * @throws IOException if data cannot be retrieved
+   */
+  void retrieveData(MonitoringVisitor visitor) throws IOException;
 }
