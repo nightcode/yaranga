@@ -22,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
+import javax.annotation.Nonnull;
+
 /**
  * An AbstractFuture object.
  *
@@ -55,14 +57,6 @@ public abstract class AbstractFuture<V> implements Future<V> {
       return true;
     }
 
-    void await() throws InterruptedException {
-      acquireSharedInterruptibly(1);
-    }
-
-    boolean await(long timeout, TimeUnit unit) throws InterruptedException {
-      return tryAcquireSharedNanos(1, unit.toNanos(timeout));
-    }
-
     boolean done(V result, Throwable exception) {
       boolean status = compareAndSetState(RUNNING, PROCESSING);
       if (status) {
@@ -70,12 +64,28 @@ public abstract class AbstractFuture<V> implements Future<V> {
         this.exception = exception;
         releaseShared(DONE);
       } else if (getState() == PROCESSING) {
-        acquireShared(-1);
+        acquireShared(0); // 0 - magic, can be used any value
       }
       return status;
     }
 
-    V get() throws ExecutionException {
+    V get() throws ExecutionException, InterruptedException {
+      acquireSharedInterruptibly(0); // 0 - magic, can be used any value
+      int state = getState();
+      if (state != DONE) {
+        throw new IllegalStateException("Invalid state <" + state + ">");
+      }
+      if (exception != null) {
+        throw new ExecutionException(exception);
+      }
+      return result;
+    }
+
+    V get(long timeout, TimeUnit unit)
+        throws ExecutionException, InterruptedException, TimeoutException {
+      if (!tryAcquireSharedNanos(0, unit.toNanos(timeout))) { // 0 - magic, can be used any value
+        throw new TimeoutException();
+      }
       int state = getState();
       if (state != DONE) {
         throw new IllegalStateException("Invalid state <" + state + ">");
@@ -106,16 +116,12 @@ public abstract class AbstractFuture<V> implements Future<V> {
   }
 
   @Override public V get() throws InterruptedException, ExecutionException {
-    sync.await();
     return sync.get();
   }
 
-  @Override public V get(long timeout, TimeUnit unit)
+  @Override public V get(long timeout, @Nonnull TimeUnit unit)
       throws InterruptedException, ExecutionException, TimeoutException {
-    if (!sync.await(timeout, unit)) {
-      throw new TimeoutException();
-    }
-    return sync.get();
+    return sync.get(timeout, unit);
   }
 
   protected boolean failed(Throwable cause) {
