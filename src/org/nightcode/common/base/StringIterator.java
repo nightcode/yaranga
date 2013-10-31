@@ -28,30 +28,33 @@ public final class StringIterator implements Iterator<String> {
   private final int limit;
   private final String delimiter;
   private final int delimiterLength;
+  private final boolean omitEmptyStrings;
+  private String next;
   private int offset = 0;
+  private boolean ready = false;
 
   public StringIterator(CharSequence source, String delimiter) {
+    this(source, delimiter, false);
+  }
+
+  public StringIterator(CharSequence source, String delimiter, boolean omitEmptyStrings) {
     this.source = source;
     this.limit = source.length();
     this.delimiter = delimiter;
     this.delimiterLength = delimiter.length();
+    this.omitEmptyStrings = omitEmptyStrings;
   }
 
   @Override public boolean hasNext() {
-    return offset < limit;
+    return ready || tryNext();
   }
 
   @Override public String next() {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
-    int position = delimiterStart(offset);
-    if (position < 0) {
-      position = limit;
-    }
-    CharSequence value = source.subSequence(offset, position);
-    offset = position + delimiterLength;
-    return value.toString();
+    ready = false;
+    return next;
   }
 
   @Override public void remove() {
@@ -74,5 +77,24 @@ public final class StringIterator implements Iterator<String> {
       }
     }
     return true;
+  }
+
+  private boolean tryNext() {
+    while (offset < limit) {
+      int position = delimiterStart(offset);
+      if (position < 0) {
+        position = limit;
+      }
+      if (omitEmptyStrings && offset == position) {
+        offset = position + delimiterLength;
+        continue;
+      }
+      CharSequence value = source.subSequence(offset, position);
+      offset = position + delimiterLength;
+      next = value.toString();
+      ready = true;
+      return true;
+    }
+    return false;
   }
 }

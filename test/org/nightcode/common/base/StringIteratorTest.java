@@ -30,8 +30,8 @@ import static org.junit.Assert.fail;
 public class StringIteratorTest {
   
   @Test public void stringIterator() {
-    final String str = "a=b&c=\"d&e=\"f\"&d=&=e";
-    final String expected = "a=b|c=\"d|e=\"f\"|d=|=e";
+    final String str = "&a=b&c=\"d&e=\"f\"&d=&=e";
+    final String expected = "|a=b|c=\"d|e=\"f\"|d=|=e";
     
     Iterator<String> i = new StringIterator(str, "&");
     StringBuilder actual = new StringBuilder();
@@ -59,6 +59,21 @@ public class StringIteratorTest {
     assertEquals(expected, actual.toString());
   }
   
+  @Test public void stringIteratorOmitEmtpyStrings() {
+    final String str = "&a=b&c=\"d&e=\"f\"&d=&=e&&";
+    final String expected = "a=b|c=\"d|e=\"f\"|d=|=e";
+    
+    Iterator<String> i = new StringIterator(str, "&", true);
+    StringBuilder actual = new StringBuilder();
+    if (i.hasNext()) {
+      actual.append(i.next());
+      while(i.hasNext()) {
+        actual.append('|').append(i.next());
+      }
+    }
+    assertEquals(expected, actual.toString());
+  }
+
   @Test public void stringIteratorRemove() {
     Iterator<String> i = new StringIterator("a=b", "=");
     try {
