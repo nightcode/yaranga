@@ -17,16 +17,16 @@
 <project name="yaranga" default="build" basedir=".">
 
   <property name="root.dir" location="." />
-  <property name="version" value="0.1-b1-snapshot" />
+  <property name="module.version" value="0.1-b1-snapshot" />
 
   <import file="${root.dir}/common.ant.xml" />
-  
+
   <path id="compile.classpath">
-    <fileset dir="${lib.dir}" includes="*.jar"/>
+    <fileset dir="${lib.dir}" includes="*.jar" />
   </path>
 
   <path id="test.classpath">
-    <fileset dir="${lib.dir}/build" includes="*.jar"/>    
+    <fileset dir="${lib.dir}/build" includes="*.jar" />
   </path>
-  
+
 </project>
