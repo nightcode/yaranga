@@ -70,17 +70,20 @@ public final class Splitter {
    * @return a splitter with the desired configuration
    */
   public static Splitter on(String pairSeparator) {
-    return new Splitter(pairSeparator, "=", NONE);
+    return new Splitter(pairSeparator, "=", NONE, NONE);
   }
 
   private final String keyValueSeparator;
   private final String pairSeparator;
-  private final Matcher trimMatcher;
+  private final Matcher keyTrimMatcher;
+  private final Matcher valueTrimMatcher;
 
-  private Splitter(String pairSeparator, String keyValueSeparator, Matcher trimMatcher) {
+  private Splitter(String pairSeparator, String keyValueSeparator, Matcher keyTrimMatcher,
+      Matcher valueTrimMatcher) {
     this.pairSeparator = pairSeparator;
     this.keyValueSeparator = keyValueSeparator;
-    this.trimMatcher = trimMatcher;
+    this.keyTrimMatcher = keyTrimMatcher;
+    this.valueTrimMatcher = valueTrimMatcher;
   }
 
   /**
@@ -104,23 +107,78 @@ public final class Splitter {
         parameters.put(keyValue, null);
         continue;
       }
+      int keyStart = 0;
+      int keyEnd = keyValueSeparatorPosition;
+
+      while (keyStart < keyEnd && keyTrimMatcher.matches(keyValue.charAt(keyStart))) {
+        keyStart++;
+      }
+      while (keyStart < keyEnd && keyTrimMatcher.matches(keyValue.charAt(keyEnd - 1))) {
+        keyEnd--;
+      }
 
       int valueStart = keyValueSeparatorPosition + keyValueSeparator.length();
       int valueEnd = keyValue.length();
 
-      while (valueStart < valueEnd && trimMatcher.matches(keyValue.charAt(valueStart))) {
+      while (valueStart < valueEnd && valueTrimMatcher.matches(keyValue.charAt(valueStart))) {
         valueStart++;
       }
-
-      while (valueStart < valueEnd && trimMatcher.matches(keyValue.charAt(valueEnd - 1))) {
+      while (valueStart < valueEnd && valueTrimMatcher.matches(keyValue.charAt(valueEnd - 1))) {
         valueEnd--;
       }
 
-      String key = keyValue.substring(0, keyValueSeparatorPosition);
+      String key = keyValue.substring(keyStart, keyEnd);
       String value = keyValue.substring(valueStart, valueEnd);
       parameters.put(key, value);
     }
     return parameters;
+  }
+
+  /**
+   * Returns a splitter that removes all leading or trailing characters
+   * matching the given character from each returned key and value.
+   *
+   * @param c character
+   * @return a splitter with the desired configuration
+   */
+  public Splitter trim(char c) {
+    Matcher matcher = new CharMatcher(c);
+    return new Splitter(pairSeparator, keyValueSeparator, matcher, matcher);
+  }
+
+  /**
+   * Returns a splitter that removes all leading or trailing characters
+   * matching the given characters from each returned key and value.
+   *
+   * @param chars characters
+   * @return a splitter with the desired configuration
+   */
+  public Splitter trim(char[] chars) {
+    Matcher matcher = new CharsMatcher(chars);
+    return new Splitter(pairSeparator, keyValueSeparator, matcher, matcher);
+  }
+
+  /**
+   * Returns a splitter that removes all leading or trailing characters
+   * matching the given character from each returned key.
+   *
+   * @param c character
+   * @return a splitter with the desired configuration
+   */
+  public Splitter trimKeys(char c) {
+    return new Splitter(pairSeparator, keyValueSeparator, new CharMatcher(c), valueTrimMatcher);
+  }
+
+  /**
+   * Returns a splitter that removes all leading or trailing characters
+   * matching the given characters from each returned key.
+   *
+   * @param chars characters
+   * @return a splitter with the desired configuration
+   */
+  public Splitter trimKeys(char[] chars) {
+    return new Splitter(pairSeparator, keyValueSeparator, new CharsMatcher(chars)
+        , valueTrimMatcher);
   }
 
   /**
@@ -131,7 +189,7 @@ public final class Splitter {
    * @return a splitter with the desired configuration
    */
   public Splitter trimValues(char c) {
-    return new Splitter(pairSeparator, keyValueSeparator, new CharMatcher(c));
+    return new Splitter(pairSeparator, keyValueSeparator, keyTrimMatcher, new CharMatcher(c));
   }
 
   /**
@@ -142,7 +200,7 @@ public final class Splitter {
    * @return a splitter with the desired configuration
    */
   public Splitter trimValues(char[] chars) {
-    return new Splitter(pairSeparator, keyValueSeparator, new CharsMatcher(chars));
+    return new Splitter(pairSeparator, keyValueSeparator, keyTrimMatcher, new CharsMatcher(chars));
   }
 
   /**
@@ -153,7 +211,7 @@ public final class Splitter {
    * @return a splitter with the desired configuration
    */
   public Splitter withKeyValueSeparator(String keyValueSeparator) {
-    return new Splitter(pairSeparator, keyValueSeparator, trimMatcher);
+    return new Splitter(pairSeparator, keyValueSeparator, keyTrimMatcher, valueTrimMatcher);
   }
 
   private boolean isKeyValueSeparator(String source, int position) {

@@ -71,14 +71,45 @@ public class SplitterTest {
     assertNull(actual.get(""));
     assertEquals(4, actual.size());
   }
-  
-  @Test public void splitStringWithTrim() {
+
+  @Test public void splitStringWithKeyTrim() {
     Splitter splitter 
-        = Splitter.on("&").withKeyValueSeparator("=").trimValues('\"');
-    
-    final String str = "a=b&c=\"d&e=\"f\"&d=&=e";
+        = Splitter.on("&").withKeyValueSeparator("=").trimKeys('\"');
+
+    final String str = "\"a\"=b&c\"=\"d&e=\"f\"&\"d=&=e";
     Map<String, String> actual = splitter.split(str);
-    
+
+    assertEquals("b", actual.get("a"));
+    assertEquals("\"d", actual.get("c"));
+    assertEquals("\"f\"", actual.get("e"));
+    assertEquals("", actual.get("d"));
+    assertNull(actual.get(""));
+    assertEquals(4, actual.size());
+  }
+
+  @Test public void splitStringWithComplexKeyTrim() {
+    Splitter splitter 
+        = Splitter.on("&").withKeyValueSeparator("=").trimKeys(new char[] {'[', ']'});
+
+    final String str = "[a=b&[c]=[d&e=[f]&d]=&=e";
+    Map<String, String> actual = splitter.split(str);
+
+    assertEquals("b", actual.get("a"));
+    assertEquals("[d", actual.get("c"));
+    assertEquals("[f]", actual.get("e"));
+    assertEquals("", actual.get("d"));
+    assertNull(actual.get(""));
+    assertEquals(4, actual.size());
+  }
+
+  @Test public void splitStringWithComplexKeyValueTrim() {
+    Splitter splitter 
+        = Splitter.on("&").withKeyValueSeparator("=")
+        .trimKeys(new char[] {'[',']'}).trimValues(new char[] {'[',']'});
+
+    final String str = "[a=b&[c]=[d&e=[f]&d]=&=e";
+    Map<String, String> actual = splitter.split(str);
+
     assertEquals("b", actual.get("a"));
     assertEquals("d", actual.get("c"));
     assertEquals("f", actual.get("e"));
@@ -86,14 +117,43 @@ public class SplitterTest {
     assertNull(actual.get(""));
     assertEquals(4, actual.size());
   }
-  
+
   @Test public void splitStringWithComplexTrim() {
+    Splitter splitter = Splitter.on("&").withKeyValueSeparator("=").trim(new char[] {'[',']'});
+
+    final String str = "[a=b&[c]=[d&e=[f]&d]=&=e";
+    Map<String, String> actual = splitter.split(str);
+
+    assertEquals("b", actual.get("a"));
+    assertEquals("d", actual.get("c"));
+    assertEquals("f", actual.get("e"));
+    assertEquals("", actual.get("d"));
+    assertNull(actual.get(""));
+    assertEquals(4, actual.size());
+  }
+
+  @Test public void splitStringWithValueTrim() {
+    Splitter splitter 
+        = Splitter.on("&").withKeyValueSeparator("=").trimValues('\"');
+
+    final String str = "a=b&c=\"d&e=\"f\"&d=&=e";
+    Map<String, String> actual = splitter.split(str);
+
+    assertEquals("b", actual.get("a"));
+    assertEquals("d", actual.get("c"));
+    assertEquals("f", actual.get("e"));
+    assertEquals("", actual.get("d"));
+    assertNull(actual.get(""));
+    assertEquals(4, actual.size());
+  }
+
+  @Test public void splitStringWithComplexValueTrim() {
     Splitter splitter 
         = Splitter.on("&").withKeyValueSeparator("=").trimValues(new char[] {'[',']'});
-    
+
     final String str = "a=b&c=[d&e=[f]&d=&=e";
     Map<String, String> actual = splitter.split(str);
-    
+
     assertEquals("b", actual.get("a"));
     assertEquals("d", actual.get("c"));
     assertEquals("f", actual.get("e"));
@@ -135,7 +195,7 @@ public class SplitterTest {
     assertEquals(5, actual.size());
   }
   
-  @Test public void splitNPE() {
+  @Test public void splitNpe() {
     Splitter splitter = Splitter.on("&");
     
     try {
