@@ -126,7 +126,7 @@ public class AbstractServiceTest {
       try {
         service.stop().get();
       } catch (Throwable t) {
-        assertTrue(t.getMessage().contains("Service failed to start."));
+        assertTrue(t.getMessage().contains("service failed to start"));
         assertEquals(State.FAILED, service.state());
         return;
       }
@@ -241,7 +241,7 @@ public class AbstractServiceTest {
       service.started();
       fail("started must throw IllegalStateException");
     } catch (IllegalStateException ex) {
-      assertEquals("Cannot started service when it is NEW", ex.getMessage());
+      assertEquals("cannot started service when it is NEW", ex.getMessage());
     }
   }
 }

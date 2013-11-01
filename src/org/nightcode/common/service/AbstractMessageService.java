@@ -16,6 +16,8 @@
 
 package org.nightcode.common.service;
 
+import java.util.logging.Level;
+
 /**
  * Abstract message service.
  * @param <M> The message type accepted by this MessageService's <tt>submit</tt> method
@@ -30,10 +32,13 @@ public abstract class AbstractMessageService<M> extends AbstractService
   @Override public boolean submit(M message) {
     lock.lock();
     try {
+      if (LOGGER.isLoggable(Level.FINEST)) {
+        LOGGER.log(Level.FINEST, "[%s]: message <%s> has been submitted", serviceName(), message);
+      }
       process(message);
       return true;
     } catch (Exception ex) {
-      LOGGER.warning("[%s]: Exception occurred while submitting message <%s>."
+      LOGGER.warning("[%s]: exception occurred while submitting message <%s>"
           , ex, serviceName(), message);
       return false;
     } finally {

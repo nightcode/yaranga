@@ -57,20 +57,23 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
     if (skipMessageStrategy) {
       submitted = queue.offer(message);
       if (!submitted) {
-        LOGGER.log(Level.INFO, "[%s]: Message <%s> has been skipped. Queue remaining capacity %s"
+        LOGGER.log(Level.INFO, "[%s]: message <%s> has been skipped (queue remaining capacity %s)"
             , serviceName(), message, queue.remainingCapacity());
       }
     } else {
       try {
         if (queue.remainingCapacity() == 0) {
           LOGGER.log(Level.INFO
-              , "[%s]: Queue capacity has been reached <%s>. Waiting for space to become available."
+              , "[%s]: queue capacity has been reached <%s> (waiting for space to become available)"
               , serviceName(), queue.size());
+        }
+        if (LOGGER.isLoggable(Level.FINEST)) {
+          LOGGER.log(Level.FINEST, "[%s]: message <%s> has been submitted", serviceName(), message);
         }
         queue.put(message);
         submitted = true;
       } catch (InterruptedException ex) {
-        LOGGER.log(Level.WARNING, "[%s]: Exception:", ex, serviceName());
+        LOGGER.log(Level.WARNING, "[%s]: exception:", ex, serviceName());
         submitted = false;
       }
     }

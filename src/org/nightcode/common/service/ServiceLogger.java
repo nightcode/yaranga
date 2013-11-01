@@ -16,11 +16,11 @@
 
 package org.nightcode.common.service;
 
+import org.nightcode.common.base.Objects;
+
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-
-import org.nightcode.common.base.Objects;
 
 /**
  * Helps to simplify logging information using varargs.
@@ -41,7 +41,7 @@ public final class ServiceLogger {
   private final String name;
 
   /**
-   * Creates a new SmartLogger by wrapping a {@code Logger}.
+   * Creates a new ServiceLogger by wrapping a {@code Logger}.
    *
    * @param logger the {@code Logger} to wrap
    * @param name a logger name

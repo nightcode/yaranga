@@ -53,29 +53,31 @@ public final class ServiceManager {
     Objects.nonNull(service, "service");
     Service serv = services.putIfAbsent(service.serviceName(), service);
     if (serv != null) {
-      throw new IllegalStateException("Service " + service.serviceName()
-          + " has already been added.");
+      throw new IllegalStateException("service <" + service.serviceName()
+          + "> has already been added");
     }
-    LOGGER.config("Shutdown hook for service <%s> has been added.", service.serviceName());
+    LOGGER.config("[ServiceManager]: shutdown hook for service <%s> has been added"
+        , service.serviceName());
   }
 
   public void removeShutdownHook(Service service) {
     Objects.nonNull(service, "service");
     Service serv = services.remove(service.serviceName());
     if (serv == null) {
-      LOGGER.info("Service <%s> has never been added.", service.serviceName());
+      LOGGER.info("[ServiceManager]: service <%s> has never been added", service.serviceName());
     } else {
-      LOGGER.config("Shutdown hook for service <%s> has been removed.", service.serviceName());
+      LOGGER.config("[ServiceManager]: shutdown hook for service <%s> has been removed"
+          , service.serviceName());
     }
   }
 
   public void shutdownAll() {
-    LOGGER.log(Level.INFO, "External termination in progress..");
+    LOGGER.log(Level.INFO, "[ServiceManager]: external termination in progress..");
     for (Service service : services.values()) {
       try {
         service.stop().get(STOPPING_TIMEOUT, TimeUnit.MILLISECONDS);
       } catch (Exception ex) {
-        LOGGER.warning("Cannot stop service <%s>.", ex, service.serviceName());
+        LOGGER.warning("[ServiceManager]: cannot stop service <%s>", ex, service.serviceName());
       }
     }
     services.clear();

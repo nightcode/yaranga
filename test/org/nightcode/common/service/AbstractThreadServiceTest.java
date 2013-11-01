@@ -118,7 +118,7 @@ public class AbstractThreadServiceTest {
       try {
         service.stop().get();
       } catch (Throwable t) {
-        assertTrue(t.getMessage().contains("Service failed to start."));
+        assertTrue(t.getMessage().contains("service failed to start"));
         assertEquals(State.FAILED, service.state());
         return;
       }

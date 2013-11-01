@@ -61,7 +61,7 @@ public class ServiceManagerTest {
       serviceManager.addShutdownHook(serviceMock);
       fail("addShutdownHook must throw IllegalStateException");
     } catch (IllegalStateException ex) {
-      assertEquals("Service serviceMock has already been added.", ex.getMessage());
+      assertEquals("service <serviceMock> has already been added", ex.getMessage());
     }
     
     EasyMock.verify(serviceMock);

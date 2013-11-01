@@ -53,37 +53,37 @@ public abstract class AbstractThreadService implements Service {
                         Exception tmpException = lastFailedCause;
                         lastFailedCause = null;
                         onStart();
-                        AbstractThreadService.LOGGER.log(Level.FINE, "[%s]: Service was restarted."
-                            , tmpException, serviceName());
+                        AbstractThreadService.LOGGER.log(Level.FINE
+                            , "[%s]: service has been restarted", tmpException, serviceName());
                       }
                       service();
                     } catch (InterruptedException interrupted) {
                       AbstractThreadService.LOGGER.log(Level.WARNING
-                          , "[%s]: Service has been interrupted.", interrupted, serviceName());
+                          , "[%s]: service has been interrupted", interrupted, serviceName());
                       if (restart) {
                         restart = false;
                         lastFailedCause = interrupted;
                         try {
                           onStop();
                         } catch (Exception ignore) {
-                          AbstractThreadService.LOGGER.log(Level.FINEST, "[%s]: Exception occurred."
+                          AbstractThreadService.LOGGER.log(Level.FINEST, "[%s]: exception occurred"
                               , ignore, serviceName());
                         }
                       }
                     } catch (Exception ex) {
-                      AbstractThreadService.LOGGER.log(Level.WARNING, "[%s]: Service's exception."
+                      AbstractThreadService.LOGGER.log(Level.WARNING, "[%s]: service's exception"
                           , ex, serviceName());
                       lastFailedCause = ex;
                       try {
                         onStop();
                       } catch (Exception ignore) {
-                        AbstractThreadService.LOGGER.log(Level.FINEST, "[%s]: Exception occurred."
+                        AbstractThreadService.LOGGER.log(Level.FINEST, "[%s]: exception occurred"
                             , ignore, serviceName());
                       }
                       try {
                         Thread.sleep(restartTimeout);
                       } catch (InterruptedException ignore) {
-                        AbstractThreadService.LOGGER.log(Level.FINEST, "[%s]: Exception occurred."
+                        AbstractThreadService.LOGGER.log(Level.FINEST, "[%s]: exception occurred"
                             , ignore, serviceName());
                       }
                     }
@@ -162,4 +162,3 @@ public abstract class AbstractThreadService implements Service {
     // do nothing
   }
 }
-

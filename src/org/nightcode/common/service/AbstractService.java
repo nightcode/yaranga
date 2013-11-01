@@ -75,7 +75,7 @@ public abstract class AbstractService implements Service {
   @Override public final Future<State> start() {
     lock.lock();
     try {
-      LOGGER.log(Level.INFO, "[%s]: Starting service..", serviceName);
+      LOGGER.log(Level.INFO, "[%s]: starting service..", serviceName);
       if (state == State.NEW) {
         state = State.STARTING;
         doStart();
@@ -96,7 +96,7 @@ public abstract class AbstractService implements Service {
       } else if (state == State.STARTING) {
         stopAfterStart = true;
       } else if (state == State.RUNNING) {
-        LOGGER.log(Level.INFO, "[%s]: Stopping service..", serviceName);
+        LOGGER.log(Level.INFO, "[%s]: stopping service..", serviceName);
         state = State.STOPPING;
         doStop();
       }
@@ -145,12 +145,12 @@ public abstract class AbstractService implements Service {
     lock.lock();
     try {
       if (state == State.STARTING) {
-        LOGGER.log(Level.WARNING, "[%s]: Exception occurred while starting service:", cause
+        LOGGER.log(Level.WARNING, "[%s]: exception occurred while starting service:", cause
             , serviceName);
         startFuture.failed(cause);
-        stopFuture.failed(new Exception("Service failed to start.", cause));
+        stopFuture.failed(new Exception("service failed to start", cause));
       } else if (STOPPING_STATES.contains(state)) {
-        LOGGER.log(Level.WARNING, "[%s]: Exception occurred while stopping service:", cause
+        LOGGER.log(Level.WARNING, "[%s]: exception occurred while stopping service:", cause
             , serviceName);
         stopFuture.failed(cause);
       }
@@ -163,9 +163,9 @@ public abstract class AbstractService implements Service {
   protected void started() {
     lock.lock();
     try {
-      Objects.validState(state == State.STARTING, "Cannot started service when it is %s", state);
+      Objects.validState(state == State.STARTING, "cannot started service when it is %s", state);
       state = State.RUNNING;
-      LOGGER.log(Level.INFO, "[%s]: Service was started.", serviceName);
+      LOGGER.log(Level.INFO, "[%s]: service has been started", serviceName);
       if (stopAfterStart) {
         stop();
       } else {
@@ -180,7 +180,7 @@ public abstract class AbstractService implements Service {
     lock.lock();
     try {
       state = State.TERMINATED;
-      LOGGER.log(Level.INFO, "[%s]: Service was stopped.", serviceName);
+      LOGGER.log(Level.INFO, "[%s]: service has been stopped", serviceName);
       startFuture.succeeded(State.TERMINATED);
       stopFuture.succeeded(State.TERMINATED);
     } finally {
