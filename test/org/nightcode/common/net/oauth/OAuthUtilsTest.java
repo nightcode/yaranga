@@ -80,8 +80,12 @@ public class OAuthUtilsTest extends TestCase {
         + "&oauth_signature_method=HMAC-SHA1&oauth_timestamp=137131201"
         + "&oauth_token=kkk9d7dh3k39sjv7";
 
-    assertEquals(expectedNormalizeParameters
-        , OAuthUtils.normalizeParameters(requestUrl, protocolParameters));
+    try {
+      assertEquals(expectedNormalizeParameters
+          , OAuthUtils.normalizeParameters(requestUrl, protocolParameters));
+    } catch (OAuthException ex) {
+      fail(ex.getMessage());
+    }
   }
 
   public void testNormalizeUrl() throws OAuthException {

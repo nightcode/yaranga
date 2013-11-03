@@ -148,7 +148,7 @@ public final class OAuthUtils {
    * @return the normalized request parameters
    */
   public static String normalizeParameters(String requestUrl,
-      Map<String, String> protocolParameters) {
+      Map<String, String> protocolParameters) throws OAuthException {
     SortedSet<RequestParameter> parameters = new TreeSet<RequestParameter>();
     int index = requestUrl.indexOf('?');
     if (index > 0) {
@@ -157,28 +157,18 @@ public final class OAuthUtils {
       while (i.hasNext()) {
         String parameter = i.next();
         int equalsIndex = parameter.indexOf('=');
-        try {
-          if (equalsIndex > 0) {
-            parameters.add(new RequestParameter(percentDecode(parameter.substring(0, equalsIndex))
-                , percentDecode(parameter.substring(equalsIndex + 1))));
-          } else if (equalsIndex == -1) {
-            parameters.add(new RequestParameter(percentDecode(parameter)));
-          }
-        } catch (OAuthException ex) {
-          String str = null;
-          // do nothing
+        if (equalsIndex > 0) {
+          parameters.add(new RequestParameter(percentDecode(parameter.substring(0, equalsIndex))
+              , percentDecode(parameter.substring(equalsIndex + 1))));
+        } else if (equalsIndex == -1) {
+          parameters.add(new RequestParameter(percentDecode(parameter)));
         }
       }
     }
 
     for (Entry<String, String> entry : protocolParameters.entrySet()) {
-      try {
-        parameters.add(new RequestParameter(percentEncode(entry.getKey())
-            , percentEncode(entry.getValue())));
-      } catch (OAuthException ex) {
-        String str = null;
-        // do nothing
-      }
+      parameters.add(new RequestParameter(percentEncode(entry.getKey())
+          , percentEncode(entry.getValue())));
     }
 
     StringBuilder normalized = new StringBuilder();
@@ -255,7 +245,7 @@ public final class OAuthUtils {
           .replace("*", "%2A")
           .replace("%7E", "~");
     } catch (UnsupportedEncodingException ex) {
-      throw new OAuthException(ex);
+      throw new OAuthException("cannot encode value '" + source + "'", ex);
     }
   }
 
@@ -271,7 +261,7 @@ public final class OAuthUtils {
     try {
       return URLDecoder.decode(source, "UTF-8");
     } catch (java.io.UnsupportedEncodingException ex) {
-      throw new OAuthException(ex);
+      throw new OAuthException("cannot decode value '" + source + "'", ex);
     }
   }
 
