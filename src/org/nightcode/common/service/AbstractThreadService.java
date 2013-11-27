@@ -32,7 +32,7 @@ public abstract class AbstractThreadService implements Service {
 
   private long restartTimeout = 10L; // timeout, in milliseconds
 
-  private final Service inner;
+  private final AbstractService inner;
   private volatile Thread thread;
 
   protected AbstractThreadService(String serviceName) {
@@ -153,6 +153,10 @@ public abstract class AbstractThreadService implements Service {
   }
 
   protected abstract void service() throws Exception;
+
+  protected void serviceFailed(Throwable cause) {
+    inner.serviceFailed(cause);
+  }
 
   protected final void setRestartTimeout(long restartTimeout) {
     this.restartTimeout = restartTimeout;
