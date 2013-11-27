@@ -167,8 +167,7 @@ public final class OAuthUtils {
     }
 
     for (Entry<String, String> entry : protocolParameters.entrySet()) {
-      parameters.add(new RequestParameter(percentEncode(entry.getKey())
-          , percentEncode(entry.getValue())));
+      parameters.add(new RequestParameter(entry.getKey(), entry.getValue()));
     }
 
     StringBuilder normalized = new StringBuilder();
