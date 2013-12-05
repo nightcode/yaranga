@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
- Copyright (C) 2008 The NightCode Open Source Project
+ Copyright (C) The NightCode Open Source Project
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,18 +14,19 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project name="yaranga-parent" default="build" basedir=".">
+<project name="yaranga" default="build" basedir=".">
 
-  <property name="root.dir" location="." />
+  <property name="root.dir" location=".." />
+  <property name="module.version" value="0.1-snapshot" />
 
   <import file="${root.dir}/common.ant.xml" />
 
-  <target name="dist">
-    <ant antfile="core/build.xml" target="moduledist" inheritAll="false"/>
-  </target>
+  <path id="compile.classpath">
+    <fileset dir="${lib.dir}" includes="*.jar" />
+  </path>
 
-  <target name="clean">
-    <delete dir="${build.dir}" />
-  </target>
+  <path id="test.classpath">
+    <fileset dir="${lib.dir}/build" includes="*.jar" />
+  </path>
 
 </project>
