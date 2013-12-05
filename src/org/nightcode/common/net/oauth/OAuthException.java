@@ -21,10 +21,6 @@ package org.nightcode.common.net.oauth;
  */
 public class OAuthException extends Exception {
 
-  public OAuthException() {
-    super();
-  }
-
   public OAuthException(Throwable cause) {
     super(cause);
   }
