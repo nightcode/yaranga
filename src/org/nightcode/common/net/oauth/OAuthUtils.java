@@ -16,6 +16,7 @@
 
 package org.nightcode.common.net.oauth;
 
+import org.nightcode.common.base.Objects;
 import org.nightcode.common.base.StringIterator;
 
 import java.io.UnsupportedEncodingException;
@@ -63,6 +64,23 @@ public final class OAuthUtils {
       } else {
         return encodedValue.compareTo(requestParameter.encodedValue);
       }
+    }
+
+    @Override public int hashCode() {
+      int result = 527 + encodedName.hashCode();
+      return result * 31 + encodedValue.hashCode();
+    }
+
+    @Override public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof RequestParameter)) {
+        return false;
+      }
+      RequestParameter other = (RequestParameter) obj;
+      return Objects.equals(encodedName, other.encodedName)
+          && Objects.equals(encodedValue, other.encodedValue);
     }
   }
 
