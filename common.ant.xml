@@ -19,8 +19,8 @@
   <!-- Global Properties -->
   <property environment="env" />
   <tstamp />
-  <property name="version" value="${module.version}${DSTAMP}" />
-  <property name="version.impl" value="${version}${TSTAMP}" />
+  <property name="version" value="${module.version}" />
+  <property name="version.impl" value="${version}" />
   <property name="src.dir" location="src" />
   <property name="test.dir" location="test" />
   <property name="lib.dir" location="${root.dir}/lib" />

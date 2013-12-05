@@ -17,7 +17,7 @@
 <project name="yaranga" default="build" basedir=".">
 
   <property name="root.dir" location=".." />
-  <property name="module.version" value="0.1-snapshot" />
+  <property name="module.version" value="0.1" />
 
   <import file="${root.dir}/common.ant.xml" />
 
