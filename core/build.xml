@@ -17,9 +17,11 @@
 <project name="yaranga" default="build" basedir=".">
 
   <property name="root.dir" location=".." />
-  <property name="module.version" value="0.1" />
+  <property name="module.version" value="0.2" />
+  <property name="snapshot" value="true" />
 
   <import file="${root.dir}/common.ant.xml" />
+  <import file="${root.dir}/common.maven.ant.xml" />
 
   <path id="compile.classpath">
     <fileset dir="${lib.dir}" includes="*.jar" />
@@ -28,5 +30,11 @@
   <path id="test.classpath">
     <fileset dir="${lib.dir}/build" includes="*.jar" />
   </path>
+
+  <target name="deploy" depends="dist">
+    <echo message="deploy file: ${module.jar}" />
+    <copy file="pom.xml" todir="${build.dir}" />
+    <deploy pom="${build.dir}/pom.xml" file="${module.jar}" />
+  </target>
 
 </project>

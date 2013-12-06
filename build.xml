@@ -19,13 +19,26 @@
   <property name="root.dir" location="." />
 
   <import file="${root.dir}/common.ant.xml" />
-
-  <target name="dist">
-    <ant antfile="core/build.xml" target="moduledist" inheritAll="false"/>
-  </target>
+  <import file="${root.dir}/common.maven.ant.xml" />
 
   <target name="clean">
     <delete dir="${build.dir}" />
+    <ant antfile="core/build.xml" target="clean" inheritAll="false"/>
+  </target>
+
+  <target name="dist">
+    <delete dir="${build.dir}" />
+    <mkdir dir="${build.dir}" />
+    <ant antfile="core/build.xml" target="dist" inheritAll="false"/>
+
+    <copy todir="${build.dir}/core">
+      <fileset dir="core/build" includes="*.jar" />
+    </copy>
+  </target>
+
+  <target name="deploy" description="deploy snapshot version to Maven snapshot repository">
+    <deploy pom="pom.xml" file="pom.xml" />
+    <ant antfile="core/build.xml" target="deploy" inheritAll="false"/>
   </target>
 
 </project>

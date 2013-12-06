@@ -18,26 +18,24 @@
 
   <!-- Global Properties -->
   <property environment="env" />
-  <tstamp />
-  <property name="version" value="${module.version}" />
-  <property name="version.impl" value="${version}" />
   <property name="src.dir" location="src" />
   <property name="test.dir" location="test" />
   <property name="lib.dir" location="${root.dir}/lib" />
-  <property name="build.dir" location="${root.dir}/build" />
-  <property name="build.out.dir" location="${build.dir}/out" />
-  <property name="build.lib.dir" location="${build.dir}/lib" />
-  <property name="build.docs.dir" location="${build.dir}/docs" />
-  <property name="build.dist.dir" location="${build.dir}/dist" />
+  <property name="build.dir" location="build" />
+  <property name="docs.dir" location="${build.dir}/docs" />
+
+  <tstamp />
+  <condition property="version" value="${module.version}-snapshot${DSTAMP}" else="${module.version}">
+    <istrue value="${snapshot}" />
+  </condition>
+  <condition property="version.impl" value="${version}${TSTAMP}" else="${version}">
+    <istrue value="${snapshot}" />
+  </condition>
 
   <property name="module.packagenames" value="org.nightcode.*" />
-  <property name="module.build.dir" location="${build.out.dir}/${ant.project.name}" />
-  <property name="module.docs.dir" location="${build.docs.dir}/${ant.project.name}" />
-  <property name="module.dist.dir" location="${build.dist.dir}/${ant.project.name}" />
-  <property name="module.lib" location="${build.lib.dir}/${ant.project.name}-${version}.jar" />
-
-  <property name="module.javadoc.jar" location="${module.dist.dir}/${ant.project.name}-${version}-javadoc.jar" />
-  <property name="module.sources.jar" location="${module.dist.dir}/${ant.project.name}-${version}-sources.jar" />
+  <property name="module.jar" location="${build.dir}/${ant.project.name}-${version}.jar" />
+  <property name="javadoc.jar" location="${build.dir}/${ant.project.name}-${version}-javadoc.jar" />
+  <property name="sources.jar" location="${build.dir}/${ant.project.name}-${version}-sources.jar" />
 
   <property name="halt.on.failure" value="true" />
 
@@ -53,13 +51,13 @@
   <property name="emma.dir" value="${emma.check}" />
   <property name="emma.enabled" value="true" />
   <property name="emma.filter" value="" />
-  <property name="emma.coverage" value="${module.build.dir}/test/emma-coverage" />
+  <property name="emma.coverage" value="${build.dir}/test/emma-coverage" />
 
   <condition property="findbugs.check" value="${env.FINDBUGS_HOME}" else="/usr/local/findbugs">
     <isset property="env.FINDBUGS_HOME" />
   </condition>
   <property name="findbugs.dir" value="${findbugs.check}" />
-  <property name="findbugs.out" value="${module.build.dir}/findbugs" />
+  <property name="findbugs.out" value="${build.dir}/findbugs" />
 
   <property name="checkstyle.config" value="${root.dir}/checkstyle.xml" />
 
@@ -90,7 +88,7 @@
 
   <presetdef name="nightcode.javac">
     <javac srcdir="${src.dir}"
-           destdir="${module.build.dir}/classes"
+           destdir="${build.dir}/classes"
            debug="true"
            debuglevel="lines,vars,source"
            source="${compiler.version}"
@@ -103,9 +101,9 @@
   </presetdef>
 
   <presetdef name="nightcode.jar">
-    <jar jarfile="${module.lib}"
-         manifest="${module.build.dir}/META-INF/MANIFEST.MF">
-      <fileset dir="${module.build.dir}/classes" />
+    <jar jarfile="${module.jar}"
+         manifest="${build.dir}/META-INF/MANIFEST.MF">
+      <fileset dir="${build.dir}/classes" />
     </jar>
   </presetdef>
 
@@ -124,48 +122,45 @@
   </macrodef>
 
   <target name="clean" description="Cleans this module's generated files.">
-    <delete dir="${module.build.dir}" />
-    <delete dir="${module.docs.dir}" />
-    <delete dir="${module.dist.dir}" />
-    <delete file="${module.lib}" />
+    <delete dir="${build.dir}" />
   </target>
 
   <target name="compile" description="Compile Java source.">
-    <mkdir dir="${module.build.dir}/classes" />
+    <mkdir dir="${build.dir}/classes" />
     <nightcode.javac />
-    <copy toDir="${module.build.dir}/classes">
+    <copy toDir="${build.dir}/classes">
       <fileset dir="${src.dir}" excludes="**/*.java" />
     </copy>
   </target>
 
   <target name="test.compile" depends="compile" description="Compile test source.">
-    <mkdir dir="${module.build.dir}/test" />
-    <nightcode.javac srcdir="${test.dir}" destdir="${module.build.dir}/test">
+    <mkdir dir="${build.dir}/test" />
+    <nightcode.javac srcdir="${test.dir}" destdir="${build.dir}/test">
       <classpath>
-        <pathelement location="${module.build.dir}/classes" />
+        <pathelement location="${build.dir}/classes" />
         <path refid="compile.classpath" />
         <path refid="test.classpath" />
       </classpath>
     </nightcode.javac>
-    <copy toDir="${module.build.dir}/test">
+    <copy toDir="${build.dir}/test">
       <fileset dir="${test.dir}" excludes="**/*.java" />
     </copy>
   </target>
 
   <target name="test" depends="test.compile" description="Execute JUnit tests.">
-    <mkdir dir="${module.build.dir}/test/reports" />
+    <mkdir dir="${build.dir}/test/reports" />
 
     <junit fork="yes" printsummary="yes" failureproperty="test.failure">
       <jvmarg line="-Xmx512m" />
       <jvmarg line="-Xss512k" />
       <classpath>
-        <pathelement location="${module.build.dir}/test" />
-        <pathelement location="${module.build.dir}/classes" />
+        <pathelement location="${build.dir}/test" />
+        <pathelement location="${build.dir}/classes" />
         <path refid="compile.classpath" />
         <path refid="test.classpath" />
       </classpath>
 
-      <batchtest todir="${module.build.dir}/test/reports">
+      <batchtest todir="${build.dir}/test/reports">
         <fileset dir="${test.dir}">
           <include name="**/*Test.java" />
         </fileset>
@@ -185,15 +180,15 @@
   </target>
 
   <target name="emma" depends="test.compile" description="Execute emma task.">
-    <mkdir dir="${module.build.dir}/test/reports" />
+    <mkdir dir="${build.dir}/test/reports" />
 
     <antcall target="emma.mkdirs" />
     <path id="emma.classpath">
-      <pathelement location="${module.build.dir}/classes" />
+      <pathelement location="${build.dir}/classes" />
     </path>
     <emma enabled="${emma.enabled}">
-      <instr instrpathref="emma.classpath" destdir="${module.build.dir}/emma"
-             metadatafile="${module.build.dir}/emma/metadata.emma" merge="false">
+      <instr instrpathref="emma.classpath" destdir="${build.dir}/emma"
+             metadatafile="${build.dir}/emma/metadata.emma" merge="false">
         <filter includes="${module.packagenames}" />
         <filter value="${emma.filter}" />
       </instr>
@@ -205,15 +200,15 @@
       <jvmarg value="-Demma.coverage.out.file=${emma.coverage}/coverage.emma" />
       <jvmarg value="-Demma.coverage.out.merge=true" />
       <classpath>
-        <pathelement location="${module.build.dir}/emma" />
-        <pathelement location="${module.build.dir}/test" />
-        <pathelement location="${module.build.dir}/classes" />
+        <pathelement location="${build.dir}/emma" />
+        <pathelement location="${build.dir}/test" />
+        <pathelement location="${build.dir}/classes" />
         <path refid="compile.classpath" />
         <path refid="test.classpath" />
         <pathelement location="${emma.dir}/lib/emma.jar" />
       </classpath>
 
-      <batchtest todir="${module.build.dir}/test/reports">
+      <batchtest todir="${build.dir}/test/reports">
         <fileset dir="${test.dir}">
           <include name="**/*Test.java" />
         </fileset>
@@ -224,7 +219,7 @@
 
     <emma enabled="${emma.enabled}">
       <report sourcepath="${src.dir}">
-        <fileset file="${module.build.dir}/emma/metadata.emma" />
+        <fileset file="${build.dir}/emma/metadata.emma" />
         <fileset dir="${emma.coverage}">
           <include name="*.emma" />
         </fileset>
@@ -249,43 +244,29 @@
               output="xml" outputFile="${findbugs.out}/findbugs.xml">
       <auxClasspath refid="compile.classpath" />
       <sourcePath path="${src.dir}" />
-      <class location="${module.lib}" />
+      <class location="${module.jar}" />
     </findbugs>
   </target>
 
   <target name="checkstyle" description="Checks source code style">
-    <mkdir dir="${module.build.dir}" />
-    <checkstyle config="${checkstyle.config}" classpath="${module.build.dir}/classes">
+    <mkdir dir="${build.dir}" />
+    <checkstyle config="${checkstyle.config}" classpath="${build.dir}/classes">
       <fileset dir="${src.dir}" includes="**/*.java" />
       <formatter type="plain" />
-      <formatter type="xml" toFile="${module.build.dir}/checkstyle_errors.xml" />
+      <formatter type="xml" toFile="${build.dir}/checkstyle_errors.xml" />
     </checkstyle>
   </target>
 
   <target name="build" depends="compile, manifest" description="Build and package this module.">
-    <mkdir dir="${build.lib.dir}" />
+    <mkdir dir="${build.dir}" />
     <nightcode.jar />
   </target>
 
-  <target name="preparedist" depends="clean, build, test, checkstyle" />
-
-  <target name="moduledist" depends="preparedist, javadoc">
-    <copy toDir="${module.dist.dir}">
-      <file file="${module.lib}" />
-    </copy>
-
-    <jar jarfile="${module.javadoc.jar}">
-      <fileset dir="${module.docs.dir}/javadoc/" />
-    </jar>
-
-    <jar jarfile="${module.sources.jar}">
-      <fileset dir="${src.dir}" />
-    </jar>
-  </target>
+  <target name="dist" depends="clean, build, test, checkstyle, source, javadoc" />
 
   <target name="manifest" description="Generate manifest.">
-    <mkdir dir="${module.build.dir}/META-INF" />
-    <manifest file="${module.build.dir}/META-INF/MANIFEST.MF">
+    <mkdir dir="${build.dir}/META-INF" />
+    <manifest file="${build.dir}/META-INF/MANIFEST.MF">
       <attribute name="Specification-Title" value="${ant.project.name}" />
       <attribute name="Specification-Version" value="${version}" />
       <attribute name="Specification-Vendor" value="NightCode" />
@@ -295,11 +276,19 @@
     </manifest>
   </target>
 
+  <target name="source">
+    <mkdir dir="${build.dir}"/>
+    <jar jarfile="${sources.jar}">
+      <fileset dir="${src.dir}"/>
+    </jar>
+  </target>
+
   <target name="javadoc">
+    <mkdir dir="${build.dir}"/>
     <property name="doclava.classpath" refid="compile.classpath" />
 
     <javadoc packagenames="${module.packagenames}"
-             destdir="${module.docs.dir}"
+             destdir="${docs.dir}"
              docletpath="${lib.dir}/build/doclava-1.0.6.jar"
              bootclasspath="${java.home}/lib/rt.jar"
              maxmemory="256M"
@@ -312,16 +301,19 @@
         <param name="${ant.project.name}" />
         <param name="-apiversion" value="${ant.project.name}_${version}" />
         <param name="-assetsdir" value="javadoc/assets" />
-        <param name="-apixml" value="${module.docs.dir}/${ant.project.name}-${version}.xml" />
+        <param name="-apixml" value="${docs.dir}/${ant.project.name}-${version}.xml" />
       </doclet>
     </javadoc>
-    <move todir="${module.docs.dir}/javadoc"><fileset dir="${module.docs.dir}/reference" /></move>
-    <delete file="${module.docs.dir}/index.html" />
+    <move todir="${docs.dir}/javadoc"><fileset dir="${docs.dir}/reference" /></move>
+    <delete file="${docs.dir}/index.html" />
+    <jar jarfile="${javadoc.jar}">
+      <fileset dir="${docs.dir}/javadoc/" />
+    </jar>
   </target>
 
   <target name="emma.mkdirs" if="emma.enabled">
-    <delete dir="${module.build.dir}/emma" />
-    <mkdir dir="${module.build.dir}/emma" />
+    <delete dir="${build.dir}/emma" />
+    <mkdir dir="${build.dir}/emma" />
     <delete dir="${emma.coverage}" />
     <mkdir dir="${emma.coverage}" />
   </target>
