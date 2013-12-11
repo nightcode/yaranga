@@ -19,14 +19,13 @@ package org.nightcode.common.util.monitoring;
 import org.nightcode.common.base.Objects;
 
 import java.util.concurrent.Future;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Provides {@link Monitoring} implementation.
  */
-public enum MonitoringProvider implements Monitoring {
+public class MonitoringProvider implements Monitoring {
 
-  INSTANCE;
+  private static final MonitoringProvider INSTANCE = new MonitoringProvider();
 
   public static Monitoring get() {
     return INSTANCE;
@@ -37,7 +36,6 @@ public enum MonitoringProvider implements Monitoring {
     INSTANCE.setMonitoringVisitor(monitoringVisitor);
   }
 
-  private final ReentrantLock lock = new ReentrantLock();
   private final MonitoringImpl monitoring;
 
   private MonitoringProvider() {
@@ -92,12 +90,7 @@ public enum MonitoringProvider implements Monitoring {
     monitoring.unregisterMonitoringComponent(monitoringComponent);
   }
 
-  private void setMonitoringVisitor(MonitoringVisitor monitoringVisitor) {
-    lock.lock();
-    try {
-      monitoring.setMonitoringVisitor(monitoringVisitor);
-    } finally {
-      lock.unlock();
-    }
+  private synchronized void setMonitoringVisitor(MonitoringVisitor monitoringVisitor) {
+    monitoring.setMonitoringVisitor(monitoringVisitor);
   }
 }

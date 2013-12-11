@@ -19,9 +19,9 @@ package org.nightcode.common.util.monitoring;
 /**
  *  Null implementation of {@link MonitoringVisitor} interface.
  */
-enum NullMonitoringVisitor implements MonitoringVisitor {
+final class NullMonitoringVisitor implements MonitoringVisitor {
 
-  INSTANCE;
+  private static final MonitoringVisitor INSTANCE = new NullMonitoringVisitor();
 
   public static MonitoringVisitor getInstance() {
     return INSTANCE;
