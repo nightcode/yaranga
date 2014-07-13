@@ -141,7 +141,7 @@ public final class Hexs {
   }
 
   private String fromByteArrayInternal(byte[] bytes, int offset, int length, String byteSeparator) {
-    int capacity = length << 1 + (length - 1) * byteSeparator.length();
+    int capacity = (length << 1) + (length - 1) * byteSeparator.length();
     StringBuilder builder = new StringBuilder(capacity);
     int size = offset + length;
     for (int i = offset; i < size; i++) {
