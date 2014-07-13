@@ -23,7 +23,7 @@ import java.util.concurrent.Future;
 /**
  * Provides {@link Monitoring} implementation.
  */
-public class MonitoringProvider implements Monitoring {
+public final class MonitoringProvider implements Monitoring {
 
   private static final MonitoringProvider INSTANCE = new MonitoringProvider();
 
