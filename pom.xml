@@ -26,7 +26,7 @@
   <groupId>org.nightcode.yaranga</groupId>
   <artifactId>yaranga-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.2</version>
   <name>Yaranga (Parent)</name>
   <description>Useful stuff for Java 1.6+.</description>
   <url>http://github.com/nightcode/yaranga/</url>

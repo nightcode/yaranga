@@ -41,4 +41,9 @@
     <ant antfile="core/build.xml" target="deploy" inheritAll="false"/>
   </target>
 
+  <target name="stage" description="deploy release version to Maven staging repository">
+    <stage pom="pom.xml" file="pom.xml" />
+    <ant antfile="core/build.xml" target="stage" inheritAll="false"/>
+  </target>
+
 </project>

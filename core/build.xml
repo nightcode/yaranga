@@ -18,7 +18,7 @@
 
   <property name="root.dir" location=".." />
   <property name="module.version" value="0.2" />
-  <property name="snapshot" value="true" />
+  <property name="snapshot" value="false" />
 
   <import file="${root.dir}/common.ant.xml" />
   <import file="${root.dir}/common.maven.ant.xml" />
@@ -35,6 +35,14 @@
     <echo message="deploy file: ${module.jar}" />
     <copy file="pom.xml" todir="${build.dir}" />
     <deploy pom="${build.dir}/pom.xml" file="${module.jar}" />
+  </target>
+
+  <target name="stage" depends="dist">
+    <echo message="stage files: ${module.jar} ${sources.jar} ${javadoc.jar}" />
+    <copy file="pom.xml" todir="${build.dir}" />
+    <stage pom="${build.dir}/pom.xml" file="${module.jar}" />
+    <stage.classifier pom="${build.dir}/pom.xml" file="${sources.jar}" classifier="sources" />
+    <stage.classifier pom="${build.dir}/pom.xml" file="${module.jar}" classifier="javadoc" />
   </target>
 
 </project>
