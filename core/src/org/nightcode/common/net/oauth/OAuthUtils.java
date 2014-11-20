@@ -16,7 +16,6 @@
 
 package org.nightcode.common.net.oauth;
 
-import org.nightcode.common.base.Objects;
 import org.nightcode.common.base.StringIterator;
 
 import java.io.UnsupportedEncodingException;
@@ -27,8 +26,11 @@ import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import javax.annotation.Nonnull;
 
 /**
  * OAuth helper class.
@@ -57,7 +59,7 @@ public final class OAuthUtils {
       return encodedValue;
     }
 
-    @Override public int compareTo(RequestParameter requestParameter) {
+    @Override public int compareTo(@Nonnull RequestParameter requestParameter) {
       int result = encodedName.compareTo(requestParameter.encodedName);
       if (result != 0) {
         return  result;
@@ -167,7 +169,7 @@ public final class OAuthUtils {
    */
   public static String normalizeParameters(String requestUrl,
       Map<String, String> protocolParameters) throws OAuthException {
-    SortedSet<RequestParameter> parameters = new TreeSet<RequestParameter>();
+    SortedSet<RequestParameter> parameters = new TreeSet<>();
     int index = requestUrl.indexOf('?');
     if (index > 0) {
       String query = requestUrl.substring(index + 1);

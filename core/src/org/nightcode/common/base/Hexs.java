@@ -62,7 +62,7 @@ public final class Hexs {
    * @return a hexadecimal string representation of each bytes of {@code bytes}
    */
   public String fromByteArray(byte[] bytes) {
-    Objects.nonNull(bytes, "bytes");
+    java.util.Objects.requireNonNull(bytes, "bytes");
     return fromByteArray(bytes, 0, bytes.length);
   }
 
@@ -76,7 +76,7 @@ public final class Hexs {
    * @return a hexadecimal string representation of each bytes of {@code bytes}
    */
   public String fromByteArray(byte[] bytes, int offset, int length) {
-    Objects.nonNull(bytes, "bytes");
+    java.util.Objects.requireNonNull(bytes, "bytes");
     Objects.validArgument(offset >= 0, "offset must be equal or greater than zero");
     Objects.validArgument(length > 0, "length must be greater than zero");
     Objects.validArgument(offset + length <= bytes.length
@@ -95,7 +95,7 @@ public final class Hexs {
    * @return a byte array representation of hexadecimal string {@code hexString}
    */
   public byte[] toByteArray(String hexString) {
-    Objects.nonNull(hexString, "hexadecimal string");
+    java.util.Objects.requireNonNull(hexString, "hexadecimal string");
     Objects.validArgument((hexString.length() & 0x1) == 0
         , "hexadecimal string <%s> must have an even number of characters.", hexString);
     int length = hexString.length();

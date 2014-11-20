@@ -33,13 +33,15 @@ public abstract class AbstractMessageService<M> extends AbstractService
     lock.lock();
     try {
       if (LOGGER.isLoggable(Level.FINEST)) {
-        LOGGER.log(Level.FINEST, "[%s]: message <%s> has been submitted", serviceName(), message);
+        LOGGER.log(Level.FINEST, () -> String.format("[%s]: message <%s> has been submitted"
+            , serviceName(), message));
       }
       process(message);
       return true;
     } catch (Exception ex) {
-      LOGGER.warning("[%s]: exception occurred while submitting message <%s>"
-          , ex, serviceName(), message);
+      LOGGER.log(Level.WARNING, ex
+          , () -> String.format("[%s]: exception occurred while submitting message <%s>"
+          , serviceName(), message));
       return false;
     } finally {
       lock.unlock();

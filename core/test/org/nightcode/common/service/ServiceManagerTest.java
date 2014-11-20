@@ -32,13 +32,13 @@ import static org.junit.Assert.fail;
  * Unit test for {@link ServiceManager}.
  */
 public class ServiceManagerTest {
-  
+
   @Test public void addShutdownHook() {
     ServiceManager serviceManager = ServiceManager.instance();
     assertNotNull(serviceManager);
     assertEquals(serviceManager, ServiceManager.instance());
   }
-  
+
   @Test public void addShutdownHookNull() {
     ServiceManager serviceManager = new ServiceManager();
     try {
@@ -48,13 +48,13 @@ public class ServiceManagerTest {
       assertEquals("service", ex.getMessage());
     }
   }
-  
+
   @Test public void addShutdownHookTwice() {
     Service serviceMock = EasyMock.createMock(Service.class);
-    EasyMock.expect(serviceMock.serviceName()).andReturn("serviceMock").times(4);
-    
+    EasyMock.expect(serviceMock.serviceName()).andReturn("serviceMock").times(3);
+ 
     EasyMock.replay(serviceMock);
-    
+
     ServiceManager serviceManager = new ServiceManager();
     serviceManager.addShutdownHook(serviceMock);
     try {
@@ -63,10 +63,10 @@ public class ServiceManagerTest {
     } catch (IllegalStateException ex) {
       assertEquals("service <serviceMock> has already been added", ex.getMessage());
     }
-    
+
     EasyMock.verify(serviceMock);
   }
-  
+
   @Test public void removeShutdownHookNull() {
     ServiceManager serviceManager = new ServiceManager();
     try {
@@ -76,23 +76,23 @@ public class ServiceManagerTest {
       assertEquals("service", ex.getMessage());
     }
   }
-  
+
   @SuppressWarnings("unchecked")
   @Test public void shutdownAll() throws ExecutionException, TimeoutException, InterruptedException {
     Future<Service.State> stateFutureMock = EasyMock.createMock(Future.class);
     EasyMock.expect(stateFutureMock.get(10 * 1000, TimeUnit.MILLISECONDS))
         .andReturn(Service.State.TERMINATED).once();
-        
+
     Service serviceMock = EasyMock.createStrictMock(Service.class);
-    EasyMock.expect(serviceMock.serviceName()).andReturn("serviceMock").times(2);
+    EasyMock.expect(serviceMock.serviceName()).andReturn("serviceMock").times(1);
     EasyMock.expect(serviceMock.stop()).andReturn(stateFutureMock).once();
 
     EasyMock.replay(serviceMock);
-    
+ 
     ServiceManager serviceManager = new ServiceManager();
     serviceManager.addShutdownHook(serviceMock);
     serviceManager.shutdownAll();
-    
+
     EasyMock.verify(serviceMock);
   }
 }

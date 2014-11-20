@@ -101,7 +101,7 @@ public abstract class AbstractFuture<V> implements Future<V> {
     }
   }
 
-  private final Sync<V> sync = new Sync<V>();
+  private final Sync<V> sync = new Sync<>();
 
   @Override public boolean cancel(boolean mayInterruptIfRunning) {
     return false;

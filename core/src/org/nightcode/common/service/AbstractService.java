@@ -16,13 +16,14 @@
 
 package org.nightcode.common.service;
 
-import org.nightcode.common.base.Objects;
 import org.nightcode.common.util.concurrent.AbstractFuture;
 
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provides default implementations of Service execution methods.
@@ -48,8 +49,7 @@ public abstract class AbstractService implements Service {
     }
   }
 
-  protected static final ServiceLogger LOGGER
-      = ServiceLogger.getLogger(AbstractService.class.getName());
+  protected static final Logger LOGGER = Logger.getLogger(AbstractService.class.getName());
 
   private static final EnumSet<State> STOPPING_STATES = EnumSet.of(State.RUNNING, State.STOPPING);
 
@@ -75,7 +75,7 @@ public abstract class AbstractService implements Service {
   @Override public final Future<State> start() {
     lock.lock();
     try {
-      LOGGER.log(Level.INFO, "[%s]: starting service..", serviceName);
+      LOGGER.log(Level.INFO, () -> String.format("[%s]: starting service..", serviceName));
       if (state == State.NEW) {
         state = State.STARTING;
         doStart();
@@ -96,7 +96,7 @@ public abstract class AbstractService implements Service {
       } else if (state == State.STARTING) {
         stopAfterStart = true;
       } else if (state == State.RUNNING) {
-        LOGGER.log(Level.INFO, "[%s]: stopping service..", serviceName);
+        LOGGER.log(Level.INFO, () -> String.format("[%s]: stopping service..", serviceName));
         state = State.STOPPING;
         doStop();
       }
@@ -141,17 +141,17 @@ public abstract class AbstractService implements Service {
   protected abstract void doStop();
 
   protected void serviceFailed(Throwable cause) {
-    Objects.nonNull(cause, "cause");
+    Objects.requireNonNull(cause, "cause");
     lock.lock();
     try {
       if (state == State.STARTING) {
-        LOGGER.log(Level.WARNING, "[%s]: exception occurred while starting service:", cause
-            , serviceName);
+        LOGGER.log(Level.WARNING, cause,
+            () -> String.format("[%s]: exception occurred while starting service:", serviceName));
         startFuture.failed(cause);
         stopFuture.failed(new Exception("service failed to start", cause));
       } else if (STOPPING_STATES.contains(state)) {
-        LOGGER.log(Level.WARNING, "[%s]: exception occurred while stopping service:", cause
-            , serviceName);
+        LOGGER.log(Level.WARNING, cause,
+            () -> String.format("[%s]: exception occurred while stopping service:", serviceName));
         stopFuture.failed(cause);
       }
       state = State.FAILED;
@@ -163,9 +163,10 @@ public abstract class AbstractService implements Service {
   protected void started() {
     lock.lock();
     try {
-      Objects.validState(state == State.STARTING, "cannot started service when it is %s", state);
+      org.nightcode.common.base.Objects
+          .validState(state == State.STARTING, "cannot started service when it is %s", state);
       state = State.RUNNING;
-      LOGGER.log(Level.INFO, "[%s]: service has been started", serviceName);
+      LOGGER.log(Level.INFO, () -> String.format("[%s]: service has been started", serviceName));
       if (stopAfterStart) {
         stop();
       } else {
@@ -180,7 +181,7 @@ public abstract class AbstractService implements Service {
     lock.lock();
     try {
       state = State.TERMINATED;
-      LOGGER.log(Level.INFO, "[%s]: service has been stopped", serviceName);
+      LOGGER.log(Level.INFO, () -> String.format("[%s]: service has been stopped", serviceName));
       startFuture.succeeded(State.TERMINATED);
       stopFuture.succeeded(State.TERMINATED);
     } finally {

@@ -16,12 +16,12 @@
 
 package org.nightcode.common.service;
 
-import org.nightcode.common.base.Objects;
-
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.inject.Singleton;
 
@@ -31,8 +31,7 @@ import javax.inject.Singleton;
 @Singleton
 public final class ServiceManager {
 
-  private static final ServiceLogger LOGGER
-      = ServiceLogger.getLogger(ServiceManager.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(ServiceManager.class.getName());
 
   private static final long STOPPING_TIMEOUT = 10 * 1000; // timeout, in milliseconds
 
@@ -42,7 +41,7 @@ public final class ServiceManager {
     return INSTANCE;
   }
 
-  private final ConcurrentMap<String, Service> services = new ConcurrentHashMap<String, Service>();
+  private final ConcurrentMap<String, Service> services = new ConcurrentHashMap<>();
 
   // NOTE: package private because of DI frameworks
   ServiceManager() {
@@ -50,34 +49,38 @@ public final class ServiceManager {
   }
 
   public void addShutdownHook(Service service) {
-    Objects.nonNull(service, "service");
+    Objects.requireNonNull(service, "service");
     Service serv = services.putIfAbsent(service.serviceName(), service);
     if (serv != null) {
       throw new IllegalStateException("service <" + service.serviceName()
           + "> has already been added");
     }
-    LOGGER.config("[ServiceManager]: shutdown hook for service <%s> has been added"
-        , service.serviceName());
+    LOGGER.log(Level.CONFIG
+        , () -> String.format("[ServiceManager]: shutdown hook for service <%s> has been added"
+        , service.serviceName()));
   }
 
   public void removeShutdownHook(Service service) {
-    Objects.nonNull(service, "service");
+    Objects.requireNonNull(service, "service");
     Service serv = services.remove(service.serviceName());
     if (serv == null) {
-      LOGGER.info("[ServiceManager]: service <%s> has never been added", service.serviceName());
+      LOGGER.log(Level.INFO, () -> String
+          .format("[ServiceManager]: service <%s> has never been added", service.serviceName()));
     } else {
-      LOGGER.config("[ServiceManager]: shutdown hook for service <%s> has been removed"
-          , service.serviceName());
+      LOGGER.log(Level.CONFIG
+          , () -> String.format("[ServiceManager]: shutdown hook for service <%s> has been removed"
+          , service.serviceName()));
     }
   }
 
   public void shutdownAll() {
     LOGGER.log(Level.INFO, "[ServiceManager]: external termination in progress..");
-    for (Service service : services.values()) {
+    for (final Service service : services.values()) {
       try {
         service.stop().get(STOPPING_TIMEOUT, TimeUnit.MILLISECONDS);
       } catch (Exception ex) {
-        LOGGER.warning("[ServiceManager]: cannot stop service <%s>", ex, service.serviceName());
+        LOGGER.log(Level.WARNING, ex, () -> String
+            .format("[ServiceManager]: cannot stop service <%s>", service.serviceName()));
       }
     }
     services.clear();

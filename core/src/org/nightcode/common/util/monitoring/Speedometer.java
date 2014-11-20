@@ -57,7 +57,7 @@ public final class Speedometer {
   public Speedometer(long averagingPeriod, TimeUnit timeUnit) {
     Objects.validArgument(averagingPeriod > 0L, "averaging period <%s> must be greater than 0"
         , averagingPeriod);
-    Objects.nonNull(timeUnit, "time unit");
+    java.util.Objects.requireNonNull(timeUnit, "time unit");
     this.averagingPeriod = timeUnit.toMicros(averagingPeriod);
   }
 

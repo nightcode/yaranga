@@ -26,6 +26,16 @@
     <ant antfile="core/build.xml" target="clean" inheritAll="false"/>
   </target>
 
+  <target name="build">
+    <delete dir="${build.dir}" />
+    <mkdir dir="${build.dir}" />
+    <ant antfile="core/build.xml" target="build" inheritAll="false"/>
+
+    <copy todir="${build.dir}/core">
+      <fileset dir="core/build" includes="*.jar" />
+    </copy>
+  </target>
+
   <target name="dist">
     <delete dir="${build.dir}" />
     <mkdir dir="${build.dir}" />

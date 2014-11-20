@@ -19,34 +19,11 @@ package org.nightcode.common.base;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Unit test for {@link Objects}.
  */
 public class ObjectsTest {
-
-  @Test public void equal() {
-    assertFalse(Objects.equals("foo", "bar"));
-    assertFalse(Objects.equals("foo", null));
-    assertFalse(Objects.equals(null, "bar"));
-    
-    assertTrue(Objects.equals("foo", "foo"));
-  }
-  
-  @Test public void nonNull() {
-    String message = "error message";
-    try {
-      Objects.nonNull(null, message);
-      fail();
-    } catch (NullPointerException ex) {
-      assertEquals(ex.getMessage(), message);
-    }
-    
-    Objects.nonNull(message, message);
-  }
   
   @Test public void validArgument() {
     String message = "error message";

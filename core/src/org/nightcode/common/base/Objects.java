@@ -16,8 +16,6 @@
 
 package org.nightcode.common.base;
 
-import javax.annotation.Nullable;
-
 /**
  * Objects helper class.
  */
@@ -25,32 +23,6 @@ public final class Objects {
 
   private Objects() {
     // do nothing
-  }
-
-  /**
-   * Returns {@code true} if two objects are equal or both null.
-   *
-   * @param obj1 the first object
-   * @param obj2 the second object
-   * @return {@code true} if two objects are equal or both null
-   */
-  public static boolean equals(@Nullable Object obj1, @Nullable Object obj2) {
-    return obj1 == null ? obj2 == null : obj1.equals(obj2);
-  }
-
-  /**
-   * Checks that an object reference is not null.
-   *
-   * @param reference an object reference
-   * @param message error message
-   * @throws NullPointerException if an object reference is null
-   * @return an object reference
-   */
-  public static <T> T nonNull(T reference, String message) {
-    if (reference == null) {
-      throw new NullPointerException(message);
-    }
-    return reference;
   }
 
   /**

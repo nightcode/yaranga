@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
- Copyright (C) 2008 The NightCode Open Source Project
+ Copyright (C) 2014 The NightCode Open Source Project
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,22 +14,24 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project name="common">
+<project name="common" xmlns:jacoco="antlib:org.jacoco.ant">
 
   <!-- Global Properties -->
   <property environment="env" />
   <property name="src.dir" location="src" />
+  <property name="resources.dir" location="resources" />
   <property name="test.dir" location="test" />
   <property name="lib.dir" location="${root.dir}/lib" />
   <property name="build.dir" location="build" />
   <property name="docs.dir" location="${build.dir}/docs" />
+  <property file="build.properties" />
 
   <tstamp />
-  <condition property="version" value="${module.version}-snapshot${DSTAMP}" else="${module.version}">
-    <istrue value="${snapshot}" />
+  <condition property="version" value="${module.version}" else="${module.version}-snapshot${DSTAMP}">
+    <istrue value="${release}" />
   </condition>
-  <condition property="version.impl" value="${version}${TSTAMP}" else="${version}">
-    <istrue value="${snapshot}" />
+  <condition property="version.impl" value="${version}" else="${version}${TSTAMP}">
+    <istrue value="${release}" />
   </condition>
 
   <property name="module.packagenames" value="org.nightcode.*" />
@@ -39,25 +41,26 @@
 
   <property name="halt.on.failure" value="true" />
 
-  <property name="compiler.version" value="1.6" />
- 
+  <property name="compiler.version" value="1.8" />
+
   <path id="test.classpath">
     <pathelement location="${lib.dir}/build/junit-4.10.jar" />
   </path>
-
-  <condition property="emma.check" value="${env.EMMA_HOME}" else="/usr/local/emma">
-    <isset property="env.EMMA_HOME" />
-  </condition>
-  <property name="emma.dir" value="${emma.check}" />
-  <property name="emma.enabled" value="true" />
-  <property name="emma.filter" value="" />
-  <property name="emma.coverage" value="${build.dir}/test/emma-coverage" />
 
   <condition property="findbugs.check" value="${env.FINDBUGS_HOME}" else="/usr/local/findbugs">
     <isset property="env.FINDBUGS_HOME" />
   </condition>
   <property name="findbugs.dir" value="${findbugs.check}" />
   <property name="findbugs.out" value="${build.dir}/findbugs" />
+
+  <property name="coverage.enabled" value="true" />
+  <property name="coverage.dir" value="${build.dir}/coverage" />
+
+  <condition property="jacoco.check" value="${env.JACOCO_HOME}" else="/usr/local/jacoco">
+    <isset property="env.JACOCO_HOME" />
+  </condition>
+  <property name="jacoco.dir" value="${jacoco.check}" />
+  <property name="jacoco.out" value="${coverage.dir}/jacoco" />
 
   <property name="checkstyle.config" value="${root.dir}/checkstyle.xml" />
 
@@ -67,17 +70,14 @@
     </classpath>
   </taskdef>
 
-  <taskdef resource="emma_ant.properties">
-    <classpath>
-      <pathelement location="${emma.dir}/lib/emma.jar" />
-      <pathelement location="${emma.dir}/lib/emma_ant.jar" />
-    </classpath>
-  </taskdef>
-
   <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask">
     <classpath>
       <pathelement location="${findbugs.dir}/lib/findbugs-ant.jar" />
     </classpath>
+  </taskdef>
+
+  <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+    <classpath path="${jacoco.dir}/lib/jacocoant.jar"/>
   </taskdef>
 
   <taskdef resource="checkstyletask.properties">
@@ -96,8 +96,10 @@
            nowarn="true"
            encoding="utf-8"
            includeantruntime="false">
-        <classpath refid="compile.classpath" />
-      </javac>
+      <classpath refid="compile.classpath" />
+      <compilerarg value="-Xlint:unchecked"/>
+      <compilerarg value="-XDignore.symbol.file"/>
+    </javac>
   </presetdef>
 
   <presetdef name="nightcode.jar">
@@ -129,7 +131,7 @@
     <mkdir dir="${build.dir}/classes" />
     <nightcode.javac />
     <copy toDir="${build.dir}/classes">
-      <fileset dir="${src.dir}" excludes="**/*.java" />
+      <fileset dir="${resources.dir}" excludes="**/*.java" />
     </copy>
   </target>
 
@@ -179,66 +181,6 @@
     <fail message="One or more tests failed for: ${ant.project.name}" if="stop.build" status="2" />
   </target>
 
-  <target name="emma" depends="test.compile" description="Execute emma task.">
-    <mkdir dir="${build.dir}/test/reports" />
-
-    <antcall target="emma.mkdirs" />
-    <path id="emma.classpath">
-      <pathelement location="${build.dir}/classes" />
-    </path>
-    <emma enabled="${emma.enabled}">
-      <instr instrpathref="emma.classpath" destdir="${build.dir}/emma"
-             metadatafile="${build.dir}/emma/metadata.emma" merge="false">
-        <filter includes="${module.packagenames}" />
-        <filter value="${emma.filter}" />
-      </instr>
-    </emma>
-
-    <junit fork="yes" printsummary="yes" failureproperty="test.failure">
-      <jvmarg line="-Xmx512m" />
-      <jvmarg line="-Xss512k" />
-      <jvmarg value="-Demma.coverage.out.file=${emma.coverage}/coverage.emma" />
-      <jvmarg value="-Demma.coverage.out.merge=true" />
-      <classpath>
-        <pathelement location="${build.dir}/emma" />
-        <pathelement location="${build.dir}/test" />
-        <pathelement location="${build.dir}/classes" />
-        <path refid="compile.classpath" />
-        <path refid="test.classpath" />
-        <pathelement location="${emma.dir}/lib/emma.jar" />
-      </classpath>
-
-      <batchtest todir="${build.dir}/test/reports">
-        <fileset dir="${test.dir}">
-          <include name="**/*Test.java" />
-        </fileset>
-        <formatter type="plain" />
-        <formatter type="xml" />
-      </batchtest>
-    </junit>
-
-    <emma enabled="${emma.enabled}">
-      <report sourcepath="${src.dir}">
-        <fileset file="${build.dir}/emma/metadata.emma" />
-        <fileset dir="${emma.coverage}">
-          <include name="*.emma" />
-        </fileset>
-        <txt outfile="${emma.coverage}/coverage.txt" />
-        <xml outfile="${emma.coverage}/coverage.xml" />
-        <html outfile="${emma.coverage}/coverage.html" />
-      </report>
-    </emma>
-
-    <condition property="stop.build" value="true">
-      <and>
-        <istrue value="${halt.on.failure}" />
-        <isset property="test.failure" />
-      </and>
-    </condition>
-
-    <fail message="One or more tests failed for: ${ant.project.name}" if="stop.build" status="2" />
-  </target>
-
   <target name="findbugs" depends="findbugs.mkdirs, build">
     <findbugs home="${findbugs.dir}" effort="max"
               output="xml" outputFile="${findbugs.out}/findbugs.xml">
@@ -248,9 +190,58 @@
     </findbugs>
   </target>
 
+  <target name="coverage" depends="test.compile" description="Execute coverage task.">
+    <antcall target="coverage.mkdirs" />
+
+    <jacoco:coverage enabled="${coverage.enabled}" destfile="${jacoco.out}/jacoco.exec">
+      <junit fork="yes" forkmode="once" printsummary="yes" failureproperty="test.failure">
+        <jvmarg line="-Xmx512m" />
+        <jvmarg line="-Xss512k" />
+        <classpath>
+          <pathelement location="${build.dir}/test" />
+          <pathelement location="${build.dir}/classes" />
+          <path refid="compile.classpath" />
+          <path refid="test.classpath" />
+        </classpath>
+
+        <batchtest todir="${build.dir}/test/reports">
+          <fileset dir="${test.dir}">
+            <include name="**/*Test.java" />
+          </fileset>
+          <formatter type="plain" />
+          <formatter type="xml" />
+        </batchtest>
+      </junit>
+    </jacoco:coverage>
+
+    <condition property="stop.build" value="true">
+      <and>
+        <istrue value="${halt.on.failure}" />
+        <isset property="test.failure" />
+      </and>
+    </condition>
+
+    <fail message="One or more tests failed for: ${ant.project.name}" if="stop.build" status="2" />
+
+    <jacoco:report>
+      <executiondata>
+        <file file="${jacoco.out}/jacoco.exec" />
+      </executiondata>
+      <structure name="${ant.project.name}">
+        <classfiles>
+          <fileset dir="${build.dir}/classes" />
+        </classfiles>
+        <sourcefiles encoding="UTF-8">
+          <fileset dir="${src.dir}" />
+        </sourcefiles>
+      </structure>
+      <html destdir="${jacoco.out}/report" />
+    </jacoco:report>
+  </target>
+
   <target name="checkstyle" description="Checks source code style">
     <mkdir dir="${build.dir}" />
-    <checkstyle config="${checkstyle.config}" classpath="${build.dir}/classes">
+    <checkstyle config="${checkstyle.config}" classpath="${build.dir}/classes" failOnViolation="false">
       <fileset dir="${src.dir}" includes="**/*.java" />
       <formatter type="plain" />
       <formatter type="xml" toFile="${build.dir}/checkstyle_errors.xml" />
@@ -285,37 +276,29 @@
 
   <target name="javadoc">
     <mkdir dir="${build.dir}"/>
-    <property name="doclava.classpath" refid="compile.classpath" />
+    <property name="javadoc.classpath" refid="compile.classpath" />
 
     <javadoc packagenames="${module.packagenames}"
              destdir="${docs.dir}"
-             docletpath="${lib.dir}/build/doclava-1.0.6.jar"
              bootclasspath="${java.home}/lib/rt.jar"
              maxmemory="256M"
-             classpath="${doclava.classpath}">
+             author="true"
+             version="true"
+             use="true"
+             classpath="${javadoc.classpath}">
       <fileset dir="${src.dir}" />
-
-      <doclet name="com.google.doclava.Doclava">
-        <param name="-hdf" />
-        <param name="project.name" />
-        <param name="${ant.project.name}" />
-        <param name="-apiversion" value="${ant.project.name}_${version}" />
-        <param name="-assetsdir" value="javadoc/assets" />
-        <param name="-apixml" value="${docs.dir}/${ant.project.name}-${version}.xml" />
-      </doclet>
+      <arg value="-XDignore.symbol.file"/>
+      <arg value="-Xdoclint:none"/>
     </javadoc>
-    <move todir="${docs.dir}/javadoc"><fileset dir="${docs.dir}/reference" /></move>
-    <delete file="${docs.dir}/index.html" />
     <jar jarfile="${javadoc.jar}">
-      <fileset dir="${docs.dir}/javadoc/" />
+      <fileset dir="${docs.dir}" />
     </jar>
   </target>
 
-  <target name="emma.mkdirs" if="emma.enabled">
-    <delete dir="${build.dir}/emma" />
-    <mkdir dir="${build.dir}/emma" />
-    <delete dir="${emma.coverage}" />
-    <mkdir dir="${emma.coverage}" />
+  <target name="coverage.mkdirs" if="coverage.enabled">
+    <mkdir dir="${build.dir}/test/reports" />
+    <delete dir="${jacoco.out}" />
+    <mkdir dir="${jacoco.out}" />
   </target>
 
   <target name="findbugs.mkdirs">

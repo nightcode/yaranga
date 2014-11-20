@@ -56,11 +56,7 @@ public final class Splitter {
     }
   }
 
-  private static final Matcher NONE = new Matcher() {
-    @Override public boolean matches(char c) {
-      return false;
-    }
-  };
+  private static final Matcher NONE = c -> false;
 
   /**
    * Returns a splitter that uses the given fixed
@@ -93,8 +89,8 @@ public final class Splitter {
    * @return a map of key/value pairs
    */
   public Map<String, String> split(final CharSequence source) {
-    Objects.nonNull(source, "source");
-    Map<String, String> parameters = new HashMap<String, String>();
+    java.util.Objects.requireNonNull(source, "source");
+    Map<String, String> parameters = new HashMap<>();
     Iterator<String> i = new StringIterator(source, pairSeparator);
     while (i.hasNext()) {
       String keyValue = i.next();

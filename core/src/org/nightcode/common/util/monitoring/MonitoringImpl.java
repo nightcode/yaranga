@@ -16,11 +16,11 @@
 
 package org.nightcode.common.util.monitoring;
 
-import org.nightcode.common.base.Objects;
 import org.nightcode.common.service.AbstractThreadService;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 
@@ -35,8 +35,7 @@ public final class MonitoringImpl extends AbstractThreadService implements Monit
 
   static final String DEF_RETRIEVE_TIMEOUT = "5000";
 
-  private final List<MonitoringComponent> monitoringComponents
-      = new CopyOnWriteArrayList<MonitoringComponent>();
+  private final List<MonitoringComponent> monitoringComponents = new CopyOnWriteArrayList<>();
 
   private volatile MonitoringVisitor monitoringVisitor;
   private final long retrieveTimeout;
@@ -50,7 +49,7 @@ public final class MonitoringImpl extends AbstractThreadService implements Monit
   }
 
   @Override public void registerMonitoringComponent(MonitoringComponent monitoringComponent) {
-    Objects.nonNull(monitoringComponent, "monitoring component");
+    Objects.requireNonNull(monitoringComponent, "monitoring component");
     monitoringComponents.add(monitoringComponent);
   }
 
@@ -87,8 +86,8 @@ public final class MonitoringImpl extends AbstractThreadService implements Monit
       try {
         monitoringComponent.retrieveData(monitoringVisitor);
       } catch (IOException ex) {
-        LOGGER.log(Level.WARNING, "Cannot retrieve data from component <%s>.", ex,
-            monitoringComponent);
+        LOGGER.log(Level.WARNING, ex, () -> String
+            .format("Cannot retrieve data from component <%s>.", monitoringComponent));
       }
     }
     Thread.sleep(retrieveTimeout);

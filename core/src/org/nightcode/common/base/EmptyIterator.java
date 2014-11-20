@@ -26,7 +26,7 @@ import java.util.NoSuchElementException;
  */
 public final class EmptyIterator<E> extends ReadOnlyIterator<E> {
 
-  private static final Iterator<?> INSTANCE = new EmptyIterator<Object>();
+  private static final Iterator<?> INSTANCE = new EmptyIterator<>();
 
   private EmptyIterator() {
     // do nothing

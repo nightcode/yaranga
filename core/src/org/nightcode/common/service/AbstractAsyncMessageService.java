@@ -34,11 +34,11 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
   private final boolean skipMessageStrategy;
 
   public AbstractAsyncMessageService(String serviceName) {
-    this(serviceName, new LinkedBlockingQueue<M>(), DEFAULT_SKIP_MESSAGE_STRATEGY);
+    this(serviceName, new LinkedBlockingQueue<>(), DEFAULT_SKIP_MESSAGE_STRATEGY);
   }
 
   public AbstractAsyncMessageService(String serviceName, boolean skipMessageStrategy) {
-    this(serviceName, new LinkedBlockingQueue<M>(), skipMessageStrategy);
+    this(serviceName, new LinkedBlockingQueue<>(), skipMessageStrategy);
   }
 
   public AbstractAsyncMessageService(String serviceName, BlockingQueue<M> queue) {
@@ -57,23 +57,25 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
     if (skipMessageStrategy) {
       submitted = queue.offer(message);
       if (!submitted) {
-        LOGGER.log(Level.INFO, "[%s]: message <%s> has been skipped (queue remaining capacity %s)"
-            , serviceName(), message, queue.remainingCapacity());
+        LOGGER.log(Level.INFO, () -> String
+            .format("[%s]: message <%s> has been skipped (queue remaining capacity %s)"
+            , serviceName(), message, queue.remainingCapacity()));
       }
     } else {
       try {
         if (queue.remainingCapacity() == 0) {
-          LOGGER.log(Level.INFO
-              , "[%s]: queue capacity has been reached <%s> (waiting for space to become available)"
-              , serviceName(), queue.size());
+          LOGGER.log(Level.INFO, () -> String.format(
+              "[%s]: queue capacity has been reached <%s> (waiting for space to become available)"
+              , serviceName(), queue.size()));
         }
         if (LOGGER.isLoggable(Level.FINEST)) {
-          LOGGER.log(Level.FINEST, "[%s]: message <%s> has been submitted", serviceName(), message);
+          LOGGER.log(Level.FINEST, () -> String.format("[%s]: message <%s> has been submitted"
+              , serviceName(), message));
         }
         queue.put(message);
         submitted = true;
       } catch (InterruptedException ex) {
-        LOGGER.log(Level.WARNING, "[%s]: exception:", ex, serviceName());
+        LOGGER.log(Level.WARNING, ex, () -> String.format("[%s]: exception:", serviceName()));
         submitted = false;
       }
     }

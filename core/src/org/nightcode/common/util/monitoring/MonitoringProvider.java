@@ -16,8 +16,7 @@
 
 package org.nightcode.common.util.monitoring;
 
-import org.nightcode.common.base.Objects;
-
+import java.util.Objects;
 import java.util.concurrent.Future;
 
 /**
@@ -32,7 +31,7 @@ public final class MonitoringProvider implements Monitoring {
   }
 
   public static void initialize(MonitoringVisitor monitoringVisitor) {
-    Objects.nonNull(monitoringVisitor, "monitoring visitor");
+    Objects.requireNonNull(monitoringVisitor, "monitoring visitor");
     INSTANCE.setMonitoringVisitor(monitoringVisitor);
   }
 
