@@ -17,8 +17,7 @@
 <project name="yaranga" default="build" basedir=".">
 
   <property name="root.dir" location=".." />
-  <property name="module.version" value="0.3" />
-  <property name="snapshot" value="true" />
+  <property file="${root.dir}/build.properties" />
 
   <import file="${root.dir}/common.ant.xml" />
   <import file="${root.dir}/common.maven.ant.xml" />
