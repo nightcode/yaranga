@@ -26,8 +26,8 @@
   <groupId>org.nightcode.yaranga</groupId>
   <artifactId>yaranga-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.3</version>
-  <name>Yaranga (Parent)</name>
+  <version>0.4-SNAPSHOT</version>
+  <name>Yaranga (Parent) ${project.version}</name>
   <description>Useful stuff for Java 1.8+.</description>
   <url>http://github.com/nightcode/yaranga/</url>
 
