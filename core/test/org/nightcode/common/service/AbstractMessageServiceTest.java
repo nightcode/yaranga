@@ -16,9 +16,12 @@
 
 package org.nightcode.common.service;
 
+import org.nightcode.common.base.Throwables;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -65,13 +68,40 @@ public class AbstractMessageServiceTest {
 
       @Override protected void process(Boolean message) throws Exception {
         counter.incrementAndGet();
-        throw new Exception("This service always throws exception "
-          + "when calling process() method.");
+        throw new Exception("This service always throws exception when calling process() method.");
       }
     };
     service.start().get();
     boolean actual = service.submit(Boolean.TRUE);
     assertEquals(false, actual);
+    assertEquals(1, counter.get());
+  }
+
+  @Test public void submitFailedPropagate() throws Exception {
+    final AtomicInteger counter = new AtomicInteger(0);
+    MessageService<Boolean> service
+        = new AbstractMessageService<Boolean>("MessageServiceTest", true) {
+      @Override protected void doStart() {
+        started();
+      }
+
+      @Override protected void doStop() {
+        stopped();
+      }
+
+      @Override protected void process(Boolean message) throws Exception {
+        counter.incrementAndGet();
+        throw new Exception("This service always throws exception when calling process() method.");
+      }
+    };
+    service.start().get();
+    try {
+      service.submit(Boolean.TRUE);
+      Assert.fail();
+    } catch(Exception ex) {
+      Assert.assertEquals("This service always throws exception when calling process() method."
+          , Throwables.getRootCause(ex).getMessage());
+    }
     assertEquals(1, counter.get());
   }
 }

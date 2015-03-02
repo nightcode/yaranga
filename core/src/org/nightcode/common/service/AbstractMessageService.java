@@ -16,6 +16,8 @@
 
 package org.nightcode.common.service;
 
+import org.nightcode.common.base.Throwables;
+
 import java.util.logging.Level;
 
 /**
@@ -25,8 +27,15 @@ import java.util.logging.Level;
 public abstract class AbstractMessageService<M> extends AbstractService
     implements MessageService<M> {
 
+  private final boolean propagateException;
+
   protected AbstractMessageService(String serviceName) {
+    this(serviceName, false);
+  }
+
+  protected AbstractMessageService(String serviceName, boolean propagateException) {
     super(serviceName);
+    this.propagateException = propagateException;
   }
 
   @Override public boolean submit(M message) {
@@ -39,10 +48,13 @@ public abstract class AbstractMessageService<M> extends AbstractService
       process(message);
       return true;
     } catch (Exception ex) {
-      LOGGER.log(Level.WARNING, ex
-          , () -> String.format("[%s]: exception occurred while submitting message <%s>"
-          , serviceName(), message));
-      return false;
+      if (!propagateException) {
+        LOGGER.log(Level.WARNING, ex
+            , () -> String.format("[%s]: exception occurred while submitting message <%s>"
+            , serviceName(), message));
+        return false;
+      }
+      throw Throwables.propagate(ex);
     } finally {
       lock.unlock();
     }

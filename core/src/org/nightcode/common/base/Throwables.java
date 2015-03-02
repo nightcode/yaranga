@@ -32,4 +32,14 @@ public final class Throwables {
     }
     return throwable;
   }
+
+  public static RuntimeException propagate(Throwable throwable) {
+    java.util.Objects.requireNonNull(throwable);
+    if (Error.class.isInstance(throwable)) {
+      throw Error.class.cast(throwable);
+    } else if (RuntimeException.class.isInstance(throwable)) {
+      throw RuntimeException.class.cast(throwable);
+    }
+    throw new RuntimeException(throwable);
+  }
 }
