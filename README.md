@@ -1,6 +1,7 @@
 # Yaranga 
 
-[![Build Status](https://travis-ci.org/nightcode/yaranga.svg)](https://travis-ci.org/nightcode/yaranga)
+[![Build Status](https://travis-ci.org/nightcode/yaranga.svg?branch=master)](https://travis-ci.org/nightcode/yaranga)
+[![Maven Central](https://img.shields.io/maven-central/v/org.nightcode.yaranga/yaranga.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3Aorg.nightcode.yaranga%20a%3Ayaranga)
 
 Useful stuff for Java 1.8+.
 
@@ -12,7 +13,7 @@ Download [the latest jar][1] via Maven:
 <dependency>
   <groupId>org.nightcode.yaranga</groupId>
   <artifactId>yaranga</artifactId>
-  <version>0.4</version>
+  <version>0.4.1</version>
 </dependency>
 ```
 
