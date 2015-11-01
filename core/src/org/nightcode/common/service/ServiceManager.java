@@ -16,9 +16,12 @@
 
 package org.nightcode.common.service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,8 +35,6 @@ import javax.inject.Singleton;
 public final class ServiceManager {
 
   private static final Logger LOGGER = Logger.getLogger(ServiceManager.class.getName());
-
-  private static final long STOPPING_TIMEOUT = 10 * 1000; // timeout, in milliseconds
 
   private static final ServiceManager INSTANCE = new ServiceManager();
 
@@ -75,14 +76,34 @@ public final class ServiceManager {
 
   public void shutdownAll() {
     LOGGER.log(Level.INFO, "[ServiceManager]: external termination in progress..");
+    Map<String, Future<Service.State>> futures = new HashMap<>();
     for (final Service service : services.values()) {
-      try {
-        service.stop().get(STOPPING_TIMEOUT, TimeUnit.MILLISECONDS);
-      } catch (Exception ex) {
-        LOGGER.log(Level.WARNING, ex, () -> String
-            .format("[ServiceManager]: cannot stop service <%s>", service.serviceName()));
-      }
+        futures.put(service.serviceName(), service.stop());
     }
+    futures.entrySet().forEach(e -> {
+      try {
+        e.getValue().get();
+      } catch (Exception ex) {
+        LOGGER.log(Level.WARNING, ex, () -> String.format("[ServiceManager]: cannot stop service <%s>", e.getKey()));
+      }
+      
+    });
+    services.clear();
+  }
+
+  public void shutdownAll(long timeout, TimeUnit unit) {
+    LOGGER.log(Level.INFO, "[ServiceManager]: external termination in progress..");
+    Map<String, Future<Service.State>> futures = new HashMap<>();
+    for (final Service service : services.values()) {
+        futures.put(service.serviceName(), service.stop());
+    }
+    futures.entrySet().forEach(e -> {
+      try {
+        e.getValue().get(timeout, unit);
+      } catch (Exception ex) {
+        LOGGER.log(Level.WARNING, ex, () -> String.format("[ServiceManager]: cannot stop service <%s>", e.getKey()));
+      }
+    });
     services.clear();
   }
 }

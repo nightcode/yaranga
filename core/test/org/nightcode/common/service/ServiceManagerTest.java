@@ -78,20 +78,38 @@ public class ServiceManagerTest {
   }
 
   @SuppressWarnings("unchecked")
-  @Test public void shutdownAll() throws ExecutionException, TimeoutException, InterruptedException {
+  @Test public void shutdownAll()
+      throws ExecutionException, TimeoutException, InterruptedException {
     Future<Service.State> stateFutureMock = EasyMock.createMock(Future.class);
-    EasyMock.expect(stateFutureMock.get(10 * 1000, TimeUnit.MILLISECONDS))
-        .andReturn(Service.State.TERMINATED).once();
 
     Service serviceMock = EasyMock.createStrictMock(Service.class);
-    EasyMock.expect(serviceMock.serviceName()).andReturn("serviceMock").times(1);
+    EasyMock.expect(serviceMock.serviceName()).andReturn("serviceMock").times(2);
     EasyMock.expect(serviceMock.stop()).andReturn(stateFutureMock).once();
-
+    EasyMock.expect(stateFutureMock.get()).andReturn(Service.State.TERMINATED).once();
     EasyMock.replay(serviceMock);
  
     ServiceManager serviceManager = new ServiceManager();
     serviceManager.addShutdownHook(serviceMock);
     serviceManager.shutdownAll();
+
+    EasyMock.verify(serviceMock);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test public void shutdownAllWithTimeout()
+      throws ExecutionException, TimeoutException, InterruptedException {
+    Future<Service.State> stateFutureMock = EasyMock.createMock(Future.class);
+
+    Service serviceMock = EasyMock.createStrictMock(Service.class);
+    EasyMock.expect(serviceMock.serviceName()).andReturn("serviceMock").times(2);
+    EasyMock.expect(serviceMock.stop()).andReturn(stateFutureMock).once();
+    EasyMock.expect(stateFutureMock.get(10 * 1000, TimeUnit.MILLISECONDS))
+        .andReturn(Service.State.TERMINATED).once();
+    EasyMock.replay(serviceMock);
+ 
+    ServiceManager serviceManager = new ServiceManager();
+    serviceManager.addShutdownHook(serviceMock);
+    serviceManager.shutdownAll(10 * 1000, TimeUnit.MILLISECONDS);
 
     EasyMock.verify(serviceMock);
   }
