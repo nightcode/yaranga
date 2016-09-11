@@ -74,8 +74,7 @@ public class AbstractThreadServiceTest {
   @Test public void startCalledException() {
     AbstractThreadService service = new AbstractThreadService("test") {
       @Override protected void onStart() throws Exception {
-        throw new RuntimeException("This service always throws exception " 
-            + "when calling onStart() method.");
+        throw new RuntimeException("This service always throws exception when calling onStart() method.");
       }
 
       @Override protected void service() throws Exception {
@@ -86,19 +85,17 @@ public class AbstractThreadServiceTest {
     assertEquals(0x00, service.state());
     try {
       service.start().get();
+      fail("should throw exception");
     } catch (Throwable th) {
       assertTrue(th.getMessage().contains("This service always throws exception when calling onStart() method."));
       assertEquals(0x20, service.state());
-      return;
     }
-    fail();
   }
 
   @Test public void startCalledExceptionCheckStopFuture() {
     AbstractThreadService service = new AbstractThreadService("test") {
       @Override protected void onStart() throws Exception {
-        throw new RuntimeException("This service always throws exception " 
-            + "when calling onStart() method.");
+        throw new RuntimeException("This service always throws exception when calling onStart() method.");
       }
 
       @Override protected void service() throws Exception {
@@ -110,19 +107,17 @@ public class AbstractThreadServiceTest {
     try {
       service.start().get();
     } catch (Throwable th) {
-      assertTrue(th.getMessage().contains("This service always throws exception "
-          + "when calling onStart() method."));
+      assertTrue(th.getMessage().contains("This service always throws exception when calling onStart() method."));
       assertEquals(0x20, service.state());
 
       try {
         service.stop().get();
+        fail("should throw exception");
       } catch (Throwable t) {
         assertTrue(t.getMessage().contains("service failed to start"));
         assertEquals(0x20, service.state());
-        return;
       }
     }
-    fail();
   }
   
   @Test public void stopCalled() throws ExecutionException, InterruptedException {
@@ -217,8 +212,7 @@ public class AbstractThreadServiceTest {
       }
 
       @Override protected void service() throws Exception {
-        throw new RuntimeException("This service always throws exception "
-            + "when calling service() method.");
+        throw new RuntimeException("This service always throws exception when calling service() method.");
       }
     };
     
@@ -275,8 +269,7 @@ public class AbstractThreadServiceTest {
         serviceCounter.incrementAndGet();
         if (firstTime.get()) {
           firstTime.set(false);
-          throw new RuntimeException("This service always throws exception "
-              + "when calling service() method.");
+          throw new RuntimeException("This service always throws exception when calling service() method.");
         } else {
           Thread.sleep(Long.MAX_VALUE);          
         }
@@ -293,13 +286,11 @@ public class AbstractThreadServiceTest {
   @Test public void unexpectedException() throws ExecutionException, InterruptedException {
     Service service = new AbstractThreadService("test") {
       @Override protected void onStop() throws Exception {
-        throw new RuntimeException("This service always throws exception "
-              + "when calling onStop() method.");
+        throw new RuntimeException("This service always throws exception when calling onStop() method.");
       }
 
       @Override protected void service() throws Exception {
-        throw new AssertionError("This service always throws error "
-              + "when calling service() method.");
+        throw new AssertionError("This service always throws error when calling service() method.");
       }
     };
     service.start().get();

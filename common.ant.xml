@@ -166,7 +166,7 @@
         <fileset dir="${test.dir}">
           <include name="**/*Test.java" />
         </fileset>
-        <formatter type="plain" />
+        <formatter type="plain" usefile="false" />
         <formatter type="xml" />
       </batchtest>
     </junit>
