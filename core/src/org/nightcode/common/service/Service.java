@@ -25,15 +25,12 @@ import java.util.concurrent.Future;
 public interface Service {
 
   /**
-   * The states of a service.
+   * Public states of a service.
    */
-  public enum State {
+  enum State {
     NEW,
-    STARTING,
     RUNNING,
-    STOPPING,
-    TERMINATED,
-    FAILED
+    TERMINATED
   }
 
   /**
@@ -48,13 +45,6 @@ public interface Service {
    * @return a Future representing the result of service's startup.
    */
   Future<State> start();
-
-  /**
-   * Returns the current state of the service.
-   *
-   * @return the current state of the service
-   */
-  State state();
 
   /**
    * Stops the service.

@@ -18,6 +18,7 @@ package org.nightcode.common.service;
 
 import org.nightcode.common.base.Throwables;
 
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
 /**
@@ -38,26 +39,36 @@ public abstract class AbstractMessageService<M> extends AbstractService
     this.propagateException = propagateException;
   }
 
+  @Override public int awaitProcessingCount() {
+    return 0;
+  }
+
+  @Override public void shutdown() {
+    super.shutdown();
+  }
+
   @Override public boolean submit(M message) {
-    lock.lock();
-    try {
-      if (LOGGER.isLoggable(Level.FINEST)) {
-        LOGGER.log(Level.FINEST, () -> String.format("[%s]: message <%s> has been submitted"
+    int s = state.get();
+    if (isRunning(s)) {
+      final ReentrantLock mainLock = this.lock;
+      mainLock.lock();
+      try {
+        int recheck = state.get();
+        if (isRunning(recheck)) {
+          process(message);
+          return true;
+        }
+      } catch (Exception ex) {
+        if (propagateException) {
+          throw Throwables.propagate(ex);
+        }
+        LOGGER.log(Level.WARNING, ex, () -> String.format("[%s]: exception occurred while submitting message <%s>"
             , serviceName(), message));
+      } finally {
+        mainLock.unlock();
       }
-      process(message);
-      return true;
-    } catch (Exception ex) {
-      if (!propagateException) {
-        LOGGER.log(Level.WARNING, ex
-            , () -> String.format("[%s]: exception occurred while submitting message <%s>"
-            , serviceName(), message));
-        return false;
-      }
-      throw Throwables.propagate(ex);
-    } finally {
-      lock.unlock();
     }
+    return false;
   }
 
   /**

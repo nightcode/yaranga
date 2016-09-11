@@ -18,6 +18,7 @@ package org.nightcode.common.service;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
@@ -52,34 +53,54 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
     this.skipMessageStrategy = skipMessageStrategy;
   }
 
+  @Override public int awaitProcessingCount() {
+    return queue.size();
+  }
+
+  @Override public void shutdown() {
+    super.shutdown();
+  }
+
   public boolean submit(M message) {
-    boolean submitted;
+    int s = state();
+    if (!AbstractService.isRunning(s)) {
+      return false;
+    }
+
     if (skipMessageStrategy) {
-      submitted = queue.offer(message);
-      if (!submitted) {
-        LOGGER.log(Level.INFO, () -> String
-            .format("[%s]: message <%s> has been skipped (queue remaining capacity %s)"
-            , serviceName(), message, queue.remainingCapacity()));
+      if (queue.offer(message)) {
+        int recheck = state();
+        if (!AbstractService.isRunning(recheck) && queue.remove(message)) {
+          LOGGER.log(Level.INFO, () -> String.format("[%s]: message <%s> has been skipped (queue remaining capacity %s)"
+              , serviceName(), message, queue.remainingCapacity()));
+          return false;
+        }
+        return true;
       }
     } else {
-      try {
-        if (queue.remainingCapacity() == 0) {
-          LOGGER.log(Level.INFO, () -> String.format(
-              "[%s]: queue capacity has been reached <%s> (waiting for space to become available)"
-              , serviceName(), queue.size()));
+      if (queue.remainingCapacity() == 0) {
+        LOGGER.log(Level.INFO, () -> String
+            .format("[%s]: queue capacity has been reached <%s> (waiting for space to become available)"
+                , serviceName(), queue.size()));
+      }
+      for (;;) {
+        try {
+          if (queue.offer(message, 100, TimeUnit.MILLISECONDS)) {
+            int recheck = state();
+            if (!AbstractService.isRunning(recheck) && queue.remove(message)) {
+              LOGGER.log(Level.INFO
+                  , () -> String.format("[%s]: message <%s> has been rejected", serviceName(), message));
+              return false;
+            }
+            return true;
+          }
+        } catch (InterruptedException ex) {
+          LOGGER.log(Level.WARNING, ex, () -> String.format("[%s]: exception:", serviceName()));
+          Thread.currentThread().interrupt();
         }
-        if (LOGGER.isLoggable(Level.FINEST)) {
-          LOGGER.log(Level.FINEST, () -> String.format("[%s]: message <%s> has been submitted"
-              , serviceName(), message));
-        }
-        queue.put(message);
-        submitted = true;
-      } catch (InterruptedException ex) {
-        LOGGER.log(Level.WARNING, ex, () -> String.format("[%s]: exception:", serviceName()));
-        submitted = false;
       }
     }
-    return submitted;
+    return false;
   }
 
   protected abstract void process(M message) throws Exception;

@@ -62,7 +62,7 @@ public class AbstractServiceTest {
   }
   
   @Test public void startCalled() throws ExecutionException, InterruptedException {
-    Service service = new AbstractService("test") {
+    AbstractService service = new AbstractService("test") {
       @Override protected void doStart() {
         started();
       }
@@ -72,13 +72,13 @@ public class AbstractServiceTest {
       }
     };
     
-    assertEquals(State.NEW, service.state());
+    assertEquals(0x00, service.state.get());
     service.start();
-    assertEquals(State.RUNNING, service.state());
+    assertEquals(0x02, service.state.get());
   }
 
   @Test public void startCalledException() {
-    Service service = new AbstractService("test") {
+    AbstractService service = new AbstractService("test") {
       @Override protected void doStart() {
         throw new RuntimeException("This service always throws exception "
             + "when calling doStart() method.");
@@ -90,20 +90,20 @@ public class AbstractServiceTest {
       }
     };
 
-    assertEquals(State.NEW, service.state());
+    assertEquals(0x00, service.state.get());
     try {
       service.start().get();
     } catch (Throwable th) {
       assertTrue(th.getMessage().contains("This service always throws exception "
           + "when calling doStart() method."));
-      assertEquals(State.FAILED, service.state());
+      assertEquals(0x20, service.state.get());
       return;
     }
     fail();
   }
 
   @Test public void startCalledExceptionCheckStopFuture() {
-    Service service = new AbstractService("test") {
+    AbstractService service = new AbstractService("test") {
       @Override protected void doStart() {
         throw new RuntimeException("This service always throws exception "
             + "when calling doStart() method.");
@@ -115,19 +115,19 @@ public class AbstractServiceTest {
       }
     };
 
-    assertEquals(State.NEW, service.state());
+    assertEquals(0x00, service.state.get());
     try {
       service.start().get();
     } catch (Throwable th) {
       assertTrue(th.getMessage().contains("This service always throws exception "
           + "when calling doStart() method."));
-      assertEquals(State.FAILED, service.state());
+      assertEquals(0x20, service.state.get());
 
       try {
         service.stop().get();
       } catch (Throwable t) {
         assertTrue(t.getMessage().contains("service failed to start"));
-        assertEquals(State.FAILED, service.state());
+        assertEquals(0x20, service.state.get());
         return;
       }
     }
@@ -135,7 +135,7 @@ public class AbstractServiceTest {
   }
 
   @Test public void stopCalled() {
-    Service service = new AbstractService("test") {
+    AbstractService service = new AbstractService("test") {
       @Override protected void doStart() {
         started();
       }
@@ -144,14 +144,14 @@ public class AbstractServiceTest {
         stopped();
       }
     };
-    assertEquals(State.NEW, service.state());
+    assertEquals(0x00, service.state.get());
     service.start();
     service.stop();
-    assertEquals(State.TERMINATED, service.state());
+    assertEquals(0x10, service.state.get());
   }
   
   @Test public void stopNewAbstractServiceCalled() throws ExecutionException, InterruptedException {
-    Service service = new AbstractService("test") {
+    AbstractService service = new AbstractService("test") {
       @Override protected void doStart() {
         started();
       }
@@ -160,16 +160,16 @@ public class AbstractServiceTest {
         stopped();
       }
     };
-    assertEquals(State.NEW, service.state());
+    assertEquals(0x00, service.state.get());
     service.stop();
-    assertEquals(State.TERMINATED, service.state());
+    assertEquals(0x10, service.state.get());
     assertEquals(State.TERMINATED, service.start().get());
     assertEquals(State.TERMINATED, service.stop().get());
   }
   
   @Test public void stopCalledException()
       throws ExecutionException, InterruptedException {
-    Service service = new AbstractService("test") {
+    AbstractService service = new AbstractService("test") {
       @Override protected void doStart() {
         started();
       }
@@ -180,33 +180,18 @@ public class AbstractServiceTest {
       }
     };
 
-    assertEquals(State.NEW, service.state());
+    assertEquals(0x00, service.state.get());
     service.start();
-    assertEquals(State.RUNNING, service.state());
+    assertEquals(0x02, service.state.get());
     try {
       service.stop().get();
     } catch (Throwable th) {
       assertTrue(th.getMessage().contains("This service always throws exception "
           + "when calling doStop() method."));
-      assertEquals(State.FAILED, service.state());
+      assertEquals(0x20, service.state.get());
       return;
     }
     fail();
-  }
-  
-  @Test public void setState() {
-    AbstractService service = new AbstractService("ServiceTest") {
-      @Override protected void doStart() {
-        started();
-      }
-
-      @Override protected void doStop() {
-        stopped();
-      }
-    };
-    assertEquals(State.NEW, service.state());
-    service.setState(State.FAILED);
-    assertEquals(State.FAILED, service.state());
   }
   
   @Test public void serviceFailedNull() {
@@ -241,7 +226,7 @@ public class AbstractServiceTest {
       service.started();
       fail("started must throw IllegalStateException");
     } catch (IllegalStateException ex) {
-      assertEquals("cannot started service when it is NEW", ex.getMessage());
+      assertEquals("cannot start service when it is 0", ex.getMessage());
     }
   }
 }

@@ -18,9 +18,9 @@ package org.nightcode.common.service;
 
 import org.nightcode.common.util.concurrent.AbstractFuture;
 
-import java.util.EnumSet;
 import java.util.Objects;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,7 +51,17 @@ public abstract class AbstractService implements Service {
 
   protected static final Logger LOGGER = Logger.getLogger(AbstractService.class.getName());
 
-  private static final EnumSet<State> STOPPING_STATES = EnumSet.of(State.RUNNING, State.STOPPING);
+  private static final int NEW        = 0x00000000;
+  private static final int STARTING   = 0x00000001;
+  private static final int RUNNING    = 0x00000002;
+  private static final int SHUTDOWN   = 0x00000004;
+  private static final int STOPPING   = 0x00000008;
+  private static final int TERMINATED = 0x00000010;
+  private static final int FAILED     = 0x00000020;
+  
+  static boolean isRunning(int s) {
+    return s < SHUTDOWN;
+  }
 
   final ReentrantLock lock = new ReentrantLock();
 
@@ -60,7 +70,7 @@ public abstract class AbstractService implements Service {
 
   private final String serviceName;
 
-  private State state = State.NEW;
+  final AtomicInteger state = new AtomicInteger(NEW);
 
   private volatile boolean stopAfterStart = false;
 
@@ -73,55 +83,57 @@ public abstract class AbstractService implements Service {
   }
 
   @Override public final Future<State> start() {
-    lock.lock();
-    try {
-      LOGGER.log(Level.INFO, () -> String.format("[%s]: starting service..", serviceName));
-      if (state == State.NEW) {
-        state = State.STARTING;
-        doStart();
+    int s = state.get();
+    if (s < RUNNING) {
+      final ReentrantLock mainLock = this.lock;
+      mainLock.lock();
+      try {
+        if (state.compareAndSet(s, STARTING)) {
+          LOGGER.log(Level.INFO, () -> String.format("[%s]: starting service..", serviceName));
+          doStart();
+        }
+      } catch (Throwable th) {
+        serviceFailed(th);
+      } finally {
+        mainLock.unlock();
       }
-    } catch (Throwable th) {
-      serviceFailed(th);
-    } finally {
-      lock.unlock();
     }
     return startFuture;
   }
 
   @Override public final Future<State> stop() {
-    lock.lock();
-    try {
-      if (state == State.NEW) {
-        stopped();
-      } else if (state == State.STARTING) {
-        stopAfterStart = true;
-      } else if (state == State.RUNNING) {
-        LOGGER.log(Level.INFO, () -> String.format("[%s]: stopping service..", serviceName));
-        state = State.STOPPING;
-        doStop();
+    int s = state.get();
+    if (s < STOPPING) {
+      final ReentrantLock mainLock = this.lock;
+      mainLock.lock();
+      try {
+        s = state.get();
+        if (s < STARTING) {
+          stopped();
+        } else if (s < RUNNING) {
+          stopAfterStart = true;
+        } else if (s < STOPPING && state.compareAndSet(s, STOPPING)) {
+          LOGGER.log(Level.INFO, () -> String.format("[%s]: stopping service..", serviceName));
+          doStop();
+        }
+      } catch (Throwable th) {
+        serviceFailed(th);
+      } finally {
+        mainLock.unlock();
       }
-    } catch (Throwable th) {
-      serviceFailed(th);
-    } finally {
-      lock.unlock();
     }
     return stopFuture;
   }
 
-  @Override public final State state() {
-    lock.lock();
-    try {
-      return state;
-    } finally {
-      lock.unlock();
-    }
-  }
-
   @Override public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(serviceName());
-    sb.append('[').append(state()).append(']');
-    return sb.toString();
+    int s = state.get();
+    String st = s < STARTING ? "NEW" : s < RUNNING
+        ? "STARTING" : s < SHUTDOWN
+        ? "RUNNING" : s < STOPPING
+        ? "SHUTDOWN" : s < TERMINATED
+        ? "STOPPING" : s < FAILED
+        ? "TERMINATED" : "FAILED";
+    return serviceName() + '[' + st + ']';
   }
 
   /**
@@ -142,59 +154,85 @@ public abstract class AbstractService implements Service {
 
   protected void serviceFailed(Throwable cause) {
     Objects.requireNonNull(cause, "cause");
-    lock.lock();
+    final ReentrantLock mainLock = this.lock;
+    mainLock.lock();
     try {
-      if (state == State.STARTING) {
+      int s = state.get();
+      if (s < RUNNING) {
         LOGGER.log(Level.WARNING, cause,
             () -> String.format("[%s]: exception occurred while starting service:", serviceName));
         startFuture.failed(cause);
         stopFuture.failed(new Exception("service failed to start", cause));
-      } else if (STOPPING_STATES.contains(state)) {
+      } else if (s < TERMINATED) {
         LOGGER.log(Level.WARNING, cause,
             () -> String.format("[%s]: exception occurred while stopping service:", serviceName));
         stopFuture.failed(cause);
       }
-      state = State.FAILED;
+      state.set(FAILED);
     } finally {
-      lock.unlock();
+      mainLock.unlock();
     }
   }
 
   protected void started() {
-    lock.lock();
+    int s = state.get();
+    if (s != STARTING) {
+      throw new IllegalStateException("cannot start service when it is " + s);
+    }
+    
+    final ReentrantLock mainLock = this.lock;
+    mainLock.lock();
     try {
-      org.nightcode.common.base.Objects
-          .validState(state == State.STARTING, "cannot started service when it is %s", state);
-      state = State.RUNNING;
-      LOGGER.log(Level.INFO, () -> String.format("[%s]: service has been started", serviceName));
-      if (stopAfterStart) {
-        stop();
-      } else {
-        startFuture.succeeded(State.RUNNING);
+      if (state.compareAndSet(s, RUNNING)) {
+        LOGGER.log(Level.INFO, () -> String.format("[%s]: service has been started", serviceName));
+        if (stopAfterStart) {
+          stop();
+        } else {
+          startFuture.succeeded(State.RUNNING);
+        }
       }
     } finally {
-      lock.unlock();
+      mainLock.unlock();
     }
   }
 
   protected void stopped() {
-    lock.lock();
+    final ReentrantLock mainLock = this.lock;
+    mainLock.lock();
     try {
-      state = State.TERMINATED;
+      state.set(TERMINATED);
       LOGGER.log(Level.INFO, () -> String.format("[%s]: service has been stopped", serviceName));
       startFuture.succeeded(State.TERMINATED);
       stopFuture.succeeded(State.TERMINATED);
     } finally {
-      lock.unlock();
+      mainLock.unlock();
     }
   }
 
-  void setState(State state) {
-    lock.lock();
+  boolean isRunning() {
+    return state.get() < SHUTDOWN;
+  }
+
+  boolean isStopping() {
+    return state.get() == STOPPING;
+  }
+
+  void shutdown() {
+    final ReentrantLock mainLock = this.lock;
+    mainLock.lock();
     try {
-      this.state = state;
+      transitState(SHUTDOWN);
     } finally {
-      lock.unlock();
+      mainLock.unlock();
+    }
+  }
+
+  private void transitState(int update) {
+    for (;;) {
+      int s = state.get();
+      if (s >= update || state.compareAndSet(s, update)) {
+        break;
+      }
     }
   }
 }

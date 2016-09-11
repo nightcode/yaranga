@@ -23,6 +23,8 @@ package org.nightcode.common.service;
  */
 public interface MessageService<M> extends Service {
 
+  int awaitProcessingCount();
+
   /**
    * Submits the specified message if it is possible to do so,
    * returning <tt>true</tt> upon success and <tt>false</tt>

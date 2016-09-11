@@ -18,6 +18,7 @@ package org.nightcode.common.service;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.easymock.EasyMock;
 import org.junit.Test;
@@ -34,13 +35,10 @@ public class AbstractAsyncMessageServiceTest {
     @SuppressWarnings("unchecked")
     BlockingQueue<Boolean> mockQueue = EasyMock.createMock(BlockingQueue.class);
 
-    mockQueue.take();
-    EasyMock.expectLastCall().andReturn(Boolean.TRUE).once();
-    mockQueue.remainingCapacity();
-    EasyMock.expectLastCall().andReturn(1).once();
-    mockQueue.put(Boolean.TRUE);
-    EasyMock.expectLastCall().once();
-    
+    EasyMock.expect(mockQueue.take()).andReturn(Boolean.TRUE).once();
+    EasyMock.expect(mockQueue.remainingCapacity()).andReturn(1).once();
+    EasyMock.expect(mockQueue.offer(Boolean.TRUE, 100, TimeUnit.MILLISECONDS)).andReturn(true).once();
+
     EasyMock.replay(mockQueue);
     
     MessageService<Boolean> service = new AbstractAsyncMessageService<Boolean>("test", mockQueue) {

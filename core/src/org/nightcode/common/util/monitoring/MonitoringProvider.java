@@ -77,10 +77,6 @@ public final class MonitoringProvider implements Monitoring {
     return monitoring.start();
   }
 
-  @Override public State state() {
-    return monitoring.state();
-  }
-
   @Override public Future<State> stop() {
     return monitoring.stop();
   }

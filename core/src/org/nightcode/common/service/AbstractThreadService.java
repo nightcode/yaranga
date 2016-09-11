@@ -27,8 +27,7 @@ public abstract class AbstractThreadService implements Service {
 
   protected static final Logger LOGGER = Logger.getLogger(AbstractThreadService.class.getName());
 
-  protected volatile boolean exit = false;
-  private volatile boolean restart = false;
+  volatile boolean exit = false;
 
   private long restartTimeout = 10L; // timeout, in milliseconds
 
@@ -39,11 +38,12 @@ public abstract class AbstractThreadService implements Service {
     inner = new AbstractService(serviceName) {
       @Override protected final void doStart() {
         thread = new Thread(() -> {
+          boolean interrupted = false;
           try {
             onStart();
             started();
 
-            if (state() == State.RUNNING) {
+            if (isRunning()) {
               Exception lastFailedCause = null;
               try {
                 while (!exit) {
@@ -56,19 +56,11 @@ public abstract class AbstractThreadService implements Service {
                           , () -> String.format("[%s]: service has been restarted", serviceName()));
                     }
                     service();
-                  } catch (InterruptedException interrupted) {
-                    AbstractThreadService.LOGGER.log(Level.WARNING, interrupted
+                  } catch (InterruptedException ex) {
+                    AbstractThreadService.LOGGER.log(Level.WARNING, ex 
                         , () -> String.format("[%s]: service has been interrupted", serviceName()));
-                    if (restart) {
-                      restart = false;
-                      lastFailedCause = interrupted;
-                      try {
-                        onStop();
-                      } catch (Exception ignore) {
-                        AbstractThreadService.LOGGER.log(Level.FINEST, ignore
-                            , () -> String.format("[%s]: exception occurred", serviceName()));
-                      }
-                    }
+                    interrupted = true;
+                    break;
                   } catch (Exception ex) {
                     AbstractThreadService.LOGGER.log(Level.WARNING, ex
                         , () -> String.format("[%s]: service's exception", serviceName()));
@@ -94,12 +86,16 @@ public abstract class AbstractThreadService implements Service {
               }
             }
 
-            if (state() == State.RUNNING || state() == State.STOPPING) {
+            if (isStopping() || interrupted) {
               onStop();
             }
             stopped();
           } catch (Throwable th) {
             serviceFailed(th);
+          } finally {
+            if (interrupted) {
+              Thread.currentThread().interrupt();
+            }
           }
         }, super.serviceName());
         thread.start();
@@ -129,10 +125,6 @@ public abstract class AbstractThreadService implements Service {
     return inner.stop();
   }
 
-  @Override public final State state() {
-    return inner.state();
-  }
-
   @Override public String toString() {
     return inner.toString();
   }
@@ -143,11 +135,6 @@ public abstract class AbstractThreadService implements Service {
 
   protected void onStop() throws Exception  {
     // do nothing
-  }
-
-  protected final void restart() {
-    restart = true;
-    thread.interrupt();
   }
 
   protected abstract void service() throws Exception;
@@ -162,5 +149,13 @@ public abstract class AbstractThreadService implements Service {
 
   protected void startUp() {
     // do nothing
+  }
+
+  void shutdown() {
+    inner.shutdown();
+  }
+
+  final int state() {
+    return inner.state.get();
   }
 }
