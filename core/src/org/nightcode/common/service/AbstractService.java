@@ -158,6 +158,7 @@ public abstract class AbstractService implements Service {
     mainLock.lock();
     try {
       int s = state.get();
+      state.set(FAILED);
       if (s < RUNNING) {
         LOGGER.log(Level.WARNING, cause,
             () -> String.format("[%s]: exception occurred while starting service:", serviceName));
@@ -168,7 +169,6 @@ public abstract class AbstractService implements Service {
             () -> String.format("[%s]: exception occurred while stopping service:", serviceName));
         stopFuture.failed(cause);
       }
-      state.set(FAILED);
     } finally {
       mainLock.unlock();
     }
