@@ -123,7 +123,7 @@ public class AbstractThreadServiceTest {
   @Test public void stopCalled() throws ExecutionException, InterruptedException {
     AbstractThreadService service = new AbstractThreadService("test") {
       @Override protected void service() throws Exception {
-        exit = true;
+        operates = false;
       }
     };
     assertEquals(0x00, service.state());

@@ -106,7 +106,7 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
   protected abstract void process(M message) throws Exception;
 
   @Override protected void service() throws Exception {
-    while (!exit) {
+    while (isOperates()) {
       process(queue.take());
     }
   }

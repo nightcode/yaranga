@@ -27,7 +27,7 @@ public abstract class AbstractThreadService implements Service {
 
   protected static final Logger LOGGER = Logger.getLogger(AbstractThreadService.class.getName());
 
-  volatile boolean exit = false;
+  volatile boolean operates = true;
 
   private long restartTimeout = 10L; // timeout, in milliseconds
 
@@ -46,7 +46,7 @@ public abstract class AbstractThreadService implements Service {
             if (isRunning()) {
               Exception lastFailedCause = null;
               try {
-                while (!exit) {
+                while (operates) {
                   try {
                     if (lastFailedCause != null) {
                       Exception tmpException = lastFailedCause;
@@ -102,7 +102,7 @@ public abstract class AbstractThreadService implements Service {
       }
 
       @Override protected final void doStop() {
-        exit = true;
+        operates = false;
         thread.interrupt();
       }
     };
@@ -127,6 +127,10 @@ public abstract class AbstractThreadService implements Service {
 
   @Override public String toString() {
     return inner.toString();
+  }
+
+  protected boolean isOperates() {
+    return operates;
   }
 
   protected void onStart() throws Exception  {
