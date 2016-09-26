@@ -29,6 +29,8 @@ public abstract class AbstractThreadService implements Service {
 
   volatile boolean operates = true;
 
+  private volatile boolean restart = false;
+
   private long restartTimeout = 10L; // timeout, in milliseconds
 
   private final AbstractService inner;
@@ -60,7 +62,18 @@ public abstract class AbstractThreadService implements Service {
                     AbstractThreadService.LOGGER.log(Level.WARNING, ex 
                         , () -> String.format("[%s]: service has been interrupted", serviceName()));
                     interrupted = true;
-                    break;
+                    if (restart) {
+                      restart = false;
+                      lastFailedCause = ex;
+                      try {
+                        onStop();
+                      } catch (Exception ignore) {
+                        AbstractThreadService.LOGGER.log(Level.FINEST, ignore
+                            , () -> String.format("[%s]: exception occurred", serviceName()));
+                      }
+                    } else {
+                      break;
+                    }
                   } catch (Exception ex) {
                     AbstractThreadService.LOGGER.log(Level.WARNING, ex
                         , () -> String.format("[%s]: service's exception", serviceName()));
@@ -153,6 +166,11 @@ public abstract class AbstractThreadService implements Service {
 
   protected void startUp() {
     // do nothing
+  }
+
+  protected final void restart() {
+    restart = true;
+    thread.interrupt();
   }
 
   void shutdown() {
