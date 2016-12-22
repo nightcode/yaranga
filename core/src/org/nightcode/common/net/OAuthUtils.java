@@ -14,15 +14,12 @@
  * the License.
  */
 
-package org.nightcode.common.net.oauth;
+package org.nightcode.common.net;
 
 import org.nightcode.common.base.StringIterator;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -42,13 +39,13 @@ public final class OAuthUtils {
     private final String encodedName;
     private final String encodedValue;
 
-    RequestParameter(String name) throws OAuthException {
+    RequestParameter(String name) throws AuthException {
       this(name, null);
     }
 
-    RequestParameter(String name, String value) throws OAuthException {
-      this.encodedName = percentEncode(name);
-      this.encodedValue = value == null ? "" : percentEncode(value);
+    RequestParameter(String name, String value) throws AuthException {
+      this.encodedName = AuthUtils.percentEncode(name);
+      this.encodedValue = value == null ? "" : AuthUtils.percentEncode(value);
     }
 
     public String getEncodedName() {
@@ -124,14 +121,14 @@ public final class OAuthUtils {
    * @param requestUrl request url
    * @param protocolParameters protocol parameters
    * @return signature base string
-   * @throws OAuthException if some of parameters has unacceptable value
+   * @throws AuthException if some of parameters has unacceptable value
    */
   public static String getSignatureBaseString(String requestMethod, String requestUrl,
-      Map<String, String> protocolParameters) throws OAuthException {
+      Map<String, String> protocolParameters) throws AuthException {
     StringBuilder sb = new StringBuilder();
     sb.append(requestMethod.toUpperCase()).append("&")
-        .append(percentEncode(normalizeUrl(requestUrl))).append("&")
-        .append(percentEncode(normalizeParameters(requestUrl, protocolParameters)));
+        .append(AuthUtils.percentEncode(normalizeUrl(requestUrl))).append("&")
+        .append(AuthUtils.percentEncode(normalizeParameters(requestUrl, protocolParameters)));
     return sb.toString();
   }
 
@@ -168,7 +165,7 @@ public final class OAuthUtils {
    * @return the normalized request parameters
    */
   public static String normalizeParameters(String requestUrl,
-      Map<String, String> protocolParameters) throws OAuthException {
+      Map<String, String> protocolParameters) throws AuthException {
     SortedSet<RequestParameter> parameters = new TreeSet<>();
     int index = requestUrl.indexOf('?');
     if (index > 0) {
@@ -178,10 +175,10 @@ public final class OAuthUtils {
         String parameter = i.next();
         int equalsIndex = parameter.indexOf('=');
         if (equalsIndex > 0) {
-          parameters.add(new RequestParameter(percentDecode(parameter.substring(0, equalsIndex))
-              , percentDecode(parameter.substring(equalsIndex + 1))));
+          parameters.add(new RequestParameter(AuthUtils.percentDecode(parameter.substring(0, equalsIndex))
+              , AuthUtils.percentDecode(parameter.substring(equalsIndex + 1))));
         } else if (equalsIndex == -1) {
-          parameters.add(new RequestParameter(percentDecode(parameter)));
+          parameters.add(new RequestParameter(AuthUtils.percentDecode(parameter)));
         }
       }
     }
@@ -216,19 +213,19 @@ public final class OAuthUtils {
    *
    * @param requestUrl request url
    * @return the normalized request uri
-   * @throws OAuthException if the <code>requestUrl</code> violates rfc 2396
+   * @throws AuthException if the <code>requestUrl</code> violates rfc 2396
    */
-  public static String normalizeUrl(String requestUrl) throws OAuthException {
+  public static String normalizeUrl(String requestUrl) throws AuthException {
     URI uri;
     try {
       uri = new URI(requestUrl);
     } catch (URISyntaxException ex) {
-      throw new OAuthException(ex);
+      throw new AuthException(ex);
     }
     String scheme = uri.getScheme();
     String authority = uri.getAuthority();
     if (scheme == null || authority == null) {
-      throw new OAuthException("Invalid requestUrl [" + requestUrl + "].");
+      throw new AuthException("Invalid requestUrl [" + requestUrl + "].");
     }
     scheme = scheme.toLowerCase();
     authority = authority.toLowerCase();
@@ -246,42 +243,6 @@ public final class OAuthUtils {
     }
 
     return scheme + "://" + authority + path;
-  }
-
-  /**
-   * Returns an encoded string.
-   *
-   * @see <a href="http://tools.ietf.org/html/rfc5849#section-3.6">3.6. Percent Encoding</a>
-   *
-   * @param source source string for encoding
-   * @return encoded string
-   * @throws OAuthException if the named encoding is not supported
-   */
-  public static String percentEncode(String source) throws OAuthException {
-    try {
-      return URLEncoder.encode(source, "UTF-8")
-          .replace("+", "%20")
-          .replace("*", "%2A")
-          .replace("%7E", "~");
-    } catch (UnsupportedEncodingException ex) {
-      throw new OAuthException("cannot encode value '" + source + "'", ex);
-    }
-  }
-
-  /**
-   * Returns a decoded string.
-   *
-   * @param source source string for decoding
-   * @return decoded string
-   * @throws OAuthException if character encoding needs to be consulted, but
-   *                        named character encoding is not supported
-   */
-  public static String percentDecode(String source) throws OAuthException {
-    try {
-      return URLDecoder.decode(source, "UTF-8");
-    } catch (java.io.UnsupportedEncodingException ex) {
-      throw new OAuthException("cannot decode value '" + source + "'", ex);
-    }
   }
 
   // Suppress default constructor for noninstantiability.

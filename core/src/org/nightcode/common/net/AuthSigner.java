@@ -1,5 +1,5 @@
 /*
- * Copyright (C) The NightCode Open Source Project
+ * Copyright (C) 2016 The NightCode Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,22 +14,13 @@
  * the License.
  */
 
-package org.nightcode.common.net.oauth;
+package org.nightcode.common.net;
 
-/**
- * OAuth general exception.
- */
-public class OAuthException extends Exception {
+import java.security.GeneralSecurityException;
 
-  public OAuthException(Throwable cause) {
-    super(cause);
-  }
+public interface AuthSigner {
 
-  public OAuthException(String message) {
-    super(message);
-  }
+  String computeSignature(String signatureBaseString) throws GeneralSecurityException;
 
-  public OAuthException(String message, Throwable cause) {
-    super(message, cause);
-  }
+  String getSignatureMethod();
 }

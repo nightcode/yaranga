@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.net.oauth;
+package org.nightcode.common.net;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
@@ -27,17 +27,17 @@ import junit.framework.TestCase;
  */
 public class OAuthUtilsTest extends TestCase {
 
-  public void test() throws OAuthException, UnsupportedEncodingException {
+  public void test() throws AuthException, UnsupportedEncodingException {
     String str = "http://example.com /request?b5=%3D%253D&a3=a&c%40=&a2=r%20b&c2&a3=2+q";
-    String strEncoded = OAuthUtils.percentEncode(str);
-    String strDecoded = OAuthUtils.percentDecode(strEncoded);
+    String strEncoded = AuthUtils.percentEncode(str);
+    String strDecoded = AuthUtils.percentDecode(strEncoded);
 
     assertEquals("http%3A%2F%2Fexample.com%20%2Frequest%3Fb5%3D%253D%25253D%26a3%3Da%26c%2540"
         + "%3D%26a2%3Dr%2520b%26c2%26a3%3D2%2Bq", strEncoded);
     assertEquals(str, strDecoded);
   }
 
-  public void testGetSignatureBaseString() throws OAuthException {
+  public void testGetSignatureBaseString() throws AuthException {
     String requestMethod = "POST";
     String requestUrl = "http://example.com/request?b5=%3D%253D&a3=a&c%40=&a2=r%20b&c2&a3=2+q";
     Map<String, String> protocolParameters = new HashMap<String, String>();
@@ -83,12 +83,12 @@ public class OAuthUtilsTest extends TestCase {
     try {
       assertEquals(expectedNormalizeParameters
           , OAuthUtils.normalizeParameters(requestUrl, protocolParameters));
-    } catch (OAuthException ex) {
+    } catch (AuthException ex) {
       fail(ex.getMessage());
     }
   }
 
-  public void testNormalizeUrl() throws OAuthException {
+  public void testNormalizeUrl() throws AuthException {
     String sourceUrl1 = "HTTP://EXAMPLE.COM:80/r%20v/X?id=123";
     String expectedUrl1 = "http://example.com/r%20v/X";
 
@@ -106,7 +106,7 @@ public class OAuthUtilsTest extends TestCase {
   public void testNormalizeUrlURISyntax() {
     try {
       OAuthUtils.normalizeUrl("http://uri<>syntax");
-    } catch (OAuthException ex) {
+    } catch (AuthException ex) {
       assertFalse(ex.getMessage().contains("Invalid requestUrl"));
       return;
     }
@@ -116,7 +116,7 @@ public class OAuthUtilsTest extends TestCase {
   public void testNormalizeInvalidUrl() {
     try {
       OAuthUtils.normalizeUrl("InvalidRequestUrl");
-    } catch (OAuthException ex) {
+    } catch (AuthException ex) {
       assertTrue(ex.getMessage().contains("Invalid requestUrl"));
       return;
     }

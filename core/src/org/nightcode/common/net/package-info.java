@@ -15,7 +15,7 @@
  */
 
 /**
- * Classes and interfaces for OAuth.
+ * Classes and interfaces for net.
  */
 
-package org.nightcode.common.net.oauth;
+package org.nightcode.common.net;
