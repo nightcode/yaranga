@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2017 The NightCode Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package org.nightcode.common.net;
 
 import java.net.URI;
@@ -58,23 +74,23 @@ public final class MacAuthUtils {
    *
    * @param nonce the nonce value
    * @param requestMethod the request method
-   * @param hostname the "Host" request header field value
+   * @param headerHost the "Host" request header field value
    * @param requestUrl request url
    * @param payloadBodyHash the request payload body hash
    * @param ext the "ext" "Authorization" request header field attribute 
    * @return signature base string
    * @throws AuthException if some of parameters has unacceptable value
    */
-  public static String getSignatureBaseString(String nonce, String requestMethod, String hostname, String requestUrl,
+  public static String getSignatureBaseString(String nonce, String requestMethod, String headerHost, String requestUrl,
       @Nullable String payloadBodyHash, @Nullable String ext) throws AuthException {
     return nonce + '\n'
         + requestMethod.toUpperCase() + '\n'
-        + normalizeUrl(hostname, requestUrl) + '\n'
+        + normalizeUrl(headerHost, requestUrl) + '\n'
         + (payloadBodyHash != null ? payloadBodyHash : "") + '\n'
         + (ext != null ? ext : "") + '\n';
   }
 
-  private static String normalizeUrl(String hostname, String requestUrl) throws AuthException {
+  private static String normalizeUrl(String headerHost, String requestUrl) throws AuthException {
     URI uri;
     try {
       uri = new URI(requestUrl);
@@ -85,11 +101,17 @@ public final class MacAuthUtils {
     if (path == null || path.length() == 0) {
       path = "/";
     }
-    int port = uri.getPort();
-    if (port == -1) {
-      port = ("http".equals(uri.getScheme())) ? 80 : 443;
+    String host;
+    String port;
+    int separator = headerHost.indexOf(':');
+    if (separator == -1) {
+      host = headerHost;
+      port = ("http".equals(uri.getScheme())) ? "80" : "443";
+    } else {
+      host = headerHost.substring(0, separator);
+      port = headerHost.substring(separator + 1).trim();
     }
-    return path + "\n" + hostname.toLowerCase() + "\n" + port;
+    return path + "\n" + host.trim().toLowerCase() + "\n" + port;
   }
 
   // Suppress default constructor for noninstantiability.
