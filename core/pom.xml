@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- Copyright (C) The NightCode Open Source Project
+ Copyright (C) 2017 The NightCode Open Source Project
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.nightcode.yaranga</groupId>
     <artifactId>yaranga-parent</artifactId>
-    <version>0.4.7-SNAPSHOT</version>
+    <version>0.4.7</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
