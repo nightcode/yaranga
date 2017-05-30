@@ -36,7 +36,6 @@ public class AbstractAsyncMessageServiceTest {
     BlockingQueue<Boolean> mockQueue = EasyMock.createMock(BlockingQueue.class);
 
     EasyMock.expect(mockQueue.take()).andReturn(Boolean.TRUE).once();
-    EasyMock.expect(mockQueue.remainingCapacity()).andReturn(1).once();
     EasyMock.expect(mockQueue.offer(Boolean.TRUE, 100, TimeUnit.MILLISECONDS)).andReturn(true).once();
 
     EasyMock.replay(mockQueue);

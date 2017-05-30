@@ -38,12 +38,12 @@ public abstract class AbstractService implements Service {
   private static final int STOPPING   = 0x00000008;
   private static final int TERMINATED = 0x00000010;
   private static final int FAILED     = 0x00000020;
-  
+
   static boolean isRunning(int s) {
-    return s < SHUTDOWN;
+    return s == RUNNING;
   }
 
-  final ReentrantLock lock = new ReentrantLock();
+  private final ReentrantLock lock = new ReentrantLock();
 
   private final CompletableFuture<State> startFuture = new CompletableFuture<>();
   private final CompletableFuture<State> stopFuture = new CompletableFuture<>();
@@ -132,7 +132,7 @@ public abstract class AbstractService implements Service {
    */
   protected abstract void doStop();
 
-  protected void serviceFailed(Throwable cause) {
+  protected final void serviceFailed(Throwable cause) {
     Objects.requireNonNull(cause, "cause");
     final ReentrantLock mainLock = this.lock;
     mainLock.lock();
@@ -154,7 +154,7 @@ public abstract class AbstractService implements Service {
     }
   }
 
-  protected void started() {
+  protected final void started() {
     int s = state.get();
     if (s != STARTING) {
       throw new IllegalStateException("cannot start service when it is " + s);
@@ -176,7 +176,7 @@ public abstract class AbstractService implements Service {
     }
   }
 
-  protected void stopped() {
+  protected final void stopped() {
     final ReentrantLock mainLock = this.lock;
     mainLock.lock();
     try {
@@ -189,11 +189,11 @@ public abstract class AbstractService implements Service {
     }
   }
 
-  boolean isRunning() {
-    return state.get() < SHUTDOWN;
+  final boolean isRunning() {
+    return state.get() == RUNNING;
   }
 
-  boolean isStopping() {
+  final boolean isStopping() {
     return state.get() == STOPPING;
   }
 

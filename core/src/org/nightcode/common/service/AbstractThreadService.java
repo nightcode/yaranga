@@ -27,8 +27,7 @@ public abstract class AbstractThreadService implements Service {
 
   protected static final Logger LOGGER = Logger.getLogger(AbstractThreadService.class.getName());
 
-  volatile boolean operates = true;
-
+  private volatile boolean operates = true;
   private volatile boolean restart = false;
 
   private long restartTimeout = 10L; // timeout, in milliseconds

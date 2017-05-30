@@ -78,11 +78,6 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
         return true;
       }
     } else {
-      if (queue.remainingCapacity() == 0) {
-        LOGGER.log(Level.INFO, () -> String
-            .format("[%s]: queue capacity has been reached <%s> (waiting for space to become available)"
-                , serviceName(), queue.size()));
-      }
       for (;;) {
         try {
           if (queue.offer(message, 100, TimeUnit.MILLISECONDS)) {

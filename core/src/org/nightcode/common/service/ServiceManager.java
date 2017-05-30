@@ -80,13 +80,13 @@ public final class ServiceManager {
     for (final Service service : services.values()) {
         futures.put(service.serviceName(), service.stop());
     }
-    futures.entrySet().forEach(e -> {
+    futures.forEach((key, value) -> {
       try {
-        e.getValue().get();
+        value.get();
       } catch (Exception ex) {
-        LOGGER.log(Level.WARNING, ex, () -> String.format("[ServiceManager]: cannot stop service <%s>", e.getKey()));
+        LOGGER.log(Level.WARNING, ex, () -> String.format("[ServiceManager]: cannot stop service <%s>", key));
       }
-      
+
     });
     services.clear();
   }
@@ -97,11 +97,11 @@ public final class ServiceManager {
     for (final Service service : services.values()) {
         futures.put(service.serviceName(), service.stop());
     }
-    futures.entrySet().forEach(e -> {
+    futures.forEach((key, value) -> {
       try {
-        e.getValue().get(timeout, unit);
+        value.get(timeout, unit);
       } catch (Exception ex) {
-        LOGGER.log(Level.WARNING, ex, () -> String.format("[ServiceManager]: cannot stop service <%s>", e.getKey()));
+        LOGGER.log(Level.WARNING, ex, () -> String.format("[ServiceManager]: cannot stop service <%s>", key));
       }
     });
     services.clear();
