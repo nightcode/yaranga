@@ -18,15 +18,13 @@ package org.nightcode.common.service;
 
 import org.nightcode.common.base.Throwables;
 
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
 /**
  * Abstract message service.
  * @param <M> The message type accepted by this MessageService's <tt>submit</tt> method
  */
-public abstract class AbstractMessageService<M> extends AbstractService
-    implements MessageService<M> {
+public abstract class AbstractMessageService<M> extends AbstractService implements MessageService<M> {
 
   private final boolean propagateException;
 
@@ -48,24 +46,16 @@ public abstract class AbstractMessageService<M> extends AbstractService
   }
 
   @Override public boolean submit(M message) {
-    int s = state.get();
-    if (isRunning(s)) {
-      final ReentrantLock mainLock = this.lock;
-      mainLock.lock();
+    if (isRunning()) {
       try {
-        int recheck = state.get();
-        if (isRunning(recheck)) {
-          process(message);
-          return true;
-        }
+        process(message);
+        return true;
       } catch (Exception ex) {
         if (propagateException) {
           throw Throwables.propagate(ex);
         }
-        LOGGER.log(Level.WARNING, ex, () -> String.format("[%s]: exception occurred while submitting message <%s>"
-            , serviceName(), message));
-      } finally {
-        mainLock.unlock();
+        LOGGER.log(Level.WARNING, ex
+            , () -> String.format("[%s]: exception occurred while submitting message <%s>", serviceName(), message));
       }
     }
     return false;
