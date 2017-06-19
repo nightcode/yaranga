@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The NightCode Open Source Project
+ * Copyright (C) 2017 The NightCode Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -20,6 +20,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
+/**
+ * Auth helper class.
+ */
 public final class AuthUtils {
 
   /**

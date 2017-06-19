@@ -58,7 +58,7 @@ public abstract class AbstractThreadService implements Service {
                     }
                     service();
                   } catch (InterruptedException ex) {
-                    AbstractThreadService.LOGGER.log(Level.WARNING, ex 
+                    AbstractThreadService.LOGGER.log(Level.WARNING, ex
                         , () -> String.format("[%s]: service has been interrupted", serviceName()));
                     interrupted = true;
                     if (restart) {

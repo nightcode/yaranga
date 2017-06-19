@@ -159,7 +159,7 @@ public abstract class AbstractService implements Service {
     if (s != STARTING) {
       throw new IllegalStateException("cannot start service when it is " + s);
     }
-    
+
     final ReentrantLock mainLock = this.lock;
     mainLock.lock();
     try {

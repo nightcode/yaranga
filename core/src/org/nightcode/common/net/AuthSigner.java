@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The NightCode Open Source Project
+ * Copyright (C) 2017 The NightCode Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,6 +18,9 @@ package org.nightcode.common.net;
 
 import java.security.GeneralSecurityException;
 
+/**
+ * An {@link AuthSigner} provides method for signature computation.
+ */
 public interface AuthSigner {
 
   String computeSignature(String signatureBaseString) throws GeneralSecurityException;

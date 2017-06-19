@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The NightCode Open Source Project
+ * Copyright (C) 2017 The NightCode Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -25,6 +25,9 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+/**
+ * HmacSha1 implementation of an {@link AuthSigner}.
+ */
 public class HmacSha1AuthSigner implements AuthSigner {
 
   private final String macKey;

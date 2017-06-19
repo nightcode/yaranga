@@ -77,7 +77,7 @@ public final class MacAuthUtils {
    * @param headerHost the "Host" request header field value
    * @param requestUrl request url
    * @param payloadBodyHash the request payload body hash
-   * @param ext the "ext" "Authorization" request header field attribute 
+   * @param ext the "ext" "Authorization" request header field attribute
    * @return signature base string
    * @throws AuthException if some of parameters has unacceptable value
    */
