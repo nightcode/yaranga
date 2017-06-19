@@ -26,10 +26,6 @@
     <fileset dir="${lib.dir}" includes="*.jar" />
   </path>
 
-  <path id="test.classpath">
-    <fileset dir="${lib.dir}/build" includes="*.jar" />
-  </path>
-
   <target name="deploy" depends="dist">
     <echo message="deploy file: ${module.jar}" />
     <copy file="pom.xml" todir="${build.dir}" />

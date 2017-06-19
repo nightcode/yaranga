@@ -45,11 +45,13 @@
   <property name="ant-contrib.version" value="1.0b3" />
   <property name="junit.version" value="4.12" />
   <property name="hamcrest-core.version" value="1.3" />
+  <property name="easymock.version" value="2.5.2" />
   <property name="checkstyle.version" value="6.11.2-all" />
 
   <path id="test.classpath">
     <pathelement location="${lib.dir}/build/junit-${junit.version}.jar" />
     <pathelement location="${lib.dir}/build/hamcrest-core-${hamcrest-core.version}.jar" />
+    <pathelement location="${lib.dir}/build/easymock-${easymock.version}.jar" />
   </path>
 
   <condition property="findbugs.check" value="${env.FINDBUGS_HOME}" else="/usr/local/findbugs">
@@ -161,10 +163,10 @@
       <jvmarg line="-Xmx512m" />
       <jvmarg line="-Xss512k" />
       <classpath>
+        <path refid="test.classpath" />
         <pathelement location="${build.dir}/test" />
         <pathelement location="${build.dir}/classes" />
         <path refid="compile.classpath" />
-        <path refid="test.classpath" />
       </classpath>
 
       <batchtest todir="${build.dir}/test/reports">

@@ -16,8 +16,6 @@ before_install:
   - unzip /tmp/jacoco-$JACOCO_VERSION.zip -d jacoco-$JACOCO_VERSION
   - export JACOCO_HOME=$PWD/jacoco-$JACOCO_VERSION
 
-install: ant deps
-
 script: ant dist 
 
 branches:
