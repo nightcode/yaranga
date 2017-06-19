@@ -20,24 +20,25 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit test for {@link OAuthUtils}.
  */
-public class OAuthUtilsTest extends TestCase {
+public class OAuthUtilsTest {
 
-  public void test() throws AuthException, UnsupportedEncodingException {
+  @Test public void test() throws AuthException, UnsupportedEncodingException {
     String str = "http://example.com /request?b5=%3D%253D&a3=a&c%40=&a2=r%20b&c2&a3=2+q";
     String strEncoded = AuthUtils.percentEncode(str);
     String strDecoded = AuthUtils.percentDecode(strEncoded);
 
-    assertEquals("http%3A%2F%2Fexample.com%20%2Frequest%3Fb5%3D%253D%25253D%26a3%3Da%26c%2540"
+    Assert.assertEquals("http%3A%2F%2Fexample.com%20%2Frequest%3Fb5%3D%253D%25253D%26a3%3Da%26c%2540"
         + "%3D%26a2%3Dr%2520b%26c2%26a3%3D2%2Bq", strEncoded);
-    assertEquals(str, strDecoded);
+    Assert.assertEquals(str, strDecoded);
   }
 
-  public void testGetSignatureBaseString() throws AuthException {
+  @Test public void testGetSignatureBaseString() throws AuthException {
     String requestMethod = "POST";
     String requestUrl = "http://example.com/request?b5=%3D%253D&a3=a&c%40=&a2=r%20b&c2&a3=2+q";
     Map<String, String> protocolParameters = new HashMap<String, String>();
@@ -55,18 +56,18 @@ public class OAuthUtilsTest extends TestCase {
         + "oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D137131201%26"
         + "oauth_token%3Dkkk9d7dh3k39sjv7";
 
-    assertEquals(expectedSignatureBaseString, signatureBaseString);
+    Assert.assertEquals(expectedSignatureBaseString, signatureBaseString);
   }
 
-  public void testGetNonce() {
-    assertNotSame(OAuthUtils.getNonce(), OAuthUtils.getNonce());
+  @Test public void testGetNonce() {
+    Assert.assertNotSame(OAuthUtils.getNonce(), OAuthUtils.getNonce());
   }
 
-  public void testGetTimestamp() {
-    assertNotNull(OAuthUtils.getTimestamp());
+  @Test public void testGetTimestamp() {
+    Assert.assertNotNull(OAuthUtils.getTimestamp());
   }
 
-  public void testNormalizeParameters() {
+  @Test public void testNormalizeParameters() {
     String requestUrl = "http://example.com/request?b5=%3D%253D&a3=a&c%40=&a2=r%20b&c2&a3=2+q";
     Map<String, String> protocolParameters = new HashMap<String, String>();
     protocolParameters.put("oauth_consumer_key", "9djdj82h48djs9d2");
@@ -81,14 +82,14 @@ public class OAuthUtilsTest extends TestCase {
         + "&oauth_token=kkk9d7dh3k39sjv7";
 
     try {
-      assertEquals(expectedNormalizeParameters
+      Assert.assertEquals(expectedNormalizeParameters
           , OAuthUtils.normalizeParameters(requestUrl, protocolParameters));
     } catch (AuthException ex) {
-      fail(ex.getMessage());
+      Assert.fail(ex.getMessage());
     }
   }
 
-  public void testNormalizeUrl() throws AuthException {
+  @Test public void testNormalizeUrl() throws AuthException {
     String sourceUrl1 = "HTTP://EXAMPLE.COM:80/r%20v/X?id=123";
     String expectedUrl1 = "http://example.com/r%20v/X";
 
@@ -98,28 +99,28 @@ public class OAuthUtilsTest extends TestCase {
     String sourceUrl3 = "HTTPS://www.example.net:443";
     String expectedUrl3 = "https://www.example.net/";
 
-    assertEquals(expectedUrl1, OAuthUtils.normalizeUrl(sourceUrl1));
-    assertEquals(expectedUrl2, OAuthUtils.normalizeUrl(sourceUrl2));
-    assertEquals(expectedUrl3, OAuthUtils.normalizeUrl(sourceUrl3));
+    Assert.assertEquals(expectedUrl1, OAuthUtils.normalizeUrl(sourceUrl1));
+    Assert.assertEquals(expectedUrl2, OAuthUtils.normalizeUrl(sourceUrl2));
+    Assert.assertEquals(expectedUrl3, OAuthUtils.normalizeUrl(sourceUrl3));
   }
 
-  public void testNormalizeUrlURISyntax() {
+  @Test public void testNormalizeUrlURISyntax() {
     try {
       OAuthUtils.normalizeUrl("http://uri<>syntax");
     } catch (AuthException ex) {
-      assertFalse(ex.getMessage().contains("Invalid requestUrl"));
+      Assert.assertFalse(ex.getMessage().contains("Invalid requestUrl"));
       return;
     }
-    fail();
+    Assert.fail();
   }
 
-  public void testNormalizeInvalidUrl() {
+  @Test public void testNormalizeInvalidUrl() {
     try {
       OAuthUtils.normalizeUrl("InvalidRequestUrl");
     } catch (AuthException ex) {
-      assertTrue(ex.getMessage().contains("Invalid requestUrl"));
+      Assert.assertTrue(ex.getMessage().contains("Invalid requestUrl"));
       return;
     }
-    fail();
+    Assert.fail();
   }
 }

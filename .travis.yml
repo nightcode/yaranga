@@ -7,6 +7,9 @@ os:
   - linux
 
 before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install ant
+  - sudo apt-get install ant-optional
   - export FINDBUGS_VERSION=3.0.1
   - wget http://prdownloads.sourceforge.net/findbugs/findbugs-$FINDBUGS_VERSION.tar.gz?download -O /tmp/findbugs-$FINDBUGS_VERSION.tar.gz
   - tar -xvf /tmp/findbugs-$FINDBUGS_VERSION.tar.gz

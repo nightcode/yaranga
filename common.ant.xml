@@ -163,10 +163,10 @@
       <jvmarg line="-Xmx512m" />
       <jvmarg line="-Xss512k" />
       <classpath>
-        <path refid="test.classpath" />
         <pathelement location="${build.dir}/test" />
         <pathelement location="${build.dir}/classes" />
         <path refid="compile.classpath" />
+        <path refid="test.classpath" />
       </classpath>
 
       <batchtest todir="${build.dir}/test/reports">
