@@ -103,8 +103,9 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
   @Override protected void service() throws Exception {
     while (isOperates()) {
       M msg = queue.poll(100, TimeUnit.MILLISECONDS);
-      if (msg != null) {
+      while (msg != null) {
         process(msg);
+        msg = queue.poll();
       }
     }
   }
