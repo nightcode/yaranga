@@ -30,17 +30,16 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class HmacSha256AuthSigner implements AuthSigner {
 
-  private final String macKey;
+  private final Mac mac;
 
-  public HmacSha256AuthSigner(String macKey) {
+  public HmacSha256AuthSigner(byte[] macKey) throws GeneralSecurityException {
     Objects.requireNonNull(macKey, "mac key");
-    this.macKey = macKey;
+    SecretKey secretKey = new SecretKeySpec(macKey, "HmacSHA256");
+    mac = Mac.getInstance("HmacSHA256");
+    mac.init(secretKey);
   }
 
-  @Override public String computeSignature(String signatureBaseString) throws GeneralSecurityException {
-    SecretKey secretKey = new SecretKeySpec(macKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-    Mac mac = Mac.getInstance("HmacSHA256");
-    mac.init(secretKey);
+  @Override public String computeSignature(String signatureBaseString) {
     return Base64.getEncoder().encodeToString(mac.doFinal(signatureBaseString.getBytes(StandardCharsets.UTF_8)));
   }
 

@@ -16,6 +16,7 @@
 
 package org.nightcode.common.net;
 
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 
 import org.junit.Assert;
@@ -24,7 +25,7 @@ import org.junit.Test;
 public class HmacSha256AuthSignerTest {
 
   @Test public void computeSignature() throws GeneralSecurityException {
-    AuthSigner signer = new HmacSha256AuthSigner("8yfrufh348h");
+    AuthSigner signer = new HmacSha256AuthSigner("8yfrufh348h".getBytes(StandardCharsets.UTF_8));
     String signatureBaseString = "273156:di3hvdf8\nPOST\n/request\nexample.com\n80\nk9kbtCIy0CkI3/FEfpS/oIDjk6k=\n\n";
     
     String actual = signer.computeSignature(signatureBaseString);
