@@ -23,7 +23,11 @@ import java.security.GeneralSecurityException;
  */
 public interface AuthSigner {
 
-  String computeSignature(String signatureBaseString) throws GeneralSecurityException;
+  byte[] computeSignature(byte[] signatureBaseString) throws GeneralSecurityException;
+
+  String computeSignatureBase64(byte[] signatureBaseString) throws GeneralSecurityException;
+
+  String computeSignatureHex(byte[] signatureBaseString) throws GeneralSecurityException;
 
   String getSignatureMethod();
 }

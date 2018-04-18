@@ -16,7 +16,8 @@
 
 package org.nightcode.common.net;
 
-import java.nio.charset.StandardCharsets;
+import org.nightcode.common.base.Hexs;
+
 import java.security.GeneralSecurityException;
 import java.util.Base64;
 import java.util.Objects;
@@ -30,6 +31,8 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class HmacSha1AuthSigner implements AuthSigner {
 
+  private static final Hexs HEX = Hexs.hex();
+
   private final Mac mac;
 
   public HmacSha1AuthSigner(byte[] macKey) throws GeneralSecurityException {
@@ -39,8 +42,16 @@ public class HmacSha1AuthSigner implements AuthSigner {
     mac.init(secretKey);
   }
 
-  @Override public String computeSignature(String signatureBaseString) {
-    return Base64.getEncoder().encodeToString(mac.doFinal(signatureBaseString.getBytes(StandardCharsets.UTF_8)));
+  @Override public byte[] computeSignature(byte[] signatureBaseString) {
+    return mac.doFinal(signatureBaseString);
+  }
+
+  @Override public String computeSignatureBase64(byte[] signatureBaseString) {
+    return Base64.getEncoder().encodeToString(mac.doFinal(signatureBaseString));
+  }
+
+  @Override public String computeSignatureHex(byte[] signatureBaseString) {
+    return HEX.fromByteArray(mac.doFinal(signatureBaseString));
   }
 
   @Override public String getSignatureMethod() {
