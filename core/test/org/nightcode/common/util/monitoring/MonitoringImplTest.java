@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2008 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,7 +31,7 @@ public class MonitoringImplTest extends TestCase {
       throws IOException, ExecutionException, InterruptedException {
     MonitoringVisitor monitoringVisitorMock = EasyMock.createMock(MonitoringVisitor.class);
 
-    Capture<MonitoringVisitor> monitoringVisitorCapture = new Capture<MonitoringVisitor>();
+    Capture<MonitoringVisitor> monitoringVisitorCapture = EasyMock.newCapture();
     
     MonitoringComponent monitoringComponentMock = EasyMock.createMock(MonitoringComponent.class);
     monitoringComponentMock.retrieveData(EasyMock.capture(monitoringVisitorCapture));

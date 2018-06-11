@@ -12,8 +12,24 @@
  * limitations under the License.
  */
 
-/**
- * Classes and interfaces for net.
- */
+package org.nightcode.common.net.http;
 
-package org.nightcode.common.net;
+import java.security.GeneralSecurityException;
+
+/**
+ * Authentication general exception.
+ */
+public class AuthException extends GeneralSecurityException {
+
+  public AuthException(Throwable cause) {
+    super(cause);
+  }
+
+  public AuthException(String message) {
+    super(message);
+  }
+
+  public AuthException(String message, Throwable cause) {
+    super(message, cause);
+  }
+}

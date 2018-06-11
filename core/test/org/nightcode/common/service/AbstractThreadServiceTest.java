@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2008 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -239,18 +237,18 @@ public class AbstractThreadServiceTest {
         Thread.sleep(Long.MAX_VALUE);
       }
     };
-    
+
     assertEquals(0x00, service.state());
     service.start().get();
     assertEquals(0x02, service.state());
     service.interrupt();
     Thread.sleep(100);
-    
+
     assertEquals(1, onStartCounter.get());
     assertEquals(1, onStopCounter.get());
     assertEquals(1, serviceCounter.get());
   }
-  
+
   @Test public void serviceCalledException() throws ExecutionException, InterruptedException {
     final AtomicInteger onStartCounter = new AtomicInteger(0);
     final AtomicInteger onStopCounter = new AtomicInteger(0);

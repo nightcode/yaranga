@@ -12,8 +12,14 @@
  * limitations under the License.
  */
 
-/**
- * Classes and interfaces for net.
- */
-
 package org.nightcode.common.net;
+
+/**
+ *
+ */
+public class UninitializedConnectionException extends GeneralNetworkException {
+
+  public UninitializedConnectionException(String message) {
+    super(message, null);
+  }
+}

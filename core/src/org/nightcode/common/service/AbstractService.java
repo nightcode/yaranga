@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2008 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -69,7 +67,7 @@ public abstract class AbstractService implements Service {
       mainLock.lock();
       try {
         if (state.compareAndSet(s, STARTING)) {
-          LOGGER.log(Level.INFO, () -> String.format("[%s]: starting service..", serviceName));
+          LOGGER.log(Level.FINE, () -> String.format("[%s]: starting service..", serviceName));
           doStart();
         }
       } catch (Throwable th) {
@@ -93,7 +91,7 @@ public abstract class AbstractService implements Service {
         } else if (s < RUNNING) {
           stopAfterStart = true;
         } else if (s < STOPPING && state.compareAndSet(s, STOPPING)) {
-          LOGGER.log(Level.INFO, () -> String.format("[%s]: stopping service..", serviceName));
+          LOGGER.log(Level.FINE, () -> String.format("[%s]: stopping service..", serviceName));
           doStop();
         }
       } catch (Throwable th) {

@@ -12,8 +12,23 @@
  * limitations under the License.
  */
 
-/**
- * Classes and interfaces for net.
- */
+package org.nightcode.common.net.retry;
 
-package org.nightcode.common.net;
+/**
+ *
+ */
+public interface RetryPolicy {
+
+  /**
+   *
+   */
+  enum Decision {
+    RETRY, RETHROW
+  }
+
+  Decision onException(Throwable cause);
+
+  static RetryPolicy defaultRetryPolicy() {
+    return new DefaultRetryPolicy();
+  }
+}

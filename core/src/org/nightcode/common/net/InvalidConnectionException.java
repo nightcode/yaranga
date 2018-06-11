@@ -12,8 +12,14 @@
  * limitations under the License.
  */
 
-/**
- * Classes and interfaces for net.
- */
-
 package org.nightcode.common.net;
+
+/**
+ *
+ */
+public class InvalidConnectionException extends GeneralNetworkException {
+
+  public InvalidConnectionException(String message, Throwable cause) {
+    super(message, cause);
+  }
+}

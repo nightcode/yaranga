@@ -12,8 +12,20 @@
  * limitations under the License.
  */
 
-/**
- * Classes and interfaces for net.
- */
+package org.nightcode.common.net.http;
 
-package org.nightcode.common.net;
+import java.security.GeneralSecurityException;
+
+/**
+ * An {@link AuthSigner} provides method for signature computation.
+ */
+public interface AuthSigner {
+
+  byte[] computeSignature(byte[] signatureBaseString) throws GeneralSecurityException;
+
+  String computeSignatureBase64(byte[] signatureBaseString) throws GeneralSecurityException;
+
+  String computeSignatureHex(byte[] signatureBaseString) throws GeneralSecurityException;
+
+  String getSignatureMethod();
+}

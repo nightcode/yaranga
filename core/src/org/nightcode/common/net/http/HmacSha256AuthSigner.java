@@ -1,20 +1,18 @@
 /*
- * Copyright (C) 2017 The NightCode Open Source Project
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-package org.nightcode.common.net;
+package org.nightcode.common.net.http;
 
 import org.nightcode.common.base.Hexs;
 
@@ -27,18 +25,18 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * HmacSha1 implementation of an {@link AuthSigner}.
+ * HmacSha256 implementation of an {@link AuthSigner}.
  */
-public class HmacSha1AuthSigner implements AuthSigner {
+public class HmacSha256AuthSigner implements AuthSigner {
 
   private static final Hexs HEX = Hexs.hex();
 
   private final Mac mac;
 
-  public HmacSha1AuthSigner(byte[] macKey) throws GeneralSecurityException {
+  public HmacSha256AuthSigner(byte[] macKey) throws GeneralSecurityException {
     Objects.requireNonNull(macKey, "mac key");
-    SecretKey secretKey = new SecretKeySpec(macKey, "HmacSHA1");
-    mac = Mac.getInstance("HmacSHA1");
+    SecretKey secretKey = new SecretKeySpec(macKey, "HmacSHA256");
+    mac = Mac.getInstance("HmacSHA256");
     mac.init(secretKey);
   }
 
@@ -55,6 +53,6 @@ public class HmacSha1AuthSigner implements AuthSigner {
   }
 
   @Override public String getSignatureMethod() {
-    return "hmac-sha-1";
+    return "hmac-sha-256";
   }
 }

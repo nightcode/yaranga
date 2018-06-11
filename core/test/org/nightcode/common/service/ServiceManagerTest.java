@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2008 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -78,8 +76,7 @@ public class ServiceManagerTest {
   }
 
   @SuppressWarnings("unchecked")
-  @Test public void shutdownAll()
-      throws ExecutionException, TimeoutException, InterruptedException {
+  @Test public void shutdownAll() throws ExecutionException, InterruptedException {
     Future<Service.State> stateFutureMock = EasyMock.createMock(Future.class);
 
     Service serviceMock = EasyMock.createStrictMock(Service.class);

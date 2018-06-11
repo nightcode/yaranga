@@ -12,8 +12,23 @@
  * limitations under the License.
  */
 
-/**
- * Classes and interfaces for net.
- */
+package org.nightcode.common.net.lb;
 
-package org.nightcode.common.net;
+import org.nightcode.common.net.Connection;
+
+import java.util.Collection;
+import java.util.Iterator;
+
+/**
+ *
+ */
+public interface LoadBalancingPolicy extends Connection.StateListener {
+
+  void init(Collection<Connection> connections);
+
+  Iterator<Connection> selectConnections();
+
+  static LoadBalancingPolicy defaultLoadBalancingPolicy() {
+    return new RoundRobinLoadBalancingPolicy();
+  }
+}

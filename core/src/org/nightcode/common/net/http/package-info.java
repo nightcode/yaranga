@@ -13,7 +13,7 @@
  */
 
 /**
- * Classes and interfaces for net.
+ * Classes and interfaces for .net.http.
  */
 
-package org.nightcode.common.net;
+package org.nightcode.common.net.http;

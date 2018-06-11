@@ -1,6 +1,4 @@
 /*
- * Copyright (C) The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +14,10 @@
 
 package org.nightcode.common.net;
 
-import java.io.UnsupportedEncodingException;
+import org.nightcode.common.net.http.AuthException;
+import org.nightcode.common.net.http.AuthUtils;
+import org.nightcode.common.net.http.OAuthUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +29,7 @@ import org.junit.Test;
  */
 public class OAuthUtilsTest {
 
-  @Test public void test() throws AuthException, UnsupportedEncodingException {
+  @Test public void test() throws AuthException {
     String str = "http://example.com /request?b5=%3D%253D&a3=a&c%40=&a2=r%20b&c2&a3=2+q";
     String strEncoded = AuthUtils.percentEncode(str);
     String strDecoded = AuthUtils.percentDecode(strEncoded);

@@ -13,7 +13,7 @@
  */
 
 /**
- * Classes and interfaces for net.
+ * Classes and interfaces for net.retry.
  */
 
-package org.nightcode.common.net;
+package org.nightcode.common.net.retry;
