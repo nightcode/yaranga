@@ -84,11 +84,11 @@ public class RoundRobinLoadBalancingPolicy implements LoadBalancingPolicy {
     }
   }
 
-  @Override public void onOpen(Connection connection) {
+  @Override public void onActive(Connection connection) {
     liveConnections.addIfAbsent(connection);
   }
 
-  @Override public void onClose(Connection connection) {
+  @Override public void onInactive(Connection connection) {
     liveConnections.remove(connection);
   }
 

@@ -15,7 +15,6 @@
 package org.nightcode.common.net;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -30,22 +29,22 @@ public abstract class Connection implements Closeable {
    */
   public interface StateListener {
 
-    void onOpen(Connection connection);
+    void onActive(Connection connection);
 
-    void onClose(Connection connection);
+    void onInactive(Connection connection);
   }
 
   private final Set<StateListener> stateListeners = new CopyOnWriteArraySet<>();
 
-  @Override public void close() throws IOException {
+  public void inactive() {
     for (StateListener listener : stateListeners) {
-      listener.onClose(this);
+      listener.onInactive(this);
     }
   }
 
-  public void open() throws IOException {
+  public void active() {
     for (StateListener listener : stateListeners) {
-      listener.onOpen(this);
+      listener.onActive(this);
     }
   }
 

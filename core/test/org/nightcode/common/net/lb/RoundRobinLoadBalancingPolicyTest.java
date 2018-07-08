@@ -16,7 +16,6 @@ package org.nightcode.common.net.lb;
 
 import org.nightcode.common.net.Connection;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -29,6 +28,10 @@ import org.junit.Test;
 public class RoundRobinLoadBalancingPolicyTest {
 
   private final Connection connection = new Connection() {
+    @Override public void close() {
+      // do nothing
+    }
+
     @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
       throw new IllegalStateException();
     }
@@ -53,7 +56,7 @@ public class RoundRobinLoadBalancingPolicyTest {
     Iterator<Connection> iterator = lbPolicy.selectConnections();
     Assert.assertFalse(iterator.hasNext());
 
-    lbPolicy.onOpen(connection);
+    lbPolicy.onActive(connection);
     iterator = lbPolicy.selectConnections();
     Assert.assertTrue(iterator.hasNext());
     Assert.assertEquals(connection, iterator.next());
@@ -61,25 +64,33 @@ public class RoundRobinLoadBalancingPolicyTest {
 
   @Test public void testOnClose() {
     LoadBalancingPolicy lbPolicy = new RoundRobinLoadBalancingPolicy();
-    lbPolicy.onOpen(connection);
+    lbPolicy.onActive(connection);
     Iterator<Connection> iterator = lbPolicy.selectConnections();
     Assert.assertTrue(iterator.hasNext());
     Assert.assertEquals(connection, iterator.next());
 
-    lbPolicy.onClose(connection);
+    lbPolicy.onInactive(connection);
     iterator = lbPolicy.selectConnections();
     Assert.assertFalse(iterator.hasNext());
   }
 
-  @Test public void testConnectionIterator() throws IOException {
+  @Test public void testConnectionIterator() {
     LoadBalancingPolicy lbPolicy = new RoundRobinLoadBalancingPolicy();
 
     Connection connection1 = new Connection() {
+      @Override public void close() {
+        // do nothing
+      }
+
       @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
         throw new IllegalStateException();
       }
     };
     Connection connection2 = new Connection() {
+      @Override public void close() {
+        // do nothing
+      }
+
       @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
         throw new IllegalStateException();
       }
@@ -92,8 +103,8 @@ public class RoundRobinLoadBalancingPolicyTest {
     Assert.assertFalse(iterator.hasNext());
 
 
-    connection1.open();
-    connection2.open();
+    connection1.active();
+    connection2.active();
 
     iterator = lbPolicy.selectConnections();
 

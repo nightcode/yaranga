@@ -25,16 +25,12 @@ public class ConnectionTest {
 
   @Test public void testAddStateListener() {
     Connection connection = new Connection() {
-      @Override public void open() throws IOException {
+      @Override public void close() {
         // do nothing
       }
 
       @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
         return null;
-      }
-
-      @Override public void close() throws IOException {
-        // do nothing
       }
     };
 
@@ -49,16 +45,12 @@ public class ConnectionTest {
 
   @Test public void testRemoveStateListener() {
     Connection connection = new Connection() {
-      @Override public void open() throws IOException {
+      @Override public void close() {
         // do nothing
       }
 
       @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
         return null;
-      }
-
-      @Override public void close() throws IOException {
-        // do nothing
       }
     };
 
