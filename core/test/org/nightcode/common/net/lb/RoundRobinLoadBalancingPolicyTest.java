@@ -35,6 +35,10 @@ public class RoundRobinLoadBalancingPolicyTest {
     @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
       throw new IllegalStateException();
     }
+
+    @Override public void open() {
+      // do nothing
+    }
   };
 
   @Test public void testInit() {
@@ -85,6 +89,10 @@ public class RoundRobinLoadBalancingPolicyTest {
       @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
         throw new IllegalStateException();
       }
+
+      @Override public void open() {
+        // do nothing
+      }
     };
     Connection connection2 = new Connection() {
       @Override public void close() {
@@ -93,6 +101,10 @@ public class RoundRobinLoadBalancingPolicyTest {
 
       @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
         throw new IllegalStateException();
+      }
+
+      @Override public void open() {
+        // do nothing
       }
     };
 

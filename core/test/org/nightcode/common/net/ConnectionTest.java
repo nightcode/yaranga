@@ -14,7 +14,6 @@
 
 package org.nightcode.common.net;
 
-import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 import org.easymock.EasyMock;
@@ -31,6 +30,10 @@ public class ConnectionTest {
 
       @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
         return null;
+      }
+
+      @Override public void open() {
+        // do nothing
       }
     };
 
@@ -51,6 +54,10 @@ public class ConnectionTest {
 
       @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
         return null;
+      }
+
+      @Override public void open() {
+        // do nothing
       }
     };
 
