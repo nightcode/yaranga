@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2008 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,91 +31,92 @@ public abstract class AbstractThreadService implements Service {
   private long restartTimeout = 10L; // timeout, in milliseconds
 
   private final AbstractService inner;
-  private volatile Thread thread;
+  private final Thread thread;
 
   protected AbstractThreadService(final String serviceName) {
     inner = new AbstractService(serviceName) {
-      @Override protected final void doStart() {
-        thread = new Thread(() -> {
-          boolean interrupted = false;
-          try {
-            onStart();
-            started();
-
-            if (isRunning()) {
-              Exception lastFailedCause = null;
-              try {
-                while (operates) {
-                  try {
-                    if (lastFailedCause != null) {
-                      Exception tmpException = lastFailedCause;
-                      lastFailedCause = null;
-                      onStart();
-                      AbstractThreadService.LOGGER.log(Level.FINE, tmpException
-                          , () -> String.format("[%s]: service has been restarted", serviceName()));
-                    }
-                    service();
-                  } catch (InterruptedException ex) {
-                    AbstractThreadService.LOGGER.log(Level.WARNING, ex
-                        , () -> String.format("[%s]: service has been interrupted", serviceName()));
-                    interrupted = true;
-                    if (restart) {
-                      restart = false;
-                      lastFailedCause = ex;
-                      try {
-                        onStop();
-                      } catch (Exception ignore) {
-                        AbstractThreadService.LOGGER.log(Level.FINEST, ignore
-                            , () -> String.format("[%s]: exception occurred", serviceName()));
-                      }
-                    } else {
-                      break;
-                    }
-                  } catch (Exception ex) {
-                    AbstractThreadService.LOGGER.log(Level.WARNING, ex
-                        , () -> String.format("[%s]: service's exception", serviceName()));
-                    lastFailedCause = ex;
-                    try {
-                      onStop();
-                    } catch (Exception ignore) {
-                      AbstractThreadService.LOGGER.log(Level.FINEST, ignore
-                          , () -> String.format("[%s]: exception occurred", serviceName()));
-                    }
-                    try {
-                      Thread.sleep(restartTimeout);
-                    } catch (InterruptedException ignore) {
-                      AbstractThreadService.LOGGER.log(Level.FINEST, ignore
-                          , () -> String.format("[%s]: exception occurred", serviceName()));
-                    }
-                  }
-                }
-              } catch (Throwable th) {
-                th.printStackTrace();
-                AbstractThreadService.LOGGER.log(Level.SEVERE, th, () -> String
-                    .format("[%s]: Service will be stopped. Unexpected error.", serviceName()));
-              }
-            }
-
-            if (isStopping() || interrupted) {
-              onStop();
-            }
-            stopped();
-          } catch (Throwable th) {
-            serviceFailed(th);
-          } finally {
-            if (interrupted) {
-              Thread.currentThread().interrupt();
-            }
-          }
-        }, super.serviceName());
+      @Override protected void doStart() {
         thread.start();
       }
 
-      @Override protected final void doStop() {
+      @Override protected void doStop() {
         operates = false;
         thread.interrupt();
       }
     };
+
+    thread = new Thread(() -> {
+      boolean interrupted = false;
+      try {
+        onStart();
+        inner.started();
+
+        if (inner.isRunning()) {
+          Exception lastFailedCause = null;
+          try {
+            while (operates) {
+              try {
+                if (lastFailedCause != null) {
+                  Exception tmpException = lastFailedCause;
+                  lastFailedCause = null;
+                  onStart();
+                  AbstractThreadService.LOGGER.log(Level.FINE, tmpException
+                      , () -> String.format("[%s]: service has been restarted", serviceName()));
+                }
+                service();
+              } catch (InterruptedException ex) {
+                AbstractThreadService.LOGGER.log(Level.WARNING, ex
+                    , () -> String.format("[%s]: service has been interrupted", serviceName()));
+                interrupted = true;
+                if (restart) {
+                  restart = false;
+                  lastFailedCause = ex;
+                  try {
+                    onStop();
+                  } catch (Exception ignore) {
+                    AbstractThreadService.LOGGER.log(Level.FINEST, ignore
+                        , () -> String.format("[%s]: exception occurred", serviceName()));
+                  }
+                } else {
+                  break;
+                }
+              } catch (Exception ex) {
+                AbstractThreadService.LOGGER.log(Level.WARNING, ex
+                    , () -> String.format("[%s]: service's exception", serviceName()));
+                lastFailedCause = ex;
+                try {
+                  onStop();
+                } catch (Exception ignore) {
+                  AbstractThreadService.LOGGER.log(Level.FINEST, ignore
+                      , () -> String.format("[%s]: exception occurred", serviceName()));
+                }
+                try {
+                  Thread.sleep(restartTimeout);
+                } catch (InterruptedException ignore) {
+                  AbstractThreadService.LOGGER.log(Level.FINEST, ignore
+                      , () -> String.format("[%s]: exception occurred", serviceName()));
+                }
+              }
+            }
+          } catch (Throwable th) {
+            th.printStackTrace();
+            AbstractThreadService.LOGGER.log(Level.SEVERE, th, () -> String
+                .format("[%s]: Service will be stopped. Unexpected error.", serviceName()));
+          }
+        }
+
+        if (inner.isStopping() || interrupted) {
+          onStop();
+        }
+        inner.stopped();
+      } catch (Throwable th) {
+        serviceFailed(th);
+      } finally {
+        if (interrupted) {
+          Thread.currentThread().interrupt();
+        }
+      }
+    }, serviceName());
   }
 
   public final void interrupt() {
