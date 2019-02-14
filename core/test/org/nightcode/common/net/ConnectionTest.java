@@ -14,6 +14,9 @@
 
 package org.nightcode.common.net;
 
+import org.nightcode.common.util.event.EventListener;
+
+import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
 import org.easymock.EasyMock;
@@ -22,53 +25,55 @@ import org.junit.Test;
 
 public class ConnectionTest {
 
+  private static InetSocketAddress ADDRESS = InetSocketAddress.createUnresolved("localhost", 12345);
+
   @Test public void testAddStateListener() {
-    Connection connection = new Connection() {
-      @Override public void close() {
+    Connection<InetSocketAddress> connection = new Connection<InetSocketAddress>("connection", ADDRESS) {
+      @Override public void doClose() {
+        // do nothing
+      }
+
+      @Override public void doOpen() {
         // do nothing
       }
 
       @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
         return null;
       }
-
-      @Override public void open() {
-        // do nothing
-      }
     };
 
-    Connection.StateListener stateListener = EasyMock.createMock(Connection.StateListener.class);
+    EventListener stateListener = EasyMock.createMock(EventListener.class);
 
-    boolean target = connection.addStateListener(stateListener);
+    boolean target = connection.addEventListener(stateListener);
     Assert.assertTrue(target);
 
-    target = connection.addStateListener(stateListener);
+    target = connection.addEventListener(stateListener);
     Assert.assertFalse(target);
   }
 
   @Test public void testRemoveStateListener() {
-    Connection connection = new Connection() {
-      @Override public void close() {
+    Connection<InetSocketAddress> connection = new Connection<InetSocketAddress>("connection", ADDRESS) {
+      @Override public void doClose() {
+        // do nothing
+      }
+
+      @Override public void doOpen() {
         // do nothing
       }
 
       @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
         return null;
       }
-
-      @Override public void open() {
-        // do nothing
-      }
     };
 
-    Connection.StateListener stateListener = EasyMock.createMock(Connection.StateListener.class);
+    EventListener stateListener = EasyMock.createMock(EventListener.class);
     
-    boolean target = connection.removeStateListener(stateListener);
+    boolean target = connection.removeEventListener(stateListener);
     Assert.assertFalse(target);
 
-    connection.addStateListener(stateListener);
+    connection.addEventListener(stateListener);
 
-    target = connection.removeStateListener(stateListener);
+    target = connection.removeEventListener(stateListener);
     Assert.assertTrue(target);
   }
 }

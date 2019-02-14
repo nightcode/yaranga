@@ -24,21 +24,21 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- *
+ * @param <A> the connection address
  */
-public class RoundRobinLoadBalancingPolicy implements LoadBalancingPolicy {
+public class RoundRobinLoadBalancingPolicy<A> implements LoadBalancingPolicy<A> {
 
-  private static final class ConnectionIterator implements Iterator<Connection> {
+  private static final class ConnectionIterator<A> implements Iterator<Connection<A>> {
 
-    private Connection next;
+    private Connection<A> next;
     private boolean ready;
 
     private int initIndex;
     private int remaining;
 
-    private final List<Connection> connections;
+    private final List<Connection<A>> connections;
 
-    private ConnectionIterator(int initIndex, List<Connection> connections) {
+    private ConnectionIterator(int initIndex, List<Connection<A>> connections) {
       this.initIndex = initIndex;
       this.connections = connections;
       this.remaining = connections.size();
@@ -48,7 +48,7 @@ public class RoundRobinLoadBalancingPolicy implements LoadBalancingPolicy {
       return ready || tryNext();
     }
 
-    @Override public Connection next() {
+    @Override public Connection<A> next() {
       if (!hasNext()) {
         throw new NoSuchElementException();
       } else {
@@ -76,29 +76,34 @@ public class RoundRobinLoadBalancingPolicy implements LoadBalancingPolicy {
 
   private final AtomicInteger index = new AtomicInteger(0);
 
-  private final CopyOnWriteArrayList<Connection> liveConnections = new CopyOnWriteArrayList<>();
+  private final CopyOnWriteArrayList<Connection<A>> liveConnections = new CopyOnWriteArrayList<>();
 
-  @Override public void init(Collection<Connection> connections) {
-    for (Connection connection : connections) {
-      connection.addStateListener(this);
+  @Override public void init(Collection<Connection<A>> connections) {
+    for (Connection<A> connection : connections) {
+      connection.addEventListener(this);
     }
   }
 
-  @Override public void onActive(Connection connection) {
-    liveConnections.addIfAbsent(connection);
+  @Override public void onEvent(Connection.ConnectionEvent<A> event) {
+    switch (event.type()) {
+      case ACTIVE:
+        liveConnections.addIfAbsent(event.subject());
+        break;
+      case INACTIVE:
+        liveConnections.remove(event.subject());
+        break;
+      default:
+        // do nothing
+    }
   }
 
-  @Override public void onInactive(Connection connection) {
-    liveConnections.remove(connection);
-  }
-
-  @Override public Iterator<Connection> selectConnections() {
+  @Override public Iterator<Connection<A>> selectConnections() {
     int initIndex = index.getAndIncrement();
     if (initIndex > INDEX_THRESHOLD) {
       index.set(0);
     }
     @SuppressWarnings("unchecked")
-    List<Connection> live = (List<Connection>) liveConnections.clone();
-    return new ConnectionIterator(initIndex, live);
+    List<Connection<A>> live = (List<Connection<A>>) liveConnections.clone();
+    return new ConnectionIterator<>(initIndex, live);
   }
 }

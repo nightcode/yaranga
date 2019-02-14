@@ -16,6 +16,7 @@ package org.nightcode.common.net.lb;
 
 import org.nightcode.common.net.Connection;
 
+import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -27,26 +28,28 @@ import org.junit.Test;
 
 public class RoundRobinLoadBalancingPolicyTest {
 
-  private final Connection connection = new Connection() {
-    @Override public void close() {
+  private static InetSocketAddress ADDRESS = InetSocketAddress.createUnresolved("localhost", 12345);
+
+  private final Connection<InetSocketAddress> connection = new Connection<InetSocketAddress>("connection", ADDRESS) {
+    @Override public void doClose() {
+      // do nothing
+    }
+
+    @Override public void doOpen() {
       // do nothing
     }
 
     @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
       throw new IllegalStateException();
     }
-
-    @Override public void open() {
-      // do nothing
-    }
   };
 
   @Test public void testInit() {
-    LoadBalancingPolicy lbPolicy = new RoundRobinLoadBalancingPolicy();
+    LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
 
-    Connection connection = EasyMock.mock(Connection.class);
+    Connection<InetSocketAddress> connection = EasyMock.mock(Connection.class);
 
-    EasyMock.expect(connection.addStateListener(lbPolicy)).andReturn(true).once();
+    EasyMock.expect(connection.addEventListener(lbPolicy)).andReturn(true).once();
     EasyMock.replay(connection);
 
     lbPolicy.init(Collections.singletonList(connection));
@@ -55,62 +58,62 @@ public class RoundRobinLoadBalancingPolicyTest {
   }
 
   @Test public void testOnOpen() {
-    LoadBalancingPolicy lbPolicy = new RoundRobinLoadBalancingPolicy();
+    LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
 
-    Iterator<Connection> iterator = lbPolicy.selectConnections();
+    Iterator<Connection<InetSocketAddress>> iterator = lbPolicy.selectConnections();
     Assert.assertFalse(iterator.hasNext());
 
-    lbPolicy.onActive(connection);
+    lbPolicy.onEvent(new Connection.ConnectionEvent<>(connection, Connection.State.ACTIVE));
     iterator = lbPolicy.selectConnections();
     Assert.assertTrue(iterator.hasNext());
     Assert.assertEquals(connection, iterator.next());
   }
 
   @Test public void testOnClose() {
-    LoadBalancingPolicy lbPolicy = new RoundRobinLoadBalancingPolicy();
-    lbPolicy.onActive(connection);
-    Iterator<Connection> iterator = lbPolicy.selectConnections();
+    LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
+    lbPolicy.onEvent(new Connection.ConnectionEvent<>(connection, Connection.State.ACTIVE));
+    Iterator<Connection<InetSocketAddress>> iterator = lbPolicy.selectConnections();
     Assert.assertTrue(iterator.hasNext());
     Assert.assertEquals(connection, iterator.next());
 
-    lbPolicy.onInactive(connection);
+    lbPolicy.onEvent(new Connection.ConnectionEvent<>(connection, Connection.State.INACTIVE));
     iterator = lbPolicy.selectConnections();
     Assert.assertFalse(iterator.hasNext());
   }
 
   @Test public void testConnectionIterator() {
-    LoadBalancingPolicy lbPolicy = new RoundRobinLoadBalancingPolicy();
+    LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
 
-    Connection connection1 = new Connection() {
-      @Override public void close() {
+    Connection<InetSocketAddress> connection1 = new Connection<InetSocketAddress>("connection1", ADDRESS) {
+      @Override public void doClose() {
+        // do nothing
+      }
+
+      @Override public void doOpen() {
         // do nothing
       }
 
       @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
         throw new IllegalStateException();
-      }
-
-      @Override public void open() {
-        // do nothing
       }
     };
-    Connection connection2 = new Connection() {
-      @Override public void close() {
+    Connection<InetSocketAddress> connection2 = new Connection<InetSocketAddress>("connection2", ADDRESS) {
+      @Override public void doClose() {
+        // do nothing
+      }
+
+      @Override public void doOpen() {
         // do nothing
       }
 
       @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
         throw new IllegalStateException();
-      }
-
-      @Override public void open() {
-        // do nothing
       }
     };
 
     lbPolicy.init(Arrays.asList(connection1, connection2));
 
-    Iterator<Connection> iterator = lbPolicy.selectConnections();
+    Iterator<Connection<InetSocketAddress>> iterator = lbPolicy.selectConnections();
 
     Assert.assertFalse(iterator.hasNext());
 

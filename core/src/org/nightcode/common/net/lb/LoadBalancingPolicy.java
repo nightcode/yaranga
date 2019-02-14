@@ -15,20 +15,21 @@
 package org.nightcode.common.net.lb;
 
 import org.nightcode.common.net.Connection;
+import org.nightcode.common.util.event.EventListener;
 
 import java.util.Collection;
 import java.util.Iterator;
 
 /**
- *
+ * @param <A> the connection address
  */
-public interface LoadBalancingPolicy extends Connection.StateListener {
+public interface LoadBalancingPolicy<A> extends EventListener<Connection.ConnectionEvent<A>> {
 
-  void init(Collection<Connection> connections);
+  void init(Collection<Connection<A>> connections);
 
-  Iterator<Connection> selectConnections();
+  Iterator<Connection<A>> selectConnections();
 
-  static LoadBalancingPolicy defaultLoadBalancingPolicy() {
-    return new RoundRobinLoadBalancingPolicy();
+  static <A> LoadBalancingPolicy<A> defaultLoadBalancingPolicy() {
+    return new RoundRobinLoadBalancingPolicy<>();
   }
 }
