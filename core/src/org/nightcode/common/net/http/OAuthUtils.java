@@ -153,7 +153,7 @@ public final class OAuthUtils {
    *      value using an "=" character (ASCII code 61) as a separator,
    *      even if the value is empty.
    *  4.  The sorted name/value pairs are concatenated together into a
-   *      single string by using an "&" character (ASCII code 38) as separator.
+   *      single string by using an "&amp;" character (ASCII code 38) as separator.
    *
    * @see <a href="http://tools.ietf.org/html/rfc5849#section-3.4.1.3">3.4.1.3.2.
    *      Parameters Normalization</a>
@@ -161,6 +161,7 @@ public final class OAuthUtils {
    * @param requestUrl request url
    * @param protocolParameters oauth protocol parameters
    * @return the normalized request parameters
+   * @throws AuthException an authentication exception
    */
   public static String normalizeParameters(String requestUrl,
       Map<String, String> protocolParameters) throws AuthException {

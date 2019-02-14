@@ -53,6 +53,7 @@ public final class EmptyIterator<E> extends ReadOnlyIterator<E> {
   /**
    * Returns INSTANCE of empty iterator.
    *
+   * @param <E> an element's type
    * @return instance of empty iterator
    */
   @SuppressWarnings("unchecked")
