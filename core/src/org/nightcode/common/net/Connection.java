@@ -36,9 +36,7 @@ public abstract class Connection<A> implements Closeable {
   public enum State {
     NEW,
     ACTIVE,
-    CLOSED,
-    INACTIVE,
-    OPENED
+    INACTIVE;
   }
 
   /**
@@ -89,8 +87,6 @@ public abstract class Connection<A> implements Closeable {
 
   @Override public final void close() throws IOException {
     doClose();
-    state = State.CLOSED;
-    fireEvent(new ConnectionEvent<>(this, State.CLOSED));
   }
 
   public abstract void doClose() throws IOException;
@@ -114,8 +110,6 @@ public abstract class Connection<A> implements Closeable {
 
   public final void open() throws IOException {
     doOpen();
-    state = State.OPENED;
-    fireEvent(new ConnectionEvent<>(this, State.OPENED));
   }
 
   public boolean removeEventListener(EventListener<ConnectionEvent<A>> listener) {

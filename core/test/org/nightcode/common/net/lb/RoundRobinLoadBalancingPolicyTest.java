@@ -140,4 +140,44 @@ public class RoundRobinLoadBalancingPolicyTest {
     Assert.assertEquals(connection2, target2);
     Assert.assertFalse(iterator.hasNext());
   }
+
+  @Test public void testSingleConnectionIterator() {
+    LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
+
+    Connection<InetSocketAddress> connection = new Connection<InetSocketAddress>("connection", ADDRESS) {
+      @Override public void doClose() {
+        // do nothing
+      }
+
+      @Override public void doOpen() {
+        // do nothing
+      }
+
+      @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
+        throw new IllegalStateException();
+      }
+    };
+
+    lbPolicy.init(Collections.singleton(connection));
+
+    Iterator<Connection<InetSocketAddress>> connections = lbPolicy.selectConnections();
+
+    Assert.assertFalse(connections.hasNext());
+
+    connection.active();
+
+    connections = lbPolicy.selectConnections();
+
+    Assert.assertTrue(connections.hasNext());
+    Connection target = connections.next();
+    Assert.assertEquals(connection, target);
+    Assert.assertFalse(connections.hasNext());
+
+    connections = lbPolicy.selectConnections();
+
+    Assert.assertTrue(connections.hasNext());
+    target = connections.next();
+    Assert.assertEquals(connection, target);
+    Assert.assertFalse(connections.hasNext());
+  }
 }
