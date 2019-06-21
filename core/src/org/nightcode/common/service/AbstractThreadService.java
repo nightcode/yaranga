@@ -14,16 +14,17 @@
 
 package org.nightcode.common.service;
 
+import org.nightcode.common.util.logging.LogManager;
+import org.nightcode.common.util.logging.Logger;
+
 import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A Service that executes logic in separate thread.
  */
 public abstract class AbstractThreadService implements Service {
 
-  protected static final Logger LOGGER = Logger.getLogger(AbstractThreadService.class.getName());
+  protected static final Logger LOGGER = LogManager.getLogger(AbstractThreadService.class);
 
   private volatile boolean operates = true;
   private volatile boolean restart = false;
@@ -60,13 +61,12 @@ public abstract class AbstractThreadService implements Service {
                   Exception tmpException = lastFailedCause;
                   lastFailedCause = null;
                   onStart();
-                  AbstractThreadService.LOGGER.log(Level.FINE, tmpException
-                      , () -> String.format("[%s]: service has been restarted", serviceName()));
+                  LOGGER.debug(tmpException, () -> String.format("[%s]: service has been restarted", serviceName()));
                 }
                 service();
               } catch (InterruptedException ex) {
-                AbstractThreadService.LOGGER.log(Level.WARNING, ex
-                    , () -> String.format("[%s]: service has been interrupted", serviceName()));
+                AbstractThreadService
+                    .LOGGER.warn(ex, () -> String.format("[%s]: service has been interrupted", serviceName()));
                 interrupted = true;
                 if (restart) {
                   restart = false;
@@ -74,34 +74,29 @@ public abstract class AbstractThreadService implements Service {
                   try {
                     onStop();
                   } catch (Exception ignore) {
-                    AbstractThreadService.LOGGER.log(Level.FINEST, ignore
-                        , () -> String.format("[%s]: exception occurred", serviceName()));
+                    LOGGER.trace(ignore, () -> String.format("[%s]: exception occurred", serviceName()));
                   }
                 } else {
                   break;
                 }
               } catch (Exception ex) {
-                AbstractThreadService.LOGGER.log(Level.WARNING, ex
-                    , () -> String.format("[%s]: service's exception", serviceName()));
+                LOGGER.warn(ex, () -> String.format("[%s]: service's exception", serviceName()));
                 lastFailedCause = ex;
                 try {
                   onStop();
                 } catch (Exception ignore) {
-                  AbstractThreadService.LOGGER.log(Level.FINEST, ignore
-                      , () -> String.format("[%s]: exception occurred", serviceName()));
+                  LOGGER.trace(ignore, () -> String.format("[%s]: exception occurred", serviceName()));
                 }
                 try {
                   Thread.sleep(restartTimeout);
                 } catch (InterruptedException ignore) {
-                  AbstractThreadService.LOGGER.log(Level.FINEST, ignore
-                      , () -> String.format("[%s]: exception occurred", serviceName()));
+                  LOGGER.trace(ignore, () -> String.format("[%s]: exception occurred", serviceName()));
                 }
               }
             }
           } catch (Throwable th) {
             th.printStackTrace();
-            AbstractThreadService.LOGGER.log(Level.SEVERE, th, () -> String
-                .format("[%s]: Service will be stopped. Unexpected error.", serviceName()));
+            LOGGER.fatal(th, () -> String.format("[%s]: Service will be stopped. Unexpected error.", serviceName()));
           }
         }
 

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2008 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +14,9 @@
 
 package org.nightcode.common.service;
 
+import org.nightcode.common.util.logging.LogManager;
+import org.nightcode.common.util.logging.Logger;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -23,8 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.inject.Singleton;
 
@@ -34,7 +33,7 @@ import javax.inject.Singleton;
 @Singleton
 public final class ServiceManager {
 
-  private static final Logger LOGGER = Logger.getLogger(ServiceManager.class.getName());
+  private static final Logger LOGGER = LogManager.getLogger(ServiceManager.class);
 
   private static final ServiceManager INSTANCE = new ServiceManager();
 
@@ -53,29 +52,23 @@ public final class ServiceManager {
     Objects.requireNonNull(service, "service");
     Service serv = services.putIfAbsent(service.serviceName(), service);
     if (serv != null) {
-      throw new IllegalStateException("service <" + service.serviceName()
-          + "> has already been added");
+      throw new IllegalStateException("service <" + service.serviceName() + "> has already been added");
     }
-    LOGGER.log(Level.CONFIG
-        , () -> String.format("[ServiceManager]: shutdown hook for service <%s> has been added"
-        , service.serviceName()));
+    LOGGER.config("[ServiceManager]: shutdown hook for service <%s> has been added", service.serviceName());
   }
 
   public void removeShutdownHook(Service service) {
     Objects.requireNonNull(service, "service");
     Service serv = services.remove(service.serviceName());
     if (serv == null) {
-      LOGGER.log(Level.INFO, () -> String
-          .format("[ServiceManager]: service <%s> has never been added", service.serviceName()));
+      LOGGER.info("[ServiceManager]: service <%s> has never been added", service.serviceName());
     } else {
-      LOGGER.log(Level.CONFIG
-          , () -> String.format("[ServiceManager]: shutdown hook for service <%s> has been removed"
-          , service.serviceName()));
+      LOGGER.config("[ServiceManager]: shutdown hook for service <%s> has been removed", service.serviceName());
     }
   }
 
   public void shutdownAll() {
-    LOGGER.log(Level.INFO, "[ServiceManager]: external termination in progress..");
+    LOGGER.info("[ServiceManager]: external termination in progress..");
     Map<String, Future<Service.State>> futures = new HashMap<>();
     for (final Service service : services.values()) {
         futures.put(service.serviceName(), service.stop());
@@ -84,7 +77,7 @@ public final class ServiceManager {
       try {
         value.get();
       } catch (Exception ex) {
-        LOGGER.log(Level.WARNING, ex, () -> String.format("[ServiceManager]: cannot stop service <%s>", key));
+        LOGGER.warn(ex, () -> String.format("[ServiceManager]: cannot stop service <%s>", key));
       }
 
     });
@@ -92,7 +85,7 @@ public final class ServiceManager {
   }
 
   public void shutdownAll(long timeout, TimeUnit unit) {
-    LOGGER.log(Level.INFO, "[ServiceManager]: external termination in progress..");
+    LOGGER.info("[ServiceManager]: external termination in progress..");
     Map<String, Future<Service.State>> futures = new HashMap<>();
     for (final Service service : services.values()) {
         futures.put(service.serviceName(), service.stop());
@@ -101,7 +94,7 @@ public final class ServiceManager {
       try {
         value.get(timeout, unit);
       } catch (Exception ex) {
-        LOGGER.log(Level.WARNING, ex, () -> String.format("[ServiceManager]: cannot stop service <%s>", key));
+        LOGGER.warn(ex, () -> String.format("[ServiceManager]: cannot stop service <%s>", key));
       }
     });
     services.clear();

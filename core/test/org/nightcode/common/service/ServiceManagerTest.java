@@ -49,7 +49,7 @@ public class ServiceManagerTest {
 
   @Test public void addShutdownHookTwice() {
     Service serviceMock = EasyMock.createMock(Service.class);
-    EasyMock.expect(serviceMock.serviceName()).andReturn("serviceMock").times(3);
+    EasyMock.expect(serviceMock.serviceName()).andReturn("serviceMock").times(4);
  
     EasyMock.replay(serviceMock);
 
@@ -80,7 +80,7 @@ public class ServiceManagerTest {
     Future<Service.State> stateFutureMock = EasyMock.createMock(Future.class);
 
     Service serviceMock = EasyMock.createStrictMock(Service.class);
-    EasyMock.expect(serviceMock.serviceName()).andReturn("serviceMock").times(2);
+    EasyMock.expect(serviceMock.serviceName()).andReturn("serviceMock").times(3);
     EasyMock.expect(serviceMock.stop()).andReturn(stateFutureMock).once();
     EasyMock.expect(stateFutureMock.get()).andReturn(Service.State.TERMINATED).once();
     EasyMock.replay(serviceMock);
@@ -98,7 +98,7 @@ public class ServiceManagerTest {
     Future<Service.State> stateFutureMock = EasyMock.createMock(Future.class);
 
     Service serviceMock = EasyMock.createStrictMock(Service.class);
-    EasyMock.expect(serviceMock.serviceName()).andReturn("serviceMock").times(2);
+    EasyMock.expect(serviceMock.serviceName()).andReturn("serviceMock").times(3);
     EasyMock.expect(serviceMock.stop()).andReturn(stateFutureMock).once();
     EasyMock.expect(stateFutureMock.get(10 * 1000, TimeUnit.MILLISECONDS))
         .andReturn(Service.State.TERMINATED).once();

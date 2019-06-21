@@ -12,8 +12,14 @@
  * limitations under the License.
  */
 
-/**
- * This package contains classes and interfaces for services.
- */
+package org.nightcode.common.util.logging;
 
-package org.nightcode.common.service;
+/**
+ * Logging provider.
+ */
+public interface LoggingProvider {
+
+  Logger createLogger(Class<?> clazz);
+
+  Logger createLogger(Object instance);
+}

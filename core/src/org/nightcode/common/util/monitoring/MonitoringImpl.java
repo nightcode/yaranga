@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2008 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,7 +20,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Level;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -86,8 +83,7 @@ public final class MonitoringImpl extends AbstractThreadService implements Monit
       try {
         monitoringComponent.retrieveData(monitoringVisitor);
       } catch (IOException ex) {
-        LOGGER.log(Level.WARNING, ex, () -> String
-            .format("Cannot retrieve data from component <%s>.", monitoringComponent));
+        LOGGER.warn(ex, () -> String.format("cannot retrieve data from component <%s>", monitoringComponent));
       }
     }
     Thread.sleep(retrieveTimeout);

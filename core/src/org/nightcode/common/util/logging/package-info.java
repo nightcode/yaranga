@@ -13,7 +13,7 @@
  */
 
 /**
- * This package contains classes and interfaces for services.
+ * This package contains classes and interfaces for logging.
  */
 
-package org.nightcode.common.service;
+package org.nightcode.common.util.logging;

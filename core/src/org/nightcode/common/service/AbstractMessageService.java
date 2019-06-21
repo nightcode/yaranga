@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2008 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,8 +15,6 @@
 package org.nightcode.common.service;
 
 import org.nightcode.common.base.Throwables;
-
-import java.util.logging.Level;
 
 /**
  * Abstract message service.
@@ -54,7 +50,7 @@ public abstract class AbstractMessageService<M> extends AbstractService implemen
         if (propagateException) {
           throw Throwables.propagate(ex);
         }
-        LOGGER.log(Level.WARNING, ex
+        LOGGER.warn(ex
             , () -> String.format("[%s]: exception occurred while submitting message <%s>", serviceName(), message));
       }
     }

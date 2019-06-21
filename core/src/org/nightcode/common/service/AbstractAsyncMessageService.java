@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2008 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,7 +17,6 @@ package org.nightcode.common.service;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 /**
  * Abstract async message service.
@@ -71,8 +68,8 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
       if (queue.offer(message)) {
         int recheck = state();
         if (!AbstractService.isRunning(recheck) && queue.remove(message)) {
-          LOGGER.log(Level.INFO, () -> String.format("[%s]: message <%s> has been skipped (queue remaining capacity %s)"
-              , serviceName(), message, queue.remainingCapacity()));
+          LOGGER.info("[%s]: message <%s> has been skipped (queue remaining capacity %s)"
+              , serviceName(), message, queue.remainingCapacity());
           return false;
         }
         return true;
@@ -83,14 +80,13 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
           if (queue.offer(message, 100, TimeUnit.MILLISECONDS)) {
             int recheck = state();
             if (!AbstractService.isRunning(recheck) && queue.remove(message)) {
-              LOGGER.log(Level.INFO
-                  , () -> String.format("[%s]: message <%s> has been rejected", serviceName(), message));
+              LOGGER.info("[%s]: message <%s> has been rejected", serviceName(), message);
               return false;
             }
             return true;
           }
         } catch (InterruptedException ex) {
-          LOGGER.log(Level.WARNING, ex, () -> String.format("[%s]: exception:", serviceName()));
+          LOGGER.warn(ex, () -> String.format("[%s]: exception:", serviceName()));
           Thread.currentThread().interrupt();
         }
       }
