@@ -203,7 +203,7 @@ class Log4J2LoggerAdapter implements Logger {
   @Override public void fatal(Throwable thrown, Supplier<?> supplier) {
     log(Level.FATAL, thrown, supplier);
   }
-  
+
   private void log(Level level, String message) {
     logger.log(level, message);
   }

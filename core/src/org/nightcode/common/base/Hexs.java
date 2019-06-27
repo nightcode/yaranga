@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2008 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -78,7 +76,7 @@ public final class Hexs {
   public String fromByteArray(byte[] bytes, int offset, int length) {
     java.util.Objects.requireNonNull(bytes, "bytes");
     Objects.validArgument(offset >= 0, "offset must be equal or greater than zero");
-    Objects.validArgument(length > 0, "length must be greater than zero");
+    Objects.validArgument(length >= 0, "length must be greater than zero");
     Objects.validArgument(offset + length <= bytes.length
         , "(offset + length) must be less than %s", bytes.length);
     if (byteSeparator != null && byteSeparator.length() > 0) {

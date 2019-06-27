@@ -204,7 +204,7 @@ class JulLoggerAdapter implements Logger {
   @Override public void fatal(Throwable thrown, Supplier<?> supplier) {
     log(Level.SEVERE, thrown, supplier);
   }
-  
+
   private void log(Level level, String message) {
     logger.log(level, message);
   }
