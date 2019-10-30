@@ -20,6 +20,7 @@ import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 
 import org.easymock.EasyMock;
@@ -179,5 +180,71 @@ public class RoundRobinLoadBalancingPolicyTest {
     target = connections.next();
     Assert.assertEquals(connection, target);
     Assert.assertFalse(connections.hasNext());
+
+    try {
+      connections.next();
+      Assert.fail("must throw NoSuchElementException");
+    } catch (NoSuchElementException ex) {
+      // do nothing
+    }
+  }
+
+  @Test public void testAddConnection() {
+    LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
+
+    Connection<InetSocketAddress> connection = new Connection<InetSocketAddress>("connection", ADDRESS) {
+      @Override public void doClose() {
+        // do nothing
+      }
+
+      @Override public void doOpen() {
+        // do nothing
+      }
+
+      @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
+        throw new IllegalStateException();
+      }
+    };
+
+    Iterator<Connection<InetSocketAddress>> connections = lbPolicy.selectConnections();
+    Assert.assertFalse(connections.hasNext());
+    
+    lbPolicy.addConnection(connection);
+
+    connections = lbPolicy.selectConnections();
+    Assert.assertTrue(connections.hasNext());
+  }
+
+  @Test public void testRemoveConnection() {
+    LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
+
+    Connection<InetSocketAddress> connection = new Connection<InetSocketAddress>("connection", ADDRESS) {
+      @Override public void doClose() {
+        // do nothing
+      }
+
+      @Override public void doOpen() {
+        // do nothing
+      }
+
+      @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
+        throw new IllegalStateException();
+      }
+    };
+
+    lbPolicy.init(Collections.singleton(connection));
+    connection.active();
+
+    Iterator<Connection<InetSocketAddress>> connections = lbPolicy.selectConnections();
+    Assert.assertTrue(connections.hasNext());
+
+    lbPolicy.removeConnection(connection);
+    connections = lbPolicy.selectConnections();
+    Assert.assertFalse(connections.hasNext());
+  }
+
+  @Test public void testDefaultLbPolicy() {
+    LoadBalancingPolicy<InetSocketAddress> lbPolicy = LoadBalancingPolicy.defaultLoadBalancingPolicy();
+    Assert.assertEquals(RoundRobinLoadBalancingPolicy.class, lbPolicy.getClass());
   }
 }

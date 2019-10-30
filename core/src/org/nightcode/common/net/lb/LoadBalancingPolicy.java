@@ -25,7 +25,11 @@ import java.util.Iterator;
  */
 public interface LoadBalancingPolicy<A> extends EventListener<Connection.ConnectionEvent<A>> {
 
+  void addConnection(Connection<A> connection);
+
   void init(Collection<Connection<A>> connections);
+
+  void removeConnection(Connection<A> connection);
 
   Iterator<Connection<A>> selectConnections();
 
