@@ -16,6 +16,9 @@
 
 package org.nightcode.common.base;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 /**
  * Throwables helper class.
  */
@@ -26,11 +29,26 @@ public final class Throwables {
   }
 
   public static Throwable getRootCause(Throwable throwable) {
+    Throwable predecessor = throwable;
     Throwable cause;
+    boolean movePredecessor = false;
     while ((cause = throwable.getCause()) != null) {
+      if (cause == predecessor) {
+        throw new IllegalStateException("loop in casual chain", cause);
+      }
+      if (movePredecessor) {
+        predecessor = predecessor.getCause();
+      }
+      movePredecessor = !movePredecessor;
       throwable = cause;
     }
     return throwable;
+  }
+
+  public static String getStackTrace(Throwable throwable) {
+    StringWriter out = new StringWriter();
+    throwable.printStackTrace(new PrintWriter(out));
+    return out.toString();
   }
 
   public static RuntimeException propagate(Throwable throwable) {

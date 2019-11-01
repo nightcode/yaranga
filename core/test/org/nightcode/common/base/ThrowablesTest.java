@@ -17,7 +17,9 @@
 package org.nightcode.common.base;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -26,8 +28,15 @@ import static org.junit.Assert.assertEquals;
  * Unit test for {@link Throwables}.
  */
 public class ThrowablesTest {
+
+  private static final class TestException extends Exception {
+
+    public TestException(String message) {
+      super(message, null, true, false);
+    }
+  }
   
-  @Test public void getRootCause() {
+  @Test public void testGetRootCause() {
     Throwable expected = new IOException();
     Throwable actual;
     try {
@@ -38,5 +47,27 @@ public class ThrowablesTest {
       actual = Throwables.getRootCause(ex);
     }
     assertEquals(expected, actual);
+  }
+
+  @Test public void testGetRootCauseLoop() throws NoSuchFieldException, IllegalAccessException {
+    Throwable root = new IOException();
+    Throwable chain = new IOException(new IOException(new IOException(new IOException(new IOException(root)))));
+    Field causeField = Throwable.class.getDeclaredField("cause");
+    try {
+      causeField.setAccessible(true);
+      causeField.set(root, chain);
+      Throwables.getRootCause(chain);
+      Assert.fail("must throw IllegalStateException");
+    } catch (IllegalStateException ex) {
+      Assert.assertEquals("loop in casual chain", ex.getMessage());
+    } finally {
+      causeField.setAccessible(false);
+    }
+  }
+
+  @Test public void testGetStackTrace() {
+    Exception exception = new TestException("message");
+    String stackTrace = Throwables.getStackTrace(exception);
+    Assert.assertEquals("org.nightcode.common.base.ThrowablesTest$TestException: message\n", stackTrace);
   }
 }
