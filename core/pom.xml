@@ -18,7 +18,7 @@
   <parent>
     <groupId>org.nightcode.yaranga</groupId>
     <artifactId>yaranga-parent</artifactId>
-    <version>0.7.2</version>
+    <version>0.8-SNAPSHOT</version>
   </parent>
 
   <artifactId>yaranga</artifactId>
@@ -29,10 +29,6 @@
     <dependency>
       <groupId>javax.inject</groupId>
       <artifactId>javax.inject</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
     </dependency>
 
     <dependency>
