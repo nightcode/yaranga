@@ -29,11 +29,11 @@ public class ConnectionTest {
 
   @Test public void testAddStateListener() {
     Connection<InetSocketAddress> connection = new Connection<InetSocketAddress>("connection", ADDRESS) {
-      @Override public void doClose() {
+      @Override public void close() {
         // do nothing
       }
 
-      @Override public void doOpen() {
+      @Override public void open() {
         // do nothing
       }
 
@@ -53,11 +53,11 @@ public class ConnectionTest {
 
   @Test public void testRemoveStateListener() {
     Connection<InetSocketAddress> connection = new Connection<InetSocketAddress>("connection", ADDRESS) {
-      @Override public void doClose() {
+      @Override public void close() {
         // do nothing
       }
 
-      @Override public void doOpen() {
+      @Override public void open() {
         // do nothing
       }
 

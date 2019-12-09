@@ -79,10 +79,10 @@ public class RoundRobinLoadBalancingPolicy<A> implements LoadBalancingPolicy<A> 
   private final CopyOnWriteArrayList<Connection<A>> liveConnections = new CopyOnWriteArrayList<>();
 
   @Override public void addConnection(Connection<A> connection) {
-    liveConnections.addIfAbsent(connection);
+    connection.addEventListener(this);
   }
 
-  @Override public void init(Collection<Connection<A>> connections) {
+  @Override public void addConnections(Collection<Connection<A>> connections) {
     for (Connection<A> connection : connections) {
       connection.addEventListener(this);
     }
@@ -93,7 +93,10 @@ public class RoundRobinLoadBalancingPolicy<A> implements LoadBalancingPolicy<A> 
       case ACTIVE:
         liveConnections.addIfAbsent(event.subject());
         break;
-      case INACTIVE:
+      case IDLE:
+      case SHUTDOWN:
+      case STOPPING:
+      case CLOSED:
         liveConnections.remove(event.subject());
         break;
       default:
@@ -102,6 +105,7 @@ public class RoundRobinLoadBalancingPolicy<A> implements LoadBalancingPolicy<A> 
   }
 
   @Override public void removeConnection(Connection<A> connection) {
+    connection.removeEventListener(this);
     liveConnections.remove(connection);
   }
 

@@ -16,8 +16,8 @@ package org.nightcode.common.net.lb;
 
 import org.nightcode.common.net.Connection;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -32,11 +32,11 @@ public class RoundRobinLoadBalancingPolicyTest {
   private static InetSocketAddress ADDRESS = InetSocketAddress.createUnresolved("localhost", 12345);
 
   private final Connection<InetSocketAddress> connection = new Connection<InetSocketAddress>("connection", ADDRESS) {
-    @Override public void doClose() {
+    @Override public void close() {
       // do nothing
     }
 
-    @Override public void doOpen() {
+    @Override public void open() {
       // do nothing
     }
 
@@ -45,20 +45,7 @@ public class RoundRobinLoadBalancingPolicyTest {
     }
   };
 
-  @Test public void testInit() {
-    LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
-
-    Connection<InetSocketAddress> connection = EasyMock.mock(Connection.class);
-
-    EasyMock.expect(connection.addEventListener(lbPolicy)).andReturn(true).once();
-    EasyMock.replay(connection);
-
-    lbPolicy.init(Collections.singletonList(connection));
-
-    EasyMock.verify(connection);
-  }
-
-  @Test public void testOnOpen() {
+  @Test public void testOpen() {
     LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
 
     Iterator<Connection<InetSocketAddress>> iterator = lbPolicy.selectConnections();
@@ -70,28 +57,28 @@ public class RoundRobinLoadBalancingPolicyTest {
     Assert.assertEquals(connection, iterator.next());
   }
 
-  @Test public void testOnClose() {
+  @Test public void testClose() {
     LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
     lbPolicy.onEvent(new Connection.ConnectionEvent<>(connection, Connection.State.ACTIVE));
     Iterator<Connection<InetSocketAddress>> iterator = lbPolicy.selectConnections();
     Assert.assertTrue(iterator.hasNext());
     Assert.assertEquals(connection, iterator.next());
 
-    lbPolicy.onEvent(new Connection.ConnectionEvent<>(connection, Connection.State.INACTIVE));
+    lbPolicy.onEvent(new Connection.ConnectionEvent<>(connection, Connection.State.CLOSED));
     iterator = lbPolicy.selectConnections();
     Assert.assertFalse(iterator.hasNext());
   }
 
-  @Test public void testConnectionIterator() {
+  @Test public void testConnectionIterator() throws IOException {
     LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
 
     Connection<InetSocketAddress> connection1 = new Connection<InetSocketAddress>("connection1", ADDRESS) {
-      @Override public void doClose() {
+      @Override public void close() {
         // do nothing
       }
 
-      @Override public void doOpen() {
-        // do nothing
+      @Override public void open() {
+        fireStateEvent(State.ACTIVE);
       }
 
       @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
@@ -99,12 +86,12 @@ public class RoundRobinLoadBalancingPolicyTest {
       }
     };
     Connection<InetSocketAddress> connection2 = new Connection<InetSocketAddress>("connection2", ADDRESS) {
-      @Override public void doClose() {
+      @Override public void close() {
         // do nothing
       }
 
-      @Override public void doOpen() {
-        // do nothing
+      @Override public void open() {
+        fireStateEvent(State.ACTIVE);
       }
 
       @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
@@ -112,20 +99,19 @@ public class RoundRobinLoadBalancingPolicyTest {
       }
     };
 
-    lbPolicy.init(Arrays.asList(connection1, connection2));
+    lbPolicy.addConnection(connection1);
+    lbPolicy.addConnection(connection2);
 
     Iterator<Connection<InetSocketAddress>> iterator = lbPolicy.selectConnections();
-
     Assert.assertFalse(iterator.hasNext());
 
-
-    connection1.active();
-    connection2.active();
+    connection1.open();
+    connection2.open();
 
     iterator = lbPolicy.selectConnections();
 
-    Connection target1 = iterator.next();
-    Connection target2 = iterator.next();
+    Connection<InetSocketAddress> target1 = iterator.next();
+    Connection<InetSocketAddress> target2 = iterator.next();
 
     Assert.assertEquals(connection1, target2);
     Assert.assertEquals(connection2, target1);
@@ -142,16 +128,16 @@ public class RoundRobinLoadBalancingPolicyTest {
     Assert.assertFalse(iterator.hasNext());
   }
 
-  @Test public void testSingleConnectionIterator() {
+  @Test public void testSingleConnectionIterator() throws IOException {
     LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
 
     Connection<InetSocketAddress> connection = new Connection<InetSocketAddress>("connection", ADDRESS) {
-      @Override public void doClose() {
+      @Override public void close() {
         // do nothing
       }
 
-      @Override public void doOpen() {
-        // do nothing
+      @Override public void open() {
+        fireStateEvent(State.ACTIVE);
       }
 
       @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
@@ -159,13 +145,12 @@ public class RoundRobinLoadBalancingPolicyTest {
       }
     };
 
-    lbPolicy.init(Collections.singleton(connection));
+    lbPolicy.addConnection(connection);
 
     Iterator<Connection<InetSocketAddress>> connections = lbPolicy.selectConnections();
-
     Assert.assertFalse(connections.hasNext());
 
-    connection.active();
+    connection.open();
 
     connections = lbPolicy.selectConnections();
 
@@ -189,16 +174,16 @@ public class RoundRobinLoadBalancingPolicyTest {
     }
   }
 
-  @Test public void testAddConnection() {
+  @Test public void testAddConnection() throws IOException {
     LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
 
     Connection<InetSocketAddress> connection = new Connection<InetSocketAddress>("connection", ADDRESS) {
-      @Override public void doClose() {
+      @Override public void close() {
         // do nothing
       }
 
-      @Override public void doOpen() {
-        // do nothing
+      @Override public void open() {
+        fireStateEvent(State.ACTIVE);
       }
 
       @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
@@ -208,23 +193,37 @@ public class RoundRobinLoadBalancingPolicyTest {
 
     Iterator<Connection<InetSocketAddress>> connections = lbPolicy.selectConnections();
     Assert.assertFalse(connections.hasNext());
-    
+
     lbPolicy.addConnection(connection);
+    connection.open();
 
     connections = lbPolicy.selectConnections();
     Assert.assertTrue(connections.hasNext());
   }
 
-  @Test public void testRemoveConnection() {
+  @Test public void testInit() {
+    LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
+
+    Connection<InetSocketAddress> connection = EasyMock.mock(Connection.class);
+
+    EasyMock.expect(connection.addEventListener(lbPolicy)).andReturn(true).once();
+    EasyMock.replay(connection);
+
+    lbPolicy.addConnections(Collections.singletonList(connection));
+
+    EasyMock.verify(connection);
+  }
+
+  @Test public void testRemoveConnection() throws IOException {
     LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
 
     Connection<InetSocketAddress> connection = new Connection<InetSocketAddress>("connection", ADDRESS) {
-      @Override public void doClose() {
+      @Override public void close() {
         // do nothing
       }
 
-      @Override public void doOpen() {
-        // do nothing
+      @Override public void open() {
+        fireStateEvent(State.ACTIVE);
       }
 
       @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
@@ -232,8 +231,8 @@ public class RoundRobinLoadBalancingPolicyTest {
       }
     };
 
-    lbPolicy.init(Collections.singleton(connection));
-    connection.active();
+    lbPolicy.addConnection(connection);
+    connection.open();
 
     Iterator<Connection<InetSocketAddress>> connections = lbPolicy.selectConnections();
     Assert.assertTrue(connections.hasNext());

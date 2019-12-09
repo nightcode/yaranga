@@ -27,7 +27,7 @@ public interface LoadBalancingPolicy<A> extends EventListener<Connection.Connect
 
   void addConnection(Connection<A> connection);
 
-  void init(Collection<Connection<A>> connections);
+  void addConnections(Collection<Connection<A>> connections);
 
   void removeConnection(Connection<A> connection);
 

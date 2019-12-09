@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A general connections object.
@@ -34,9 +35,23 @@ public abstract class Connection<A> implements Closeable {
    * Connection's states.
    */
   public enum State {
-    NEW,
-    ACTIVE,
-    INACTIVE;
+    NEW(0x00000000),
+    STARTING(0x00000001),
+    ACTIVE(0x00000002),
+    SHUTDOWN(0x00000004),
+    STOPPING(0x00000008),
+    IDLE(0x00000010),
+    CLOSED(0x00000020);
+
+    private final int state;
+
+    State(int state) {
+      this.state = state;
+    }
+
+    public int state() {
+      return state;
+    }
   }
 
   /**
@@ -63,18 +78,14 @@ public abstract class Connection<A> implements Closeable {
 
   private final String name;
   private final A address;
-  private volatile State state = State.NEW;
+
+  protected final AtomicReference<State> state = new AtomicReference<>(State.NEW);
 
   private final Set<EventListener<ConnectionEvent<A>>> eventListeners = new CopyOnWriteArraySet<>();
 
   public Connection(String name, A address) {
     this.name = name;
     this.address = address;
-  }
-
-  public void active() {
-    state = State.ACTIVE;
-    fireEvent(new ConnectionEvent<>(this, State.ACTIVE));
   }
 
   public boolean addEventListener(EventListener<ConnectionEvent<A>> listener) {
@@ -85,40 +96,29 @@ public abstract class Connection<A> implements Closeable {
     return address;
   }
 
-  @Override public final void close() throws IOException {
-    doClose();
-  }
-
-  public abstract void doClose() throws IOException;
-
-  public abstract void doOpen() throws IOException;
-
   public abstract <Q, R> CompletableFuture<R> executeAsync(Q request);
 
   public State getState() {
-    return state;
-  }
-
-  public void inactive() {
-    state = State.INACTIVE;
-    fireEvent(new ConnectionEvent<>(this, State.INACTIVE));
+    return state.get();
   }
 
   public String name() {
     return name;
   }
 
-  public final void open() throws IOException {
-    doOpen();
-  }
+  public abstract void open() throws IOException;
 
   public boolean removeEventListener(EventListener<ConnectionEvent<A>> listener) {
     return eventListeners.remove(listener);
   }
 
-  private void fireEvent(ConnectionEvent<A> event) {
+  protected void fireEvent(ConnectionEvent<A> event) {
     for (EventListener<ConnectionEvent<A>> listener : eventListeners) {
       listener.onEvent(event);
     }
+  }
+
+  protected void fireStateEvent(State state) {
+    fireEvent(new ConnectionEvent<>(this, state));
   }
 }
