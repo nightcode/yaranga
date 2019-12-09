@@ -50,8 +50,7 @@ public abstract class AbstractMessageService<M> extends AbstractService implemen
         if (propagateException) {
           throw Throwables.propagate(ex);
         }
-        LOGGER.warn(ex
-            , () -> String.format("[%s]: exception occurred while submitting message <%s>", serviceName(), message));
+        logger.warn(ex, "[%s]: exception occurred while submitting message <%s>", serviceName(), message);
       }
     }
     return false;

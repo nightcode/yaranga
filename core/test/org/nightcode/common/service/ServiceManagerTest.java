@@ -14,8 +14,8 @@
 
 package org.nightcode.common.service;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -77,7 +77,7 @@ public class ServiceManagerTest {
 
   @SuppressWarnings("unchecked")
   @Test public void shutdownAll() throws ExecutionException, InterruptedException {
-    Future<Service.State> stateFutureMock = EasyMock.createMock(Future.class);
+    CompletableFuture<Service.State> stateFutureMock = EasyMock.createMock(CompletableFuture.class);
 
     Service serviceMock = EasyMock.createStrictMock(Service.class);
     EasyMock.expect(serviceMock.serviceName()).andReturn("serviceMock").times(3);
@@ -95,7 +95,7 @@ public class ServiceManagerTest {
   @SuppressWarnings("unchecked")
   @Test public void shutdownAllWithTimeout()
       throws ExecutionException, TimeoutException, InterruptedException {
-    Future<Service.State> stateFutureMock = EasyMock.createMock(Future.class);
+    CompletableFuture<Service.State> stateFutureMock = EasyMock.createMock(CompletableFuture.class);
 
     Service serviceMock = EasyMock.createStrictMock(Service.class);
     EasyMock.expect(serviceMock.serviceName()).andReturn("serviceMock").times(3);

@@ -68,7 +68,7 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
       if (queue.offer(message)) {
         int recheck = state();
         if (!AbstractService.isRunning(recheck) && queue.remove(message)) {
-          LOGGER.info("[%s]: message <%s> has been skipped (queue remaining capacity %s)"
+          logger.info("[%s]: message <%s> has been skipped (queue remaining capacity %s)"
               , serviceName(), message, queue.remainingCapacity());
           return false;
         }
@@ -80,13 +80,13 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
           if (queue.offer(message, 100, TimeUnit.MILLISECONDS)) {
             int recheck = state();
             if (!AbstractService.isRunning(recheck) && queue.remove(message)) {
-              LOGGER.info("[%s]: message <%s> has been rejected", serviceName(), message);
+              logger.info("[%s]: message <%s> has been rejected", serviceName(), message);
               return false;
             }
             return true;
           }
         } catch (InterruptedException ex) {
-          LOGGER.warn(ex, () -> String.format("[%s]: exception:", serviceName()));
+          logger.warn(ex, "[%s]: exception:", serviceName());
           Thread.currentThread().interrupt();
         }
       }

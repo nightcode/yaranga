@@ -19,7 +19,6 @@ import org.nightcode.common.util.logging.Logger;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -27,8 +26,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * Provides default implementations of Service execution methods.
  */
 public abstract class AbstractService implements Service {
-
-  protected static final Logger LOGGER = LogManager.getLogger(AbstractService.class);
 
   private static final int NEW        = 0x00000000;
   private static final int STARTING   = 0x00000001;
@@ -42,33 +39,40 @@ public abstract class AbstractService implements Service {
     return s == RUNNING;
   }
 
+  protected final Logger logger;
+  private final String serviceName;
+
+  final AtomicInteger state = new AtomicInteger(NEW);
+
   private final ReentrantLock lock = new ReentrantLock();
 
   private final CompletableFuture<State> startFuture = new CompletableFuture<>();
   private final CompletableFuture<State> stopFuture = new CompletableFuture<>();
 
-  private final String serviceName;
-
-  final AtomicInteger state = new AtomicInteger(NEW);
-
   private volatile boolean stopAfterStart = false;
 
   protected AbstractService(String serviceName) {
     this.serviceName = serviceName;
+    this.logger = LogManager.getLogger(this);
+  }
+
+  AbstractService(String serviceName, Logger logger) {
+    this.serviceName = serviceName;
+    this.logger = logger;
   }
 
   @Override public String serviceName() {
     return serviceName;
   }
 
-  @Override public final Future<State> start() {
+  @Override public final CompletableFuture<State> start() {
     int s = state.get();
     if (s < RUNNING) {
       final ReentrantLock mainLock = this.lock;
       mainLock.lock();
       try {
         if (state.compareAndSet(s, STARTING)) {
-          LOGGER.debug("[%s]: starting service..", serviceName);
+          logger.debug("[%s]: starting service..", serviceName);
           doStart();
         }
       } catch (Throwable th) {
@@ -80,7 +84,7 @@ public abstract class AbstractService implements Service {
     return startFuture;
   }
 
-  @Override public final Future<State> stop() {
+  @Override public final CompletableFuture<State> stop() {
     int s = state.get();
     if (s < STOPPING) {
       final ReentrantLock mainLock = this.lock;
@@ -92,7 +96,7 @@ public abstract class AbstractService implements Service {
         } else if (s < RUNNING) {
           stopAfterStart = true;
         } else if (s < STOPPING && state.compareAndSet(s, STOPPING)) {
-          LOGGER.debug("[%s]: stopping service..", serviceName);
+          logger.debug("[%s]: stopping service..", serviceName);
           doStop();
         }
       } catch (Throwable th) {
@@ -139,11 +143,11 @@ public abstract class AbstractService implements Service {
       int s = state.get();
       state.set(FAILED);
       if (s < RUNNING) {
-        LOGGER.warn(cause, () -> String.format("[%s]: exception occurred while starting service:", serviceName));
+        logger.warn(cause, "[%s]: exception occurred while starting service:", serviceName);
         startFuture.completeExceptionally(cause);
         stopFuture.completeExceptionally(new Exception("service failed to start", cause));
       } else if (s < TERMINATED) {
-        LOGGER.warn(cause, () -> String.format("[%s]: exception occurred while stopping service:", serviceName));
+        logger.warn(cause, "[%s]: exception occurred while stopping service:", serviceName);
         stopFuture.completeExceptionally(cause);
       }
     } finally {
@@ -161,7 +165,7 @@ public abstract class AbstractService implements Service {
     mainLock.lock();
     try {
       if (state.compareAndSet(s, RUNNING)) {
-        LOGGER.info("[%s]: service has been started", serviceName);
+        logger.info("[%s]: service has been started", serviceName);
         if (stopAfterStart) {
           stop();
         } else {
@@ -178,7 +182,7 @@ public abstract class AbstractService implements Service {
     mainLock.lock();
     try {
       state.set(TERMINATED);
-      LOGGER.info("[%s]: service has been stopped", serviceName);
+      logger.info("[%s]: service has been stopped", serviceName);
       startFuture.complete(State.TERMINATED);
       stopFuture.complete(State.TERMINATED);
     } finally {

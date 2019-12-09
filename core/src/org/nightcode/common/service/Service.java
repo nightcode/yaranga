@@ -14,7 +14,7 @@
 
 package org.nightcode.common.service;
 
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * An object that provides methods that can produce a Future for tracking
@@ -42,12 +42,12 @@ public interface Service {
    * Starts the service.
    * @return a Future representing the result of service's startup.
    */
-  Future<State> start();
+  CompletableFuture<State> start();
 
   /**
    * Stops the service.
    *
    * @return a Future representing the result of service's shutdown.
    */
-  Future<State> stop();
+  CompletableFuture<State> stop();
 }

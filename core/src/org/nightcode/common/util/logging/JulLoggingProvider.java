@@ -30,11 +30,18 @@ public final class JulLoggingProvider implements LoggingProvider {
   }
 
   @Override public Logger createLogger(Class<?> clazz) {
-    return new JulLoggerAdapter(java.util.logging.Logger.getLogger(clazz.getName()));
+    java.util.logging.Logger logger = java.util.logging.Logger.getLogger(clazz.getName());
+    return new JulLoggerAdapter(clazz.getName(), logger);
   }
 
   @Override public Logger createLogger(Object instance) {
-    return new JulLoggerAdapter(java.util.logging.Logger
-        .getLogger((instance != null) ? instance.getClass().getName() : "[NULL]"));
+    String className = (instance != null) ? instance.getClass().getName() : "[NULL]";
+    java.util.logging.Logger logger = java.util.logging.Logger.getLogger(className);
+    return new JulLoggerAdapter(className, logger);
+  }
+
+  @Override public Logger createLogger(String name) {
+    java.util.logging.Logger logger = java.util.logging.Logger.getLogger(name);
+    return new JulLoggerAdapter(name, logger);
   }
 }

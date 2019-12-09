@@ -22,4 +22,6 @@ public interface LoggingProvider {
   Logger createLogger(Class<?> clazz);
 
   Logger createLogger(Object instance);
+
+  Logger createLogger(String name);
 }

@@ -14,15 +14,13 @@
 
 package org.nightcode.common.util.logging;
 
-import java.util.Arrays;
 import java.util.function.Supplier;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
+
+import javax.annotation.Nullable;
 
 class JulLoggerAdapter implements Logger {
-
-  private static Object[] suppliersToArray(Supplier<?>... args) {
-    return Arrays.stream(args).map(Supplier::get).toArray();
-  }
 
   private static Supplier<String> toStringSupplier(Supplier<?> target) {
     return () -> {
@@ -31,9 +29,11 @@ class JulLoggerAdapter implements Logger {
     };
   }
 
+  private final String sourceClassName;
   private final java.util.logging.Logger logger;
 
-  JulLoggerAdapter(java.util.logging.Logger logger) {
+  JulLoggerAdapter(String sourceClassName, java.util.logging.Logger logger) {
+    this.sourceClassName = sourceClassName;
     this.logger = logger;
   }
 
@@ -45,20 +45,20 @@ class JulLoggerAdapter implements Logger {
     log(Level.FINEST, message, args);
   }
 
-  @Override public void trace(Supplier<?> supplier) {
-    log(Level.FINEST, supplier);
-  }
-
-  @Override public void trace(String message, Supplier<?>... args) {
-    log(Level.FINEST, message, args);
-  }
-
   @Override public void trace(String message, Throwable thrown) {
     log(Level.FINEST, message, thrown);
   }
 
-  @Override public void trace(Throwable thrown, Supplier<?> supplier) {
-    log(Level.FINEST, thrown, supplier);
+  @Override public void trace(Throwable thrown, String message, Object... args) {
+    log(Level.FINEST, () -> String.format(message, args), thrown);
+  }
+
+  @Override public void trace(Supplier<?> supplier) {
+    log(Level.FINEST, supplier);
+  }
+
+  @Override public void trace(Supplier<?> supplier, Throwable thrown) {
+    log(Level.FINEST, supplier, thrown);
   }
 
   @Override public void debug(String message) {
@@ -69,20 +69,20 @@ class JulLoggerAdapter implements Logger {
     log(Level.FINE, message, args);
   }
 
-  @Override public void debug(Supplier<?> supplier) {
-    log(Level.FINE, supplier);
-  }
-
-  @Override public void debug(String message, Supplier<?>... args) {
-    log(Level.FINE, message, args);
-  }
-
   @Override public void debug(String message, Throwable thrown) {
     log(Level.FINE, message, thrown);
   }
 
-  @Override public void debug(Throwable thrown, Supplier<?> supplier) {
-    log(Level.FINE, thrown, supplier);
+  @Override public void debug(Throwable thrown, String message, Object... args) {
+    log(Level.FINE, () -> String.format(message, args), thrown);
+  }
+
+  @Override public void debug(Supplier<?> supplier) {
+    log(Level.FINE, supplier);
+  }
+
+  @Override public void debug(Supplier<?> supplier, Throwable thrown) {
+    log(Level.FINE, supplier, thrown);
   }
 
   @Override public void info(String message) {
@@ -93,20 +93,20 @@ class JulLoggerAdapter implements Logger {
     log(Level.INFO, message, args);
   }
 
-  @Override public void info(Supplier<?> supplier) {
-    log(Level.INFO, supplier);
-  }
-
-  @Override public void info(String message, Supplier<?>... args) {
-    log(Level.INFO, message, args);
-  }
-
   @Override public void info(String message, Throwable thrown) {
     log(Level.INFO, message, thrown);
   }
 
-  @Override public void info(Throwable thrown, Supplier<?> supplier) {
-    log(Level.INFO, thrown, supplier);
+  @Override public void info(Throwable thrown, String message, Object... args) {
+    log(Level.INFO, () -> String.format(message, args), thrown);
+  }
+
+  @Override public void info(Supplier<?> supplier) {
+    log(Level.INFO, supplier);
+  }
+
+  @Override public void info(Supplier<?> supplier, Throwable thrown) {
+    log(Level.INFO, supplier, thrown);
   }
 
   @Override public void config(String message) {
@@ -117,20 +117,20 @@ class JulLoggerAdapter implements Logger {
     log(Level.CONFIG, message, args);
   }
 
-  @Override public void config(Supplier<?> supplier) {
-    log(Level.CONFIG, supplier);
-  }
-
-  @Override public void config(String message, Supplier<?>... args) {
-    log(Level.CONFIG, message, args);
-  }
-
   @Override public void config(String message, Throwable thrown) {
     log(Level.CONFIG, message, thrown);
   }
 
-  @Override public void config(Throwable thrown, Supplier<?> supplier) {
-    log(Level.CONFIG, thrown, supplier);
+  @Override public void config(Throwable thrown, String message, Object... args) {
+    log(Level.CONFIG, () -> String.format(message, args), thrown);
+  }
+
+  @Override public void config(Supplier<?> supplier) {
+    log(Level.CONFIG, supplier);
+  }
+
+  @Override public void config(Supplier<?> supplier, Throwable thrown) {
+    log(Level.CONFIG, supplier, thrown);
   }
 
   @Override public void warn(String message) {
@@ -141,20 +141,20 @@ class JulLoggerAdapter implements Logger {
     log(Level.WARNING, message, args);
   }
 
-  @Override public void warn(Supplier<?> supplier) {
-    log(Level.WARNING, supplier);
-  }
-
-  @Override public void warn(String message, Supplier<?>... args) {
-    log(Level.WARNING, message, args);
-  }
-
   @Override public void warn(String message, Throwable thrown) {
     log(Level.WARNING, message, thrown);
   }
 
-  @Override public void warn(Throwable thrown, Supplier<?> supplier) {
-    log(Level.WARNING, thrown, supplier);
+  @Override public void warn(Throwable thrown, String message, Object... args) {
+    log(Level.WARNING, () -> String.format(message, args), thrown);
+  }
+
+  @Override public void warn(Supplier<?> supplier) {
+    log(Level.WARNING, supplier);
+  }
+
+  @Override public void warn(Supplier<?> supplier, Throwable thrown) {
+    log(Level.WARNING, supplier, thrown);
   }
 
   @Override public void error(String message) {
@@ -165,20 +165,20 @@ class JulLoggerAdapter implements Logger {
     log(Level.WARNING, message, args);
   }
 
-  @Override public void error(Supplier<?> supplier) {
-    log(Level.WARNING, supplier);
-  }
-
-  @Override public void error(String message, Supplier<?>... args) {
-    log(Level.WARNING, message, args);
-  }
-
   @Override public void error(String message, Throwable thrown) {
     log(Level.WARNING, message, thrown);
   }
 
-  @Override public void error(Throwable thrown, Supplier<?> supplier) {
-    log(Level.WARNING, thrown, supplier);
+  @Override public void error(Throwable thrown, String message, Object... args) {
+    log(Level.WARNING, () -> String.format(message, args), thrown);
+  }
+
+  @Override public void error(Supplier<?> supplier) {
+    log(Level.WARNING, supplier);
+  }
+
+  @Override public void error(Supplier<?> supplier, Throwable thrown) {
+    log(Level.WARNING, supplier, thrown);
   }
 
   @Override public void fatal(String message) {
@@ -189,43 +189,60 @@ class JulLoggerAdapter implements Logger {
     log(Level.SEVERE, message, args);
   }
 
-  @Override public void fatal(Supplier<?> supplier) {
-    log(Level.SEVERE, supplier);
-  }
-
-  @Override public void fatal(String message, Supplier<?>... args) {
-    log(Level.SEVERE, message, args);
-  }
-
   @Override public void fatal(String message, Throwable thrown) {
     log(Level.SEVERE, message, thrown);
   }
 
-  @Override public void fatal(Throwable thrown, Supplier<?> supplier) {
-    log(Level.SEVERE, thrown, supplier);
+  @Override public void fatal(Throwable thrown, String message, Object... args) {
+    log(Level.SEVERE, () -> String.format(message, args), thrown);
+  }
+
+  @Override public void fatal(Supplier<?> supplier) {
+    log(Level.SEVERE, supplier);
+  }
+
+  @Override public void fatal(Supplier<?> supplier, Throwable thrown) {
+    log(Level.SEVERE, supplier, thrown);
   }
 
   private void log(Level level, String message) {
-    logger.log(level, message);
+    logRecord(level, message, null);
   }
 
   private void log(Level level, String message, Object... args) {
-    logger.log(level, String.format(message, args));
-  }
-
-  private void log(Level level, Supplier<?> supplier) {
-    logger.log(level, toStringSupplier(supplier));
-  }
-
-  private void log(Level level, String message, Supplier<?>... suppliers) {
-    logger.log(level, message, suppliersToArray(suppliers));
+    logRecord(level, null, () -> String.format(message, args));
   }
 
   private void log(Level level, String message, Throwable thrown) {
-    logger.log(level, message, thrown);
+    logRecord(level, message, thrown);
   }
 
-  private void log(Level level, Throwable thrown, Supplier<?> supplier) {
-    logger.log(level, thrown, toStringSupplier(supplier));
+  private void log(Level level, Supplier<?> supplier) {
+    logRecord(level, null, toStringSupplier(supplier));
+  }
+
+  private void log(Level level, Supplier<?> supplier, Throwable thrown) {
+    logRecord(level, thrown, toStringSupplier(supplier));
+  }
+
+  private void logRecord(Level level, String message, @Nullable Throwable thrown) {
+    if (!logger.isLoggable(level)) {
+      return;
+    }
+    logRecord0(level, message, thrown);
+  }
+
+  private void logRecord(Level level, @Nullable Throwable thrown, Supplier<String> supplier) {
+    if (!logger.isLoggable(level)) {
+      return;
+    }
+    logRecord0(level, supplier.get(), thrown);
+  }
+
+  private void logRecord0(Level level, String message, @Nullable Throwable thrown) {
+    LogRecord record = new LogRecord(level, message);
+    record.setThrown(thrown);
+    record.setSourceClassName(sourceClassName);
+    logger.log(record);
   }
 }

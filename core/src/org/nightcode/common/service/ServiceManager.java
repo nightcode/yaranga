@@ -77,7 +77,7 @@ public final class ServiceManager {
       try {
         value.get();
       } catch (Exception ex) {
-        LOGGER.warn(ex, () -> String.format("[ServiceManager]: cannot stop service <%s>", key));
+        LOGGER.warn(ex, "[ServiceManager]: cannot stop service <%s>", key);
       }
 
     });
@@ -94,7 +94,7 @@ public final class ServiceManager {
       try {
         value.get(timeout, unit);
       } catch (Exception ex) {
-        LOGGER.warn(ex, () -> String.format("[ServiceManager]: cannot stop service <%s>", key));
+        LOGGER.warn(ex, "[ServiceManager]: cannot stop service <%s>", key);
       }
     });
     services.clear();

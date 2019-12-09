@@ -17,7 +17,7 @@
 package org.nightcode.common.util.monitoring;
 
 import java.util.Objects;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Provides {@link Monitoring} implementation.
@@ -73,11 +73,11 @@ public final class MonitoringProvider implements Monitoring {
     return monitoring.serviceName();
   }
 
-  @Override public Future<State> start() {
+  @Override public CompletableFuture<State> start() {
     return monitoring.start();
   }
 
-  @Override public Future<State> stop() {
+  @Override public CompletableFuture<State> stop() {
     return monitoring.stop();
   }
 

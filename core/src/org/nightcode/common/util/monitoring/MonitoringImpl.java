@@ -83,7 +83,7 @@ public final class MonitoringImpl extends AbstractThreadService implements Monit
       try {
         monitoringComponent.retrieveData(monitoringVisitor);
       } catch (IOException ex) {
-        LOGGER.warn(ex, () -> String.format("cannot retrieve data from component <%s>", monitoringComponent));
+        logger.warn(ex, "cannot retrieve data from component <%s>", monitoringComponent);
       }
     }
     Thread.sleep(retrieveTimeout);

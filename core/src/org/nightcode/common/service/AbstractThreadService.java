@@ -17,14 +17,12 @@ package org.nightcode.common.service;
 import org.nightcode.common.util.logging.LogManager;
 import org.nightcode.common.util.logging.Logger;
 
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * A Service that executes logic in separate thread.
  */
 public abstract class AbstractThreadService implements Service {
-
-  protected static final Logger LOGGER = LogManager.getLogger(AbstractThreadService.class);
 
   private volatile boolean operates = true;
   private volatile boolean restart = false;
@@ -34,8 +32,10 @@ public abstract class AbstractThreadService implements Service {
   private final AbstractService inner;
   private final Thread thread;
 
+  protected final Logger logger = LogManager.getLogger(this);
+
   protected AbstractThreadService(final String serviceName) {
-    inner = new AbstractService(serviceName) {
+    inner = new AbstractService(serviceName, logger) {
       @Override protected void doStart() {
         thread.start();
       }
@@ -61,42 +61,41 @@ public abstract class AbstractThreadService implements Service {
                   Exception tmpException = lastFailedCause;
                   lastFailedCause = null;
                   onStart();
-                  LOGGER.debug(tmpException, () -> String.format("[%s]: service has been restarted", serviceName()));
+                  logger.debug(tmpException, "[%s]: service has been restarted", serviceName());
                 }
                 service();
               } catch (InterruptedException ex) {
-                AbstractThreadService
-                    .LOGGER.warn(ex, () -> String.format("[%s]: service has been interrupted", serviceName()));
+                logger.warn(ex, "[%s]: service has been interrupted", serviceName());
                 interrupted = true;
                 if (restart) {
                   restart = false;
                   lastFailedCause = ex;
                   try {
                     onStop();
-                  } catch (Exception ignore) {
-                    LOGGER.trace(ignore, () -> String.format("[%s]: exception occurred", serviceName()));
+                  } catch (Exception ex2) {
+                    logger.trace(ex2, "[%s]: exception occurred", serviceName());
                   }
                 } else {
                   break;
                 }
               } catch (Exception ex) {
-                LOGGER.warn(ex, () -> String.format("[%s]: service's exception", serviceName()));
+                logger.warn(ex, "[%s]: service's exception", serviceName());
                 lastFailedCause = ex;
                 try {
                   onStop();
-                } catch (Exception ignore) {
-                  LOGGER.trace(ignore, () -> String.format("[%s]: exception occurred", serviceName()));
+                } catch (Exception ex2) {
+                  logger.trace(ex2, "[%s]: exception occurred", serviceName());
                 }
                 try {
                   Thread.sleep(restartTimeout);
-                } catch (InterruptedException ignore) {
-                  LOGGER.trace(ignore, () -> String.format("[%s]: exception occurred", serviceName()));
+                } catch (InterruptedException interrupt) {
+                  logger.trace(interrupt, "[%s]: exception occurred", serviceName());
                 }
               }
             }
           } catch (Throwable th) {
             th.printStackTrace();
-            LOGGER.fatal(th, () -> String.format("[%s]: Service will be stopped. Unexpected error.", serviceName()));
+            logger.fatal(th, "[%s]: Service will be stopped. Unexpected error.", serviceName());
           }
         }
 
@@ -122,12 +121,12 @@ public abstract class AbstractThreadService implements Service {
     return inner.serviceName();
   }
 
-  @Override public final Future<State> start() {
+  @Override public final CompletableFuture<State> start() {
     startUp();
     return inner.start();
   }
 
-  @Override public final Future<State> stop() {
+  @Override public final CompletableFuture<State> stop() {
     return inner.stop();
   }
 

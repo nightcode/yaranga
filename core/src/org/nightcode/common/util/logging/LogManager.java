@@ -27,6 +27,10 @@ public final class LogManager {
     return INSTANCE.getLoggerImpl(instance);
   }
 
+  public static Logger getLogger(String name) {
+    return INSTANCE.getLoggerImpl(name);
+  }
+
   public static LogManager instance() {
     return INSTANCE;
   }
@@ -49,5 +53,9 @@ public final class LogManager {
 
   private Logger getLoggerImpl(Object instance) {
     return provider.createLogger(instance);
+  }
+
+  private Logger getLoggerImpl(String name) {
+    return provider.createLogger(name);
   }
 }
