@@ -20,7 +20,7 @@ package org.nightcode.common.util.event;
  * @param <S> the event's subject
  * @param <T> the event's type
  */
-public interface Event<S, T extends Enum> {
+public interface Event<S, T extends Enum<T>> {
 
   S subject();
 

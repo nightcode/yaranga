@@ -17,9 +17,10 @@ package org.nightcode.common.util.event;
 /**
  * An event listener.
  *
- * @param <E> the event
+ * @param <S> the event's subject
+ * @param <T> the event's typ
  */
-public interface EventListener<E extends Event> {
+public interface EventListener<S, T extends Enum<T>> {
 
-  void onEvent(E event);
+  void onEvent(Event<S, T> event);
 }
