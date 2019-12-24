@@ -22,18 +22,20 @@ import java.util.Iterator;
 
 /**
  * @param <A> the connection address
+ * @param <C> the connection interface
  */
-public interface LoadBalancingPolicy<A> extends EventListener<Connection.ConnectionEvent<A>> {
+public interface LoadBalancingPolicy<A, C extends Connection<A>>
+    extends EventListener<Connection<A>, Connection.State> {
 
-  void addConnection(Connection<A> connection);
+  void addConnection(C connection);
 
-  void addConnections(Collection<Connection<A>> connections);
+  void addConnections(Collection<? extends C> connections);
 
-  void removeConnection(Connection<A> connection);
+  void removeConnection(C connection);
 
-  Iterator<Connection<A>> selectConnections();
+  Iterator<C> selectConnections();
 
-  static <A> LoadBalancingPolicy<A> defaultLoadBalancingPolicy() {
+  static <A, C extends Connection<A>> LoadBalancingPolicy<A, C> defaultLoadBalancingPolicy() {
     return new RoundRobinLoadBalancingPolicy<>();
   }
 }

@@ -15,13 +15,13 @@
 package org.nightcode.common.net.lb;
 
 import org.nightcode.common.net.Connection;
+import org.nightcode.common.net.Connection.ConnectionEvent;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.concurrent.CompletableFuture;
 
 import org.easymock.EasyMock;
 import org.junit.Assert;
@@ -39,38 +39,34 @@ public class RoundRobinLoadBalancingPolicyTest {
     @Override public void open() {
       // do nothing
     }
-
-    @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
-      throw new IllegalStateException();
-    }
   };
 
   @Test public void testOpen() {
-    LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
+    LoadBalancingPolicy<InetSocketAddress, Connection<InetSocketAddress>> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
 
     Iterator<Connection<InetSocketAddress>> iterator = lbPolicy.selectConnections();
     Assert.assertFalse(iterator.hasNext());
 
-    lbPolicy.onEvent(new Connection.ConnectionEvent<>(connection, Connection.State.ACTIVE));
+    lbPolicy.onEvent(new ConnectionEvent<>(connection, Connection.State.ACTIVE));
     iterator = lbPolicy.selectConnections();
     Assert.assertTrue(iterator.hasNext());
     Assert.assertEquals(connection, iterator.next());
   }
 
   @Test public void testClose() {
-    LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
-    lbPolicy.onEvent(new Connection.ConnectionEvent<>(connection, Connection.State.ACTIVE));
+    LoadBalancingPolicy<InetSocketAddress, Connection<InetSocketAddress>> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
+    lbPolicy.onEvent(new ConnectionEvent<>(connection, Connection.State.ACTIVE));
     Iterator<Connection<InetSocketAddress>> iterator = lbPolicy.selectConnections();
     Assert.assertTrue(iterator.hasNext());
     Assert.assertEquals(connection, iterator.next());
 
-    lbPolicy.onEvent(new Connection.ConnectionEvent<>(connection, Connection.State.CLOSED));
+    lbPolicy.onEvent(new ConnectionEvent<>(connection, Connection.State.CLOSED));
     iterator = lbPolicy.selectConnections();
     Assert.assertFalse(iterator.hasNext());
   }
 
   @Test public void testConnectionIterator() throws IOException {
-    LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
+    LoadBalancingPolicy<InetSocketAddress, Connection<InetSocketAddress>> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
 
     Connection<InetSocketAddress> connection1 = new Connection<InetSocketAddress>("connection1", ADDRESS) {
       @Override public void close() {
@@ -80,10 +76,6 @@ public class RoundRobinLoadBalancingPolicyTest {
       @Override public void open() {
         fireStateEvent(State.ACTIVE);
       }
-
-      @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
-        throw new IllegalStateException();
-      }
     };
     Connection<InetSocketAddress> connection2 = new Connection<InetSocketAddress>("connection2", ADDRESS) {
       @Override public void close() {
@@ -92,10 +84,6 @@ public class RoundRobinLoadBalancingPolicyTest {
 
       @Override public void open() {
         fireStateEvent(State.ACTIVE);
-      }
-
-      @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
-        throw new IllegalStateException();
       }
     };
 
@@ -129,7 +117,7 @@ public class RoundRobinLoadBalancingPolicyTest {
   }
 
   @Test public void testSingleConnectionIterator() throws IOException {
-    LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
+    LoadBalancingPolicy<InetSocketAddress, Connection<InetSocketAddress>> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
 
     Connection<InetSocketAddress> connection = new Connection<InetSocketAddress>("connection", ADDRESS) {
       @Override public void close() {
@@ -138,10 +126,6 @@ public class RoundRobinLoadBalancingPolicyTest {
 
       @Override public void open() {
         fireStateEvent(State.ACTIVE);
-      }
-
-      @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
-        throw new IllegalStateException();
       }
     };
 
@@ -175,7 +159,7 @@ public class RoundRobinLoadBalancingPolicyTest {
   }
 
   @Test public void testAddConnection() throws IOException {
-    LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
+    LoadBalancingPolicy<InetSocketAddress, Connection<InetSocketAddress>> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
 
     Connection<InetSocketAddress> connection = new Connection<InetSocketAddress>("connection", ADDRESS) {
       @Override public void close() {
@@ -184,10 +168,6 @@ public class RoundRobinLoadBalancingPolicyTest {
 
       @Override public void open() {
         fireStateEvent(State.ACTIVE);
-      }
-
-      @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
-        throw new IllegalStateException();
       }
     };
 
@@ -202,7 +182,7 @@ public class RoundRobinLoadBalancingPolicyTest {
   }
 
   @Test public void testInit() {
-    LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
+    LoadBalancingPolicy<InetSocketAddress, Connection<InetSocketAddress>> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
 
     Connection<InetSocketAddress> connection = EasyMock.mock(Connection.class);
 
@@ -215,7 +195,7 @@ public class RoundRobinLoadBalancingPolicyTest {
   }
 
   @Test public void testRemoveConnection() throws IOException {
-    LoadBalancingPolicy<InetSocketAddress> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
+    LoadBalancingPolicy<InetSocketAddress, Connection<InetSocketAddress>> lbPolicy = new RoundRobinLoadBalancingPolicy<>();
 
     Connection<InetSocketAddress> connection = new Connection<InetSocketAddress>("connection", ADDRESS) {
       @Override public void close() {
@@ -224,10 +204,6 @@ public class RoundRobinLoadBalancingPolicyTest {
 
       @Override public void open() {
         fireStateEvent(State.ACTIVE);
-      }
-
-      @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
-        throw new IllegalStateException();
       }
     };
 
@@ -243,7 +219,7 @@ public class RoundRobinLoadBalancingPolicyTest {
   }
 
   @Test public void testDefaultLbPolicy() {
-    LoadBalancingPolicy<InetSocketAddress> lbPolicy = LoadBalancingPolicy.defaultLoadBalancingPolicy();
+    LoadBalancingPolicy<InetSocketAddress, Connection<InetSocketAddress>> lbPolicy = LoadBalancingPolicy.defaultLoadBalancingPolicy();
     Assert.assertEquals(RoundRobinLoadBalancingPolicy.class, lbPolicy.getClass());
   }
 }

@@ -20,7 +20,6 @@ import org.nightcode.common.util.event.EventListener;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -81,22 +80,20 @@ public abstract class Connection<A> implements Closeable {
 
   protected final AtomicReference<State> state = new AtomicReference<>(State.NEW);
 
-  private final Set<EventListener<ConnectionEvent<A>>> eventListeners = new CopyOnWriteArraySet<>();
+  private final Set<EventListener<Connection<A>, State>> listeners = new CopyOnWriteArraySet<>();
 
   public Connection(String name, A address) {
     this.name = name;
     this.address = address;
   }
 
-  public boolean addEventListener(EventListener<ConnectionEvent<A>> listener) {
-    return eventListeners.add(listener);
+  public boolean addEventListener(EventListener<Connection<A>, State> listener) {
+    return listeners.add(listener);
   }
 
   public A address() {
     return address;
   }
-
-  public abstract <Q, R> CompletableFuture<R> executeAsync(Q request);
 
   public State getState() {
     return state.get();
@@ -108,12 +105,12 @@ public abstract class Connection<A> implements Closeable {
 
   public abstract void open() throws IOException;
 
-  public boolean removeEventListener(EventListener<ConnectionEvent<A>> listener) {
-    return eventListeners.remove(listener);
+  public boolean removeEventListener(EventListener<Connection<A>, State> listener) {
+    return listeners.remove(listener);
   }
 
-  protected void fireEvent(ConnectionEvent<A> event) {
-    for (EventListener<ConnectionEvent<A>> listener : eventListeners) {
+  protected void fireEvent(Event<Connection<A>, State> event) {
+    for (EventListener<Connection<A>, State> listener : listeners) {
       listener.onEvent(event);
     }
   }

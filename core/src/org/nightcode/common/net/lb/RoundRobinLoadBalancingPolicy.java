@@ -15,6 +15,7 @@
 package org.nightcode.common.net.lb;
 
 import org.nightcode.common.net.Connection;
+import org.nightcode.common.util.event.Event;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -25,20 +26,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @param <A> the connection address
+ * @param <C> the connection interface
  */
-public class RoundRobinLoadBalancingPolicy<A> implements LoadBalancingPolicy<A> {
+public class RoundRobinLoadBalancingPolicy<A, C extends Connection<A>> implements LoadBalancingPolicy<A, C> {
 
-  private static final class ConnectionIterator<A> implements Iterator<Connection<A>> {
+  private static final class ConnectionIterator<A, C extends Connection<A>> implements Iterator<C> {
 
-    private Connection<A> next;
+    private C next;
     private boolean ready;
 
     private int initIndex;
     private int remaining;
 
-    private final List<Connection<A>> connections;
+    private final List<C> connections;
 
-    private ConnectionIterator(int initIndex, List<Connection<A>> connections) {
+    private ConnectionIterator(int initIndex, List<C> connections) {
       this.initIndex = initIndex;
       this.connections = connections;
       this.remaining = connections.size();
@@ -48,7 +50,7 @@ public class RoundRobinLoadBalancingPolicy<A> implements LoadBalancingPolicy<A> 
       return ready || tryNext();
     }
 
-    @Override public Connection<A> next() {
+    @Override public C next() {
       if (!hasNext()) {
         throw new NoSuchElementException();
       } else {
@@ -76,19 +78,19 @@ public class RoundRobinLoadBalancingPolicy<A> implements LoadBalancingPolicy<A> 
 
   private final AtomicInteger index = new AtomicInteger(0);
 
-  private final CopyOnWriteArrayList<Connection<A>> liveConnections = new CopyOnWriteArrayList<>();
+  private final CopyOnWriteArrayList<? super Connection<A>> liveConnections = new CopyOnWriteArrayList<>();
 
-  @Override public void addConnection(Connection<A> connection) {
+  @Override public void addConnection(C connection) {
     connection.addEventListener(this);
   }
 
-  @Override public void addConnections(Collection<Connection<A>> connections) {
+  @Override public void addConnections(Collection<? extends C> connections) {
     for (Connection<A> connection : connections) {
       connection.addEventListener(this);
     }
   }
 
-  @Override public void onEvent(Connection.ConnectionEvent<A> event) {
+  @Override public void onEvent(Event<Connection<A>, Connection.State> event) {
     switch (event.type()) {
       case ACTIVE:
         liveConnections.addIfAbsent(event.subject());
@@ -104,18 +106,18 @@ public class RoundRobinLoadBalancingPolicy<A> implements LoadBalancingPolicy<A> 
     }
   }
 
-  @Override public void removeConnection(Connection<A> connection) {
+  @Override public void removeConnection(C connection) {
     connection.removeEventListener(this);
     liveConnections.remove(connection);
   }
 
-  @Override public Iterator<Connection<A>> selectConnections() {
+  @Override public Iterator<C> selectConnections() {
     int initIndex = index.getAndIncrement();
     if (initIndex > INDEX_THRESHOLD) {
       index.set(0);
     }
     @SuppressWarnings("unchecked")
-    List<Connection<A>> live = (List<Connection<A>>) liveConnections.clone();
+    List<C> live = (List<C>) liveConnections.clone();
     return new ConnectionIterator<>(initIndex, live);
   }
 }

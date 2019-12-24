@@ -17,7 +17,6 @@ package org.nightcode.common.net;
 import org.nightcode.common.util.event.EventListener;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.CompletableFuture;
 
 import org.easymock.EasyMock;
 import org.junit.Assert;
@@ -35,10 +34,6 @@ public class ConnectionTest {
 
       @Override public void open() {
         // do nothing
-      }
-
-      @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
-        return null;
       }
     };
 
@@ -59,10 +54,6 @@ public class ConnectionTest {
 
       @Override public void open() {
         // do nothing
-      }
-
-      @Override public <Q, R> CompletableFuture<R> executeAsync(Q request) {
-        return null;
       }
     };
 
