@@ -30,16 +30,15 @@ public class PropertyException extends Exception {
   private final ErrorCode errorCode;
 
   public PropertyException(ErrorCode errorCode) {
-    this.errorCode = errorCode;
+    this(errorCode, null, null);
   }
 
   public PropertyException(ErrorCode errorCode, String message) {
-    super(message);
-    this.errorCode = errorCode;
+    this(errorCode, message, null);
   }
 
   public PropertyException(ErrorCode errorCode, String message, Throwable cause) {
-    super(message, cause);
+    super(message, cause, true, false);
     this.errorCode = errorCode;
   }
 

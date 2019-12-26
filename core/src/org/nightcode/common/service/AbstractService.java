@@ -135,6 +135,18 @@ public abstract class AbstractService implements Service {
    */
   protected abstract void doStop();
 
+  protected final boolean isClosing() {
+    return state.get() > RUNNING;
+  }
+
+  protected final boolean isRunning() {
+    return state.get() == RUNNING;
+  }
+
+  protected final boolean isStopping() {
+    return state.get() == STOPPING;
+  }
+
   protected final void serviceFailed(Throwable cause) {
     Objects.requireNonNull(cause, "cause");
     final ReentrantLock mainLock = this.lock;
@@ -188,14 +200,6 @@ public abstract class AbstractService implements Service {
     } finally {
       mainLock.unlock();
     }
-  }
-
-  final boolean isRunning() {
-    return state.get() == RUNNING;
-  }
-
-  final boolean isStopping() {
-    return state.get() == STOPPING;
   }
 
   void shutdown() {
