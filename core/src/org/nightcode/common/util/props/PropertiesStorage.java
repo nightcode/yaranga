@@ -14,18 +14,41 @@
 
 package org.nightcode.common.util.props;
 
+import org.nightcode.common.annotations.Beta;
+
 /**
  * Main Storage interface.
  */
+@Beta
 public interface PropertiesStorage {
 
-  boolean readBoolean(String key) throws PropertyException;
+  /**
+   * Property Type enum.
+   */
+  enum Type {
+    BOOLEAN,
+    BYTE,
+    INT,
+    LONG,
+    STRING
+  }
 
-  byte readByte(String key) throws PropertyException;
+  /**
+   * NotFound policy interface.
+   */
+  interface NotFoundPolicy {
+    Property apply(String key, Type type) throws PropertyException;
+  }
 
-  int readInt(String key) throws PropertyException;
+  NotFoundPolicy NULL_POLICY = (key, type) -> null;
 
-  long readLong(String key) throws PropertyException;
+  NotFoundPolicy THROW = (key, type) -> {
+    throw new PropertyNotFoundException("unable to read property '" + key + "' of type " + type);
+  };
 
-  String readString(String key) throws PropertyException;
+  Property readProperty(String key, Type type, NotFoundPolicy notFoundPolicy) throws PropertyException;
+
+  default Property readProperty(String key, Type type) throws PropertyException {
+    return readProperty(key, type, THROW);
+  }
 }

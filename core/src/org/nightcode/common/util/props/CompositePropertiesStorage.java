@@ -29,54 +29,19 @@ public class CompositePropertiesStorage implements PropertiesStorage {
     this.storages = Collections.unmodifiableList(Arrays.asList(storages));
   }
 
-  @Override public boolean readBoolean(String key) throws PropertyException {
+  @Override public Property readProperty(String key, Type type, NotFoundPolicy notFoundPolicy)
+      throws PropertyException {
+    Property property;
     for (PropertiesStorage storage : storages) {
       try {
-        return storage.readBoolean(key);
+        property = storage.readProperty(key, type, NULL_POLICY);
+        if (property != null) {
+          return property;
+        }
       } catch (PropertyException ex) {
         // ignore this exception and try next storage
       }
     }
-    throw new PropertyException(PropertyException.ErrorCode.PROPERTY_NOT_FOUND);
+    return notFoundPolicy.apply(key, type);
   }
-
-  @Override public byte readByte(String key) throws PropertyException {
-    for (PropertiesStorage storage : storages) {
-      try {
-        return storage.readByte(key);
-      } catch (PropertyException ex) {
-        // ignore this exception and try next storage
-      }
-    }
-    throw new PropertyException(PropertyException.ErrorCode.PROPERTY_NOT_FOUND);  }
-
-  @Override public int readInt(String key) throws PropertyException {
-    for (PropertiesStorage storage : storages) {
-      try {
-        return storage.readInt(key);
-      } catch (PropertyException ex) {
-        // ignore this exception and try next storage
-      }
-    }
-    throw new PropertyException(PropertyException.ErrorCode.PROPERTY_NOT_FOUND);  }
-
-  @Override public long readLong(String key) throws PropertyException {
-    for (PropertiesStorage storage : storages) {
-      try {
-        return storage.readLong(key);
-      } catch (PropertyException ex) {
-        // ignore this exception and try next storage
-      }
-    }
-    throw new PropertyException(PropertyException.ErrorCode.PROPERTY_NOT_FOUND);  }
-
-  @Override public String readString(String key) throws PropertyException {
-    for (PropertiesStorage storage : storages) {
-      try {
-        return storage.readString(key);
-      } catch (PropertyException ex) {
-        // ignore this exception and try next storage
-      }
-    }
-    throw new PropertyException(PropertyException.ErrorCode.PROPERTY_NOT_FOUND);  }
 }

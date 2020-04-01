@@ -27,38 +27,31 @@ public class PropertiesMapStorage implements PropertiesStorage {
     this.properties = properties;
   }
 
-  @Override public boolean readBoolean(String key) throws PropertyException {
+  @Override public Property readProperty(String key, Type type, NotFoundPolicy notFoundPolicy)
+      throws PropertyException {
     if (!properties.containsKey(key)) {
-      throw new PropertyException(PropertyException.ErrorCode.PROPERTY_NOT_FOUND);
+      return notFoundPolicy.apply(key, type);
     }
-    return (boolean) properties.get(key);
-  }
-
-  @Override public byte readByte(String key) throws PropertyException {
-    if (!properties.containsKey(key)) {
-      throw new PropertyException(PropertyException.ErrorCode.PROPERTY_NOT_FOUND);
+    Property property;
+    switch (type) {
+      case BOOLEAN:
+        property = Property.createBoolean((boolean) properties.get(key));
+        break;
+      case BYTE:
+        property = Property.createByte((byte) properties.get(key));
+        break;
+      case INT:
+        property = Property.createInt((int) properties.get(key));
+        break;
+      case LONG:
+        property = Property.createLong((long) properties.get(key));
+        break;
+      case STRING:
+        property = Property.createString((String) properties.get(key));
+        break;
+      default:
+        throw new PropertyException("unsupported property type: " + type);
     }
-    return (byte) properties.get(key);
-  }
-
-  @Override public int readInt(String key) throws PropertyException {
-    if (!properties.containsKey(key)) {
-      throw new PropertyException(PropertyException.ErrorCode.PROPERTY_NOT_FOUND);
-    }
-    return (int) properties.get(key);
-  }
-
-  @Override public long readLong(String key) throws PropertyException {
-    if (!properties.containsKey(key)) {
-      throw new PropertyException(PropertyException.ErrorCode.PROPERTY_NOT_FOUND);
-    }
-    return (long) properties.get(key);
-  }
-
-  @Override public String readString(String key) throws PropertyException {
-    if (!properties.containsKey(key)) {
-      throw new PropertyException(PropertyException.ErrorCode.PROPERTY_NOT_FOUND);
-    }
-    return (String) properties.get(key);
+    return property;
   }
 }

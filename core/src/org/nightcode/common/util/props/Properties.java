@@ -14,22 +14,18 @@
 
 package org.nightcode.common.util.props;
 
+import org.nightcode.common.annotations.Beta;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static org.nightcode.common.util.props.PropertiesStorage.Type;
 /**
  * Main properties class.
  */
+@Beta
 public final class Properties {
-
-  private enum Type {
-    BOOLEAN,
-    BYTE,
-    INT,
-    LONG,
-    STRING
-  }
 
   private static final Properties INSTANCE = new Properties();
 
@@ -49,13 +45,10 @@ public final class Properties {
   public boolean getBooleanValue(String key) {
     Property property = properties.get(key);
     if (property == null) {
-      property = readProperty(key, Type.BOOLEAN);
-      if (property == null) {
-        throw new IllegalStateException("can't get <" + key + "> of type boolean");
-      }
+      property = readProperty(key, Type.BOOLEAN, PropertiesStorage.THROW);
     }
     if (!property.hasBooleanValue()) {
-      throw new IllegalStateException("can't get <" + key + "> of type boolean");
+      throw new IllegalStateException("unable to get <" + key + "> of type boolean");
     }
     return property.getBooleanValue();
   }
@@ -63,14 +56,14 @@ public final class Properties {
   public boolean getBooleanValue(String key, boolean def) {
     Property property = properties.get(key);
     if (property == null) {
-      property = readProperty(key, Type.BOOLEAN);
+      property = readProperty(key, Type.BOOLEAN, PropertiesStorage.NULL_POLICY);
       if (property == null) {
         property = Property.createBoolean(def);
         properties.put(key, property);
       }
     }
     if (!property.hasBooleanValue()) {
-      throw new IllegalStateException("can't get <" + key + "> of type boolean");
+      throw new IllegalStateException("unable to get <" + key + "> of type boolean");
     }
     return property.getBooleanValue();
   }
@@ -78,13 +71,10 @@ public final class Properties {
   public byte getByteValue(String key) {
     Property property = properties.get(key);
     if (property == null) {
-      property = readProperty(key, Type.BYTE);
-      if (property == null) {
-        throw new IllegalStateException("can't get <" + key + "> of type byte");
-      }
+      property = readProperty(key, Type.BYTE, PropertiesStorage.THROW);
     }
     if (!property.hasByteValue()) {
-      throw new IllegalStateException("can't get <" + key + "> of type byte");
+      throw new IllegalStateException("unable to get <" + key + "> of type byte");
     }
     return property.getByteValue();
   }
@@ -92,14 +82,14 @@ public final class Properties {
   public byte getByteValue(String key, byte def) {
     Property property = properties.get(key);
     if (property == null) {
-      property = readProperty(key, Type.BYTE);
+      property = readProperty(key, Type.BYTE, PropertiesStorage.NULL_POLICY);
       if (property == null) {
         property = Property.createByte(def);
         properties.put(key, property);
       }
     }
     if (!property.hasByteValue()) {
-      throw new IllegalStateException("can't get <" + key + "> of type byte");
+      throw new IllegalStateException("unable to get <" + key + "> of type byte");
     }
     return property.getByteValue();
   }
@@ -107,13 +97,10 @@ public final class Properties {
   public int getIntValue(String key) {
     Property property = properties.get(key);
     if (property == null) {
-      property = readProperty(key, Type.INT);
-      if (property == null) {
-        throw new IllegalStateException("can't get <" + key + "> of type int");
-      }
+      property = readProperty(key, Type.INT, PropertiesStorage.THROW);
     }
     if (!property.hasIntValue()) {
-      throw new IllegalStateException("can't get <" + key + "> of type int");
+      throw new IllegalStateException("unable to get <" + key + "> of type int");
     }
     return property.getIntValue();
   }
@@ -121,14 +108,14 @@ public final class Properties {
   public int getIntValue(String key, int def) {
     Property property = properties.get(key);
     if (property == null) {
-      property = readProperty(key, Type.INT);
+      property = readProperty(key, Type.INT, PropertiesStorage.NULL_POLICY);
       if (property == null) {
         property = Property.createInt(def);
         properties.put(key, property);
       }
     }
     if (!property.hasIntValue()) {
-      throw new IllegalStateException("can't get <" + key + "> of type int");
+      throw new IllegalStateException("unable to get <" + key + "> of type int");
     }
     return property.getIntValue();
   }
@@ -136,13 +123,10 @@ public final class Properties {
   public long getLongValue(String key) {
     Property property = properties.get(key);
     if (property == null) {
-      property = readProperty(key, Type.LONG);
-      if (property == null) {
-        throw new IllegalStateException("can't get <" + key + "> of type long");
-      }
+      property = readProperty(key, Type.LONG, PropertiesStorage.THROW);
     }
     if (!property.hasLongValue()) {
-      throw new IllegalStateException("can't get <" + key + "> of type long");
+      throw new IllegalStateException("unable to get <" + key + "> of type long");
     }
     return property.getLongValue();
   }
@@ -150,14 +134,14 @@ public final class Properties {
   public long getLongValue(String key, long def) {
     Property property = properties.get(key);
     if (property == null) {
-      property = readProperty(key, Type.LONG);
+      property = readProperty(key, Type.LONG, PropertiesStorage.NULL_POLICY);
       if (property == null) {
         property = Property.createLong(def);
         properties.put(key, property);
       }
     }
     if (!property.hasLongValue()) {
-      throw new IllegalStateException("can't get <" + key + "> of type long");
+      throw new IllegalStateException("unable to get <" + key + "> of type long");
     }
     return property.getLongValue();
   }
@@ -165,13 +149,10 @@ public final class Properties {
   public String getStringValue(String key) {
     Property property = properties.get(key);
     if (property == null) {
-      property = readProperty(key, Type.STRING);
-      if (property == null) {
-        throw new IllegalStateException("can't get <" + key + "> of type String");
-      }
+      property = readProperty(key, Type.STRING, PropertiesStorage.THROW);
     }
     if (!property.hasStringValue()) {
-      throw new IllegalStateException("can't get <" + key + "> of type String");
+      throw new IllegalStateException("unable to get <" + key + "> of type String");
     }
     return property.getStringValue();
   }
@@ -179,14 +160,14 @@ public final class Properties {
   public String getStringValue(String key, String def) {
     Property property = properties.get(key);
     if (property == null) {
-      property = readProperty(key, Type.STRING);
+      property = readProperty(key, Type.STRING, PropertiesStorage.NULL_POLICY);
       if (property == null) {
         property = Property.createString(def);
         properties.put(key, property);
       }
     }
     if (!property.hasStringValue()) {
-      throw new IllegalStateException("can't get <" + key + "> of type String");
+      throw new IllegalStateException("unable to get <" + key + "> of type String");
     }
     return property.getStringValue();
   }
@@ -201,42 +182,20 @@ public final class Properties {
     }
   }
 
-  private Property readProperty(String key, Type type) {
+  private Property readProperty(String key, Type type, PropertiesStorage.NotFoundPolicy notFoundPolicy) {
     Property property = properties.get(key);
 
     if (property == null) {
       lock.readLock().lock();
       try {
         PropertiesStorage st = storage;
-        switch (type) {
-          case BOOLEAN:
-            property = Property.createBoolean(st.readBoolean(key));
-            break;
-          case BYTE:
-            property = Property.createByte(st.readByte(key));
-            break;
-          case INT:
-            property = Property.createInt(st.readInt(key));
-            break;
-          case LONG:
-            property = Property.createLong(st.readLong(key));
-            break;
-          case STRING:
-            property = Property.createString(st.readString(key));
-            break;
-          default:
-            throw new IllegalArgumentException("type <" + type + "> is not supported");
-        }
+        property = st.readProperty(key, type, notFoundPolicy);
+        properties.put(key, property);
       } catch (PropertyException ex) {
-        if (PropertyException.ErrorCode.PROPERTY_NOT_FOUND.equals(ex.getErrorCode())) {
-          return null;
-        }
         throw new IllegalStateException(ex);
       } finally {
         lock.readLock().unlock();
       }
-
-      properties.put(key, property);
     }
 
     return property;

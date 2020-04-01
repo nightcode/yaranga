@@ -20,17 +20,13 @@ import org.nightcode.common.annotations.Beta;
  * todo.
  */
 @Beta
-public class PropertyException extends Exception {
+public class PropertyNotFoundException extends PropertyException {
 
-  public PropertyException() {
-    super(null, null, true, false);
+  public PropertyNotFoundException() {
+    super();
   }
 
-  public PropertyException(String message) {
-    super(message, null, true, false);
-  }
-
-  public PropertyException(String message, Throwable cause) {
-    super(message, cause, true, false);
+  public PropertyNotFoundException(String message) {
+    super(message);
   }
 }

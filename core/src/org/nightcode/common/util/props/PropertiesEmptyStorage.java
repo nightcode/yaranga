@@ -14,14 +14,11 @@
 
 package org.nightcode.common.util.props;
 
-import org.nightcode.common.util.props.PropertyException.ErrorCode;
-
 final class PropertiesEmptyStorage implements PropertiesStorage {
 
   private static final PropertiesStorage INSTANCE = new PropertiesEmptyStorage();
 
-  private static final PropertyException NOT_FOUND
-      = new PropertyException(ErrorCode.PROPERTY_NOT_FOUND, "'empty' storage implementation");
+  private static final PropertyException NOT_FOUND = new PropertyNotFoundException("'empty' storage implementation");
 
   static PropertiesStorage instance() {
     return INSTANCE;
@@ -31,23 +28,8 @@ final class PropertiesEmptyStorage implements PropertiesStorage {
     // do nothing
   }
 
-  @Override public boolean readBoolean(String key) throws PropertyException {
-    throw NOT_FOUND;
-  }
-
-  @Override public byte readByte(String key) throws PropertyException {
-    throw NOT_FOUND;
-  }
-
-  @Override public int readInt(String key) throws PropertyException {
-    throw NOT_FOUND;
-  }
-
-  @Override public long readLong(String key) throws PropertyException {
-    throw NOT_FOUND;
-  }
-
-  @Override public String readString(String key) throws PropertyException {
+  @Override public Property readProperty(String key, Type type, NotFoundPolicy notFoundPolicy)
+      throws PropertyException {
     throw NOT_FOUND;
   }
 }

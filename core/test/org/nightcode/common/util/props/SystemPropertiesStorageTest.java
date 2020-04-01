@@ -15,30 +15,34 @@ public class SystemPropertiesStorageTest {
     Assert.assertNull(System.getenv(key));
 
     try {
-      storage.readString(key);
+      storage.readProperty(key, PropertiesStorage.Type.STRING);
       Assert.fail("MUST throw PropertyException");
     } catch (PropertyException ex) {
-      Assert.assertEquals(PropertyException.ErrorCode.PROPERTY_NOT_FOUND, ex.getErrorCode());
+      Assert.assertTrue(ex instanceof PropertyNotFoundException);
     }
 
     System.setProperty(key, "bla-bla");
-    String target = storage.readString(key);
-    Assert.assertEquals("bla-bla", target);
+    Property target = storage.readProperty(key, PropertiesStorage.Type.STRING);
+    Assert.assertEquals("bla-bla", target.getStringValue());
 
     String path = System.getenv("PATH");
-    target = storage.readString("PATH");
-    Assert.assertEquals(path, target);
+    target = storage.readProperty("PATH", PropertiesStorage.Type.STRING);
+    Assert.assertEquals(path, target.getStringValue());
 
     System.setProperty(key + "-boolean", "true");
-    Assert.assertEquals(true, storage.readBoolean(key + "-boolean"));
+    Assert.assertEquals(true
+        , storage.readProperty(key + "-boolean", PropertiesStorage.Type.BOOLEAN).getBooleanValue());
 
     System.setProperty(key + "-byte", "7");
-    Assert.assertEquals((byte) 7, storage.readByte(key + "-byte"));
+    Assert.assertEquals((byte) 7, storage.readProperty(key + "-byte"
+        , PropertiesStorage.Type.BYTE).getByteValue());
 
     System.setProperty(key + "-int", "65536");
-    Assert.assertEquals(65536, storage.readInt(key + "-int"));
+    Assert.assertEquals(65536, storage.readProperty(key + "-int"
+        , PropertiesStorage.Type.INT).getIntValue());
 
     System.setProperty(key + "-long", "6553600000");
-    Assert.assertEquals(6553600000L, storage.readLong(key + "-long"));
+    Assert.assertEquals(6553600000L, storage.readProperty(key + "-long"
+        , PropertiesStorage.Type.LONG).getLongValue());
   }
 }
