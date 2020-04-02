@@ -190,7 +190,9 @@ public final class Properties {
       try {
         PropertiesStorage st = storage;
         property = st.readProperty(key, type, notFoundPolicy);
-        properties.put(key, property);
+        if (property != null) {
+          properties.put(key, property);
+        }
       } catch (PropertyException ex) {
         throw new IllegalStateException(ex);
       } finally {
