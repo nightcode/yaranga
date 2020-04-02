@@ -30,6 +30,6 @@ final class PropertiesEmptyStorage implements PropertiesStorage {
 
   @Override public Property readProperty(String key, Type type, NotFoundPolicy notFoundPolicy)
       throws PropertyException {
-    throw NOT_FOUND;
+    return notFoundPolicy.apply(key, type);
   }
 }
