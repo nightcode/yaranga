@@ -14,33 +14,39 @@
 
 package org.nightcode.common.util.props;
 
-final class Property {
+import org.nightcode.common.annotations.Beta;
 
-  static Property createBoolean(boolean value) {
+/**
+ * Property container.
+ */
+@Beta
+public final class Property {
+
+  public static Property createBoolean(boolean value) {
     Property property = new Property();
     property.setBooleanValue(value);
     return property;
   }
 
-  static Property createByte(byte value) {
+  public static Property createByte(byte value) {
     Property property = new Property();
     property.setByteValue(value);
     return property;
   }
 
-  static Property createInt(int value) {
+  public static Property createInt(int value) {
     Property property = new Property();
     property.setIntValue(value);
     return property;
   }
 
-  static Property createLong(long value) {
+  public static Property createLong(long value) {
     Property property = new Property();
     property.setLongValue(value);
     return property;
   }
 
-  static Property createString(String value) {
+  public static Property createString(String value) {
     Property property = new Property();
     property.setStringValue(value);
     return property;
