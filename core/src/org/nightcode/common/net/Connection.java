@@ -105,6 +105,10 @@ public abstract class Connection<A> implements Closeable {
 
   public abstract void open() throws IOException;
 
+  public void removeAllEventListeners() {
+    listeners.clear();
+  }
+
   public boolean removeEventListener(EventListener<Connection<A>, State> listener) {
     return listeners.remove(listener);
   }
