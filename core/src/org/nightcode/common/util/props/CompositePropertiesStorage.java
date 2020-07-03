@@ -23,7 +23,7 @@ import java.util.List;
  */
 public class CompositePropertiesStorage implements PropertiesStorage {
 
-  private List<PropertiesStorage> storages;
+  private final List<PropertiesStorage> storages;
 
   public CompositePropertiesStorage(PropertiesStorage... storages) {
     this.storages = Collections.unmodifiableList(Arrays.asList(storages));

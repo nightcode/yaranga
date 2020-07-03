@@ -56,16 +56,11 @@ public abstract class AbstractService implements Service {
     this.logger = LogManager.getLogger(this);
   }
 
-  AbstractService(String serviceName, Logger logger) {
-    this.serviceName = serviceName;
-    this.logger = logger;
-  }
-
   @Override public String serviceName() {
     return serviceName;
   }
 
-  @Override public final CompletableFuture<State> start() {
+  @Override public CompletableFuture<State> start() {
     int s = state.get();
     if (s < RUNNING) {
       final ReentrantLock mainLock = this.lock;
@@ -84,7 +79,7 @@ public abstract class AbstractService implements Service {
     return startFuture;
   }
 
-  @Override public final CompletableFuture<State> stop() {
+  @Override public CompletableFuture<State> stop() {
     int s = state.get();
     if (s < STOPPING) {
       final ReentrantLock mainLock = this.lock;
@@ -116,7 +111,7 @@ public abstract class AbstractService implements Service {
         ? "SHUTDOWN" : s < TERMINATED
         ? "STOPPING" : s < FAILED
         ? "TERMINATED" : "FAILED";
-    return serviceName() + '[' + st + ']';
+    return serviceName + '[' + st + ']';
   }
 
   /**

@@ -29,10 +29,12 @@ class JulLoggerAdapter implements Logger {
     };
   }
 
+  private final String name;
   private final String sourceClassName;
   private final java.util.logging.Logger logger;
 
   JulLoggerAdapter(String sourceClassName, java.util.logging.Logger logger) {
+    this.name = logger.getName();
     this.sourceClassName = sourceClassName;
     this.logger = logger;
   }
@@ -242,6 +244,7 @@ class JulLoggerAdapter implements Logger {
   private void logRecord0(Level level, String message, @Nullable Throwable thrown) {
     LogRecord record = new LogRecord(level, message);
     record.setThrown(thrown);
+    record.setLoggerName(name);
     record.setSourceClassName(sourceClassName);
     logger.log(record);
   }

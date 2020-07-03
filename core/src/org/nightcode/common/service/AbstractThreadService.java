@@ -14,45 +14,30 @@
 
 package org.nightcode.common.service;
 
-import org.nightcode.common.util.logging.LogManager;
-import org.nightcode.common.util.logging.Logger;
-
 import java.util.concurrent.CompletableFuture;
 
 /**
  * A Service that executes logic in separate thread.
  */
-public abstract class AbstractThreadService implements Service {
+public abstract class AbstractThreadService extends AbstractService implements Service {
 
   private volatile boolean operates = true;
   private volatile boolean restart = false;
 
   private long restartTimeout = 10L; // timeout, in milliseconds
 
-  private final AbstractService inner;
   private final Thread thread;
 
-  protected final Logger logger = LogManager.getLogger(this);
-
   protected AbstractThreadService(final String serviceName) {
-    inner = new AbstractService(serviceName, logger) {
-      @Override protected void doStart() {
-        thread.start();
-      }
-
-      @Override protected void doStop() {
-        operates = false;
-        thread.interrupt();
-      }
-    };
+    super(serviceName);
 
     thread = new Thread(() -> {
       boolean interrupted = false;
       try {
         onStart();
-        inner.started();
+        started();
 
-        if (inner.isRunning()) {
+        if (isRunning()) {
           Exception lastFailedCause = null;
           try {
             while (operates) {
@@ -99,10 +84,10 @@ public abstract class AbstractThreadService implements Service {
           }
         }
 
-        if (inner.isStopping() || interrupted) {
+        if (isStopping() || interrupted) {
           onStop();
         }
-        inner.stopped();
+        stopped();
       } catch (Throwable th) {
         serviceFailed(th);
       } finally {
@@ -117,21 +102,22 @@ public abstract class AbstractThreadService implements Service {
     thread.interrupt();
   }
 
-  @Override public String serviceName() {
-    return inner.serviceName();
-  }
-
   @Override public final CompletableFuture<State> start() {
     startUp();
-    return inner.start();
+    return super.start();
   }
 
   @Override public final CompletableFuture<State> stop() {
-    return inner.stop();
+    return super.stop();
   }
 
-  @Override public String toString() {
-    return inner.toString();
+  @Override protected final void doStart() {
+    thread.start();
+  }
+
+  @Override protected final void doStop() {
+    operates = false;
+    thread.interrupt();
   }
 
   protected boolean isOperates() {
@@ -148,10 +134,6 @@ public abstract class AbstractThreadService implements Service {
 
   protected abstract void service() throws Exception;
 
-  protected void serviceFailed(Throwable cause) {
-    inner.serviceFailed(cause);
-  }
-
   protected final void setRestartTimeout(long restartTimeout) {
     this.restartTimeout = restartTimeout;
   }
@@ -165,11 +147,7 @@ public abstract class AbstractThreadService implements Service {
     thread.interrupt();
   }
 
-  void shutdown() {
-    inner.shutdown();
-  }
-
   final int state() {
-    return inner.state.get();
+    return state.get();
   }
 }
