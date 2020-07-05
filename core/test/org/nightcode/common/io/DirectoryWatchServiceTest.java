@@ -10,8 +10,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class DirectoryWatchServiceTest {
 
   public static final String TARGET = System.getProperty("project.build.directory", "target");
