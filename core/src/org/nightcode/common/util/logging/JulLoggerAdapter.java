@@ -111,6 +111,34 @@ class JulLoggerAdapter implements Logger {
     log(Level.INFO, supplier, thrown);
   }
 
+  @Override public boolean isTraceLoggable() {
+    return logger.isLoggable(Level.FINEST);
+  }
+
+  @Override public boolean isDebugLoggable() {
+    return logger.isLoggable(Level.FINE);
+  }
+
+  @Override public boolean isInfoLoggable() {
+    return logger.isLoggable(Level.INFO);
+  }
+
+  @Override public boolean isConfigLoggable() {
+    return logger.isLoggable(Level.CONFIG);
+  }
+
+  @Override public boolean isWarnLoggable() {
+    return logger.isLoggable(Level.WARNING);
+  }
+
+  @Override public boolean isErrorLoggable() {
+    return logger.isLoggable(Level.WARNING);
+  }
+
+  @Override public boolean isFatalLoggable() {
+    return logger.isLoggable(Level.SEVERE);
+  }
+
   @Override public void config(String message) {
     log(Level.CONFIG, message);
   }

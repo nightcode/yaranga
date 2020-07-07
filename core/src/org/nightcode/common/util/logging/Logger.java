@@ -57,6 +57,20 @@ public interface Logger {
 
   void info(Supplier<?> supplier, Throwable thrown);
 
+  boolean isTraceLoggable();
+
+  boolean isDebugLoggable();
+
+  boolean isInfoLoggable();
+
+  boolean isConfigLoggable();
+
+  boolean isWarnLoggable();
+
+  boolean isErrorLoggable();
+
+  boolean isFatalLoggable();
+
   void config(String message);
 
   void config(String message, Object... args);
