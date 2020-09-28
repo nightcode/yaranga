@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2008 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,25 +14,40 @@
 
 package org.nightcode.common.util.monitoring;
 
-import org.nightcode.common.service.Service;
+import org.nightcode.common.annotations.Beta;
 
 /**
- * Collects components which will be used to retrieve
- * monitoring events with specified periodicity.
+ * An incrementing and decrementing counter metric.
  */
-public interface Monitoring extends MonitoringVisitor, Service {
+@Beta
+public interface Counter extends Metric {
 
   /**
-   * Registers component for monitoring.
-   *
-   * @param monitoringComponent monitoring component
+   * Increment the counter by 1.
    */
-  void registerMonitoringComponent(MonitoringComponent monitoringComponent);
+  void inc();
 
   /**
-   * Unregisters monitoring component.
+   * Increment the counter by {@code value}.
    *
-   * @param monitoringComponent monitoring component
+   * @param value the amount by which the counter will be increased
    */
-  void unregisterMonitoringComponent(MonitoringComponent monitoringComponent);
+  void inc(long value);
+
+  /**
+   * Decrement the counter by one.
+   */
+  void dec();
+
+  /**
+   * Decrement the counter by {@code value}.
+   *
+   * @param value the amount by which the counter will be decreased
+   */
+  void dec(long value);
+
+  /**
+   * Get the value of the counter.
+   */
+  long getCount();
 }

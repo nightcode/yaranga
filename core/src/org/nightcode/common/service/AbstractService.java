@@ -16,6 +16,7 @@ package org.nightcode.common.service;
 
 import org.nightcode.common.util.logging.LogManager;
 import org.nightcode.common.util.logging.Logger;
+import org.nightcode.common.util.monitoring.MonitoringManager;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -54,6 +55,8 @@ public abstract class AbstractService implements Service {
   protected AbstractService(String serviceName) {
     this.serviceName = serviceName;
     this.logger = LogManager.getLogger(this);
+
+    MonitoringManager.registerGauge(serviceName + ".status", state::get);
   }
 
   @Override public String serviceName() {
@@ -104,13 +107,7 @@ public abstract class AbstractService implements Service {
   }
 
   @Override public String toString() {
-    int s = state.get();
-    String st = s < STARTING ? "NEW" : s < RUNNING
-        ? "STARTING" : s < SHUTDOWN
-        ? "RUNNING" : s < STOPPING
-        ? "SHUTDOWN" : s < TERMINATED
-        ? "STOPPING" : s < FAILED
-        ? "TERMINATED" : "FAILED";
+    String st = stateAsString();
     return serviceName + '[' + st + ']';
   }
 
@@ -182,6 +179,20 @@ public abstract class AbstractService implements Service {
     } finally {
       mainLock.unlock();
     }
+  }
+
+  protected final int state() {
+    return state.get();
+  }
+
+  protected final String stateAsString() {
+    int s = state.get();
+    return s < STARTING ? "NEW" : s < RUNNING
+        ? "STARTING" : s < SHUTDOWN
+        ? "RUNNING" : s < STOPPING
+        ? "SHUTDOWN" : s < TERMINATED
+        ? "STOPPING" : s < FAILED
+        ? "TERMINATED" : "FAILED";
   }
 
   protected final void stopped() {

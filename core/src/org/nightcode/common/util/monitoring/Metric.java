@@ -17,20 +17,9 @@ package org.nightcode.common.util.monitoring;
 import org.nightcode.common.annotations.Beta;
 
 /**
- * Interface to provide metric's implementations.
+ * A tag interface for metric classes.
  */
 @Beta
-public interface MonitoringProvider {
+public interface Metric {
 
-  boolean deregister(String name);
-
-  Counter registerCounter(String name);
-
-  <T> void registerGauge(String name, Gauge<T> gauge);
-
-  Histogram registerHistogram(String name);
-
-  Timer registerTimer(String name);
-
-  String name();
 }

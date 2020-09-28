@@ -24,7 +24,7 @@ public abstract class AbstractThreadService extends AbstractService implements S
   private volatile boolean operates = true;
   private volatile boolean restart = false;
 
-  private long restartTimeout = 10L; // timeout, in milliseconds
+  private long restartTimeoutMs = 10L; // timeout, in milliseconds
 
   private final Thread thread;
 
@@ -72,7 +72,7 @@ public abstract class AbstractThreadService extends AbstractService implements S
                   logger.trace(ex2, "[%s]: exception occurred", serviceName());
                 }
                 try {
-                  Thread.sleep(restartTimeout);
+                  Thread.sleep(restartTimeoutMs);
                 } catch (InterruptedException interrupt) {
                   logger.trace(interrupt, "[%s]: exception occurred", serviceName());
                 }
@@ -134,8 +134,8 @@ public abstract class AbstractThreadService extends AbstractService implements S
 
   protected abstract void service() throws Exception;
 
-  protected final void setRestartTimeout(long restartTimeout) {
-    this.restartTimeout = restartTimeout;
+  protected final void setRestartTimeout(long restartTimeoutMs) {
+    this.restartTimeoutMs = restartTimeoutMs;
   }
 
   protected void startUp() {
@@ -145,9 +145,5 @@ public abstract class AbstractThreadService extends AbstractService implements S
   protected final void restart() {
     restart = true;
     thread.interrupt();
-  }
-
-  final int state() {
-    return state.get();
   }
 }

@@ -16,6 +16,7 @@
 
 package org.nightcode.common.util.monitoring;
 
+import org.nightcode.common.annotations.Beta;
 import org.nightcode.common.base.Objects;
 
 import java.util.concurrent.TimeUnit;
@@ -24,6 +25,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * An object that measures the magnitude of speed.
  */
+@Beta
 public final class Speedometer {
 
   // Constants for conversion

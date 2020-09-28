@@ -14,6 +14,9 @@
 
 package org.nightcode.common.service;
 
+import org.nightcode.common.util.monitoring.Counter;
+import org.nightcode.common.util.monitoring.MonitoringManager;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +33,9 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
 
   protected final BlockingQueue<M> queue;
   private final boolean skipMessageStrategy;
+
+  private final Counter submitted;
+  private final Counter skipped;
 
   public AbstractAsyncMessageService(String serviceName) {
     this(serviceName, new LinkedBlockingQueue<>(), DEFAULT_SKIP_MESSAGE_STRATEGY);
@@ -48,6 +54,11 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
     super(serviceName);
     this.queue = queue;
     this.skipMessageStrategy = skipMessageStrategy;
+
+    submitted = MonitoringManager.registerCounter(serviceName + ".messages.Submitted");
+    skipped = MonitoringManager.registerCounter(serviceName + ".messages.Skipped");
+    MonitoringManager.registerGauge(serviceName + ".queue.Size", queue::size);
+    MonitoringManager.registerGauge(serviceName + ".queue.RemainingCapacity", queue::remainingCapacity);
   }
 
   @Override public int awaitProcessingCount() {
@@ -59,6 +70,7 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
   }
 
   public boolean submit(M message) {
+    submitted.inc();
     int s = state();
     if (!AbstractService.isRunning(s)) {
       return false;
@@ -70,6 +82,7 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
         if (!AbstractService.isRunning(recheck) && queue.remove(message)) {
           logger.info("[%s]: message <%s> has been skipped (queue remaining capacity %s)"
               , serviceName(), message, queue.remainingCapacity());
+          skipped.inc();
           return false;
         }
         return true;
@@ -81,6 +94,7 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
             int recheck = state();
             if (!AbstractService.isRunning(recheck) && queue.remove(message)) {
               logger.info("[%s]: message <%s> has been rejected", serviceName(), message);
+              skipped.inc();
               return false;
             }
             return true;
@@ -91,6 +105,7 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
         }
       }
     }
+    skipped.inc();
     return false;
   }
 

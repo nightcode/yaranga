@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2008 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,18 +14,20 @@
 
 package org.nightcode.common.util.monitoring;
 
-import java.io.IOException;
+import org.nightcode.common.annotations.Beta;
 
 /**
- * A {@link MonitoringComponent} provides events for monitoring.
+ * A context for timing metrics.
  */
-public interface MonitoringComponent {
+@Beta
+public interface Context extends AutoCloseable {
 
   /**
-   * Retrieves data from monitoring component.
-   *
-   * @param visitor monitoring visitor
-   * @throws IOException if data cannot be retrieved
+   * Updates the timer with the difference between current and start time.
    */
-  void retrieveData(MonitoringVisitor visitor) throws IOException;
+  long stop();
+
+  @Override default void close() {
+    stop();
+  }
 }

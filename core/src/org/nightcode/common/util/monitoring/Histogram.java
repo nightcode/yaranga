@@ -17,20 +17,12 @@ package org.nightcode.common.util.monitoring;
 import org.nightcode.common.annotations.Beta;
 
 /**
- * Interface to provide metric's implementations.
+ * Histogram metric, to track distributions of events.
  */
 @Beta
-public interface MonitoringProvider {
+public interface Histogram extends Metric {
 
-  boolean deregister(String name);
+  void update(int value);
 
-  Counter registerCounter(String name);
-
-  <T> void registerGauge(String name, Gauge<T> gauge);
-
-  Histogram registerHistogram(String name);
-
-  Timer registerTimer(String name);
-
-  String name();
+  void update(long value);
 }

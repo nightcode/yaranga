@@ -17,20 +17,12 @@ package org.nightcode.common.util.monitoring;
 import org.nightcode.common.annotations.Beta;
 
 /**
- * Interface to provide metric's implementations.
+ * A Gauge metric, to report instantaneous values.
+ *
+ * @param <T> the type of the metric's value
  */
 @Beta
-public interface MonitoringProvider {
+public interface Gauge<T> extends Metric {
 
-  boolean deregister(String name);
-
-  Counter registerCounter(String name);
-
-  <T> void registerGauge(String name, Gauge<T> gauge);
-
-  Histogram registerHistogram(String name);
-
-  Timer registerTimer(String name);
-
-  String name();
+  T getValue();
 }
