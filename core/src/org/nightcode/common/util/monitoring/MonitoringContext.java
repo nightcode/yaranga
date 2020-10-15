@@ -15,29 +15,19 @@
 package org.nightcode.common.util.monitoring;
 
 import org.nightcode.common.annotations.Beta;
-import org.nightcode.common.util.monitoring.impl.CollectorName;
-
-import java.util.function.Supplier;
+import org.nightcode.common.util.monitoring.impl.CollectorType;
 
 /**
- * Interface to provide metric's implementations.
+ * A monitoring context.
  */
 @Beta
-public interface MonitoringProvider {
+public interface MonitoringContext extends MonitoringOperations {
 
-  boolean deregister(Collector metric);
+  Metric createMetric(CollectorType type);
 
-  Counter createCounter(CollectorName name);
+  Metric metric();
 
-  Gauge createGauge(CollectorName name);
+  void lock();
 
-  <V> Gauge createGauge(CollectorName name, Supplier<V> gauge);
-
-  Histogram createHistogram(CollectorName name);
-
-  Timer createTimer(CollectorName name);
-
-  String name();
-
-  char nameSeparator();
+  void unlock();
 }

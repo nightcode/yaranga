@@ -51,11 +51,12 @@ public class AbstractAsyncMessageServiceTest {
     Thread.sleep(100);
     
     EasyMock.verify(mockQueue);
+    service.stop().get();
   }
   
   @Test public void skipStrategy() throws Exception {
     MessageService<Boolean> service = new AbstractAsyncMessageService<Boolean>("test",
-        new ArrayBlockingQueue<Boolean>(1), true) {
+        new ArrayBlockingQueue<>(1), true) {
       @Override protected void process(Boolean message) throws Exception {
         Thread.sleep(Long.MAX_VALUE);
       }
@@ -65,5 +66,6 @@ public class AbstractAsyncMessageServiceTest {
     Thread.sleep(100);
     assertTrue(service.submit(Boolean.TRUE));
     assertFalse(service.submit(Boolean.TRUE));
+    service.stop().get();
   }
 }

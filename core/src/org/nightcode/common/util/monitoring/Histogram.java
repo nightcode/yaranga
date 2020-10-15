@@ -17,10 +17,28 @@ package org.nightcode.common.util.monitoring;
 import org.nightcode.common.annotations.Beta;
 
 /**
- * Histogram metric, to track distributions of events.
+ * Histogram collector, to track distributions of events.
  */
 @Beta
-public interface Histogram extends Metric {
+public interface Histogram extends Collector {
+
+  /**
+   * An interface for Collector's child.
+   */
+  interface Child extends Collector {
+
+    void update(int value);
+
+    void update(long value);
+  }
+
+  /**
+   * Set tag values.
+   *
+   * @param tagValues tag values
+   * @return histogram
+   */
+  Child tags(String... tagValues);
 
   void update(int value);
 

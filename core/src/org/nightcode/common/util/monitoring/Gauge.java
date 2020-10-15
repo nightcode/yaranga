@@ -16,13 +16,26 @@ package org.nightcode.common.util.monitoring;
 
 import org.nightcode.common.annotations.Beta;
 
+import java.util.function.Supplier;
+
 /**
- * A Gauge metric, to report instantaneous values.
- *
- * @param <T> the type of the metric's value
+ * A Gauge collector, to report instantaneous values.
  */
 @Beta
-public interface Gauge<T> extends Metric {
+public interface Gauge extends Collector {
 
-  T getValue();
+  /**
+   * An interface for Gauge's child.
+   */
+  interface Child extends Collector {
+  }
+
+  /**
+   * Set tag values.
+   *
+   * @param gauge a gauge
+   * @param tagValues tag values
+   * @return gauge
+   */
+  Child tags(Supplier<?> gauge, String... tagValues);
 }

@@ -16,7 +16,6 @@ package org.nightcode.common.service;
 
 import org.nightcode.common.util.logging.LogManager;
 import org.nightcode.common.util.logging.Logger;
-import org.nightcode.common.util.monitoring.MonitoringManager;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -55,8 +54,6 @@ public abstract class AbstractService implements Service {
   protected AbstractService(String serviceName) {
     this.serviceName = serviceName;
     this.logger = LogManager.getLogger(this);
-
-    MonitoringManager.registerGauge(serviceName + ".status", state::get);
   }
 
   @Override public String serviceName() {

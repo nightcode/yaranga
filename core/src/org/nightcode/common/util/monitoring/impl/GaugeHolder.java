@@ -12,32 +12,25 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.util.monitoring;
+package org.nightcode.common.util.monitoring.impl;
 
 import org.nightcode.common.annotations.Beta;
-import org.nightcode.common.util.monitoring.impl.CollectorName;
+import org.nightcode.common.util.monitoring.Gauge;
 
 import java.util.function.Supplier;
 
-/**
- * Interface to provide metric's implementations.
- */
 @Beta
-public interface MonitoringProvider {
+class GaugeHolder extends AbstractCollectorHolder<Gauge> implements Gauge {
 
-  boolean deregister(Collector metric);
+  GaugeHolder(Gauge target, MonitoringManager monitoringManager) {
+    super(target, monitoringManager);
+  }
 
-  Counter createCounter(CollectorName name);
+  @Override public Gauge.Child tags(Supplier<?> gauge, String... tagValues) {
+    return (Gauge.Child) monitoringManager.tags(name(), gauge, tagValues);
+  }
 
-  Gauge createGauge(CollectorName name);
-
-  <V> Gauge createGauge(CollectorName name, Supplier<V> gauge);
-
-  Histogram createHistogram(CollectorName name);
-
-  Timer createTimer(CollectorName name);
-
-  String name();
-
-  char nameSeparator();
+  @Override public CollectorType type() {
+    return CollectorType.GAUGE;
+  }
 }

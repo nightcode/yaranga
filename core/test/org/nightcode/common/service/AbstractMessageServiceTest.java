@@ -53,6 +53,7 @@ public class AbstractMessageServiceTest {
     assertEquals(true, actual);
     assertEquals(true, value.get());
     assertEquals(1, counter.get());
+    service.stop().get();
   }
   
   @Test public void submitFailed() throws Exception {
@@ -75,6 +76,7 @@ public class AbstractMessageServiceTest {
     boolean actual = service.submit(Boolean.TRUE);
     assertEquals(false, actual);
     assertEquals(1, counter.get());
+    service.stop().get();
   }
 
   @Test public void submitFailedPropagate() throws Exception {
@@ -103,5 +105,6 @@ public class AbstractMessageServiceTest {
           , Throwables.getRootCause(ex).getMessage());
     }
     assertEquals(1, counter.get());
+    service.stop().get();
   }
 }

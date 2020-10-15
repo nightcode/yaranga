@@ -15,8 +15,6 @@
 package org.nightcode.common.service;
 
 import org.nightcode.common.base.Throwables;
-import org.nightcode.common.util.monitoring.Counter;
-import org.nightcode.common.util.monitoring.MonitoringManager;
 
 /**
  * Abstract message service.
@@ -26,8 +24,6 @@ public abstract class AbstractMessageService<M> extends AbstractService implemen
 
   private final boolean propagateException;
 
-  private final Counter submitted;
-
   protected AbstractMessageService(String serviceName) {
     this(serviceName, false);
   }
@@ -35,8 +31,6 @@ public abstract class AbstractMessageService<M> extends AbstractService implemen
   protected AbstractMessageService(String serviceName, boolean propagateException) {
     super(serviceName);
     this.propagateException = propagateException;
-
-    submitted = MonitoringManager.registerCounter(serviceName + ".messages.Submitted");
   }
 
   @Override public int awaitProcessingCount() {
@@ -48,7 +42,6 @@ public abstract class AbstractMessageService<M> extends AbstractService implemen
   }
 
   @Override public boolean submit(M message) {
-    submitted.inc();
     if (isRunning()) {
       try {
         process(message);

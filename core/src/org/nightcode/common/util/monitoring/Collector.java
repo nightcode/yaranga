@@ -17,27 +17,16 @@ package org.nightcode.common.util.monitoring;
 import org.nightcode.common.annotations.Beta;
 import org.nightcode.common.util.monitoring.impl.CollectorName;
 
-import java.util.function.Supplier;
-
 /**
- * Interface to provide metric's implementations.
+ * A tag interface for collector classes.
  */
 @Beta
-public interface MonitoringProvider {
+public interface Collector {
 
-  boolean deregister(Collector metric);
-
-  Counter createCounter(CollectorName name);
-
-  Gauge createGauge(CollectorName name);
-
-  <V> Gauge createGauge(CollectorName name, Supplier<V> gauge);
-
-  Histogram createHistogram(CollectorName name);
-
-  Timer createTimer(CollectorName name);
-
-  String name();
-
-  char nameSeparator();
+  /**
+   * Returns collector name.
+   *
+   * @return collector name
+   */
+  CollectorName name();
 }

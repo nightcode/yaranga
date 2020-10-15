@@ -17,10 +17,47 @@ package org.nightcode.common.util.monitoring;
 import org.nightcode.common.annotations.Beta;
 
 /**
- * An incrementing and decrementing counter metric.
+ * An incrementing and decrementing counter collector.
  */
 @Beta
-public interface Counter extends Metric {
+public interface Counter extends Collector {
+
+  /**
+   * An interface for Counter's child.
+   */
+  interface Child extends Collector {
+
+    /**
+     * Increment the counter by 1.
+     */
+    void inc();
+
+    /**
+     * Increment the counter by {@code value}.
+     *
+     * @param value the amount by which the counter will be increased
+     */
+    void inc(long value);
+
+    /**
+     * Decrement the counter by one.
+     */
+    void dec();
+
+    /**
+     * Decrement the counter by {@code value}.
+     *
+     * @param value the amount by which the counter will be decreased
+     */
+    void dec(long value);
+
+    /**
+     * Get the value of the counter.
+     *
+     * @return the value of the counter
+     */
+    long getCount();
+  }
 
   /**
    * Increment the counter by 1.
@@ -48,6 +85,16 @@ public interface Counter extends Metric {
 
   /**
    * Get the value of the counter.
+   *
+   * @return the value of the counter
    */
   long getCount();
+
+  /**
+   * Set tag values.
+   *
+   * @param tagValues tag values
+   * @return counter
+   */
+  Child tags(String... tagValues);
 }

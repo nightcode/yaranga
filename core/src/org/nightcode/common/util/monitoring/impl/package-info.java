@@ -1,4 +1,6 @@
 /*
+ * Copyright (C) 2008 The NightCode Open Source Project
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,29 +14,8 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.util.monitoring;
-
-import org.nightcode.common.annotations.Beta;
-
-import java.util.function.Supplier;
-
 /**
- * A tag interface for metric classes.
+ * This package contains implementations of monitoring interfaces.
  */
-@Beta
-public interface Metric {
 
-  Collector collector();
-
-  void doDeregister();
-
-  void doRegister();
-
-  void doRegisterGauge(Supplier<?> gauge);
-
-  void doTags(String... tagValues);
-
-  void doTagsGauge(Supplier<?> gauge, String... tagValues);
-
-  Collector tags(String... tagValues);
-}
+package org.nightcode.common.util.monitoring.impl;

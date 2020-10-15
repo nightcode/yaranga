@@ -12,22 +12,26 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.util.monitoring;
+package org.nightcode.common.util.monitoring.impl;
 
 import org.nightcode.common.annotations.Beta;
+import org.nightcode.common.util.monitoring.Collector;
+
+import java.util.Collection;
 
 /**
- * A context for timing metrics.
+ * A tag interface for collector holder classes.
  */
 @Beta
-public interface Context extends AutoCloseable {
+interface CollectorHolder extends Collector {
 
-  /**
-   * Updates the timer with the difference between current and start time.
-   */
-  long stop();
+  void addChild(Collector child, String... tagValues);
 
-  @Override default void close() {
-    stop();
-  }
+  Collection<Collector> children();
+
+  Collector getChild(String... tagValues);
+
+  Collector target();
+
+  CollectorType type();
 }
