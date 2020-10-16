@@ -15,6 +15,7 @@
 package org.nightcode.common.util.monitoring.impl;
 
 import org.nightcode.common.annotations.Beta;
+import org.nightcode.common.util.monitoring.MonitoringContext;
 import org.nightcode.common.util.monitoring.Timer;
 
 import java.util.concurrent.TimeUnit;
@@ -22,12 +23,12 @@ import java.util.concurrent.TimeUnit;
 @Beta
 class TimerHolder extends AbstractCollectorHolder<Timer> implements Timer {
 
-  TimerHolder(Timer target, MonitoringManager monitoringManager) {
-    super(target, monitoringManager);
+  TimerHolder(Timer target, MonitoringContext context) {
+    super(target, context);
   }
 
   @Override public Timer.Child tags(String... tagValues) {
-    return (Timer.Child) monitoringManager.tags(name(), tagValues);
+    return (Timer.Child) context.provider().tags(name(), tagValues);
   }
 
   @Override public Context startTimer() {

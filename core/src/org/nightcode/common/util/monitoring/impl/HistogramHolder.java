@@ -16,16 +16,17 @@ package org.nightcode.common.util.monitoring.impl;
 
 import org.nightcode.common.annotations.Beta;
 import org.nightcode.common.util.monitoring.Histogram;
+import org.nightcode.common.util.monitoring.MonitoringContext;
 
 @Beta
 class HistogramHolder extends AbstractCollectorHolder<Histogram> implements Histogram {
 
-  HistogramHolder(Histogram target, MonitoringManager monitoringManager) {
-    super(target, monitoringManager);
+  HistogramHolder(Histogram target, MonitoringContext context) {
+    super(target, context);
   }
 
   @Override public Histogram.Child tags(String... tagValues) {
-    return (Histogram.Child) monitoringManager.tags(name(), tagValues);
+    return (Histogram.Child) context.provider().tags(name(), tagValues);
   }
 
   @Override public CollectorType type() {

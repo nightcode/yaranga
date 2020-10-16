@@ -16,11 +16,12 @@ package org.nightcode.common.util.monitoring.impl;
 
 import org.nightcode.common.annotations.Beta;
 import org.nightcode.common.util.monitoring.Counter;
+import org.nightcode.common.util.monitoring.MonitoringContext;
 
 @Beta
 class CounterHolder extends AbstractCollectorHolder<Counter> implements Counter {
 
-  CounterHolder(Counter target, MonitoringManager monitoringManager) {
+  CounterHolder(Counter target, MonitoringContext monitoringManager) {
     super(target, monitoringManager);
   }
 
@@ -45,7 +46,7 @@ class CounterHolder extends AbstractCollectorHolder<Counter> implements Counter 
   }
 
   @Override public Counter.Child tags(String... tagValues) {
-    return (Counter.Child) monitoringManager.tags(name(), tagValues);
+    return (Counter.Child) context.provider().tags(name(), tagValues);
   }
 
   @Override public CollectorType type() {

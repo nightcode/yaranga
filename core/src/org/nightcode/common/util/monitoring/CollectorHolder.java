@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.util.monitoring.impl;
+package org.nightcode.common.util.monitoring;
 
 import org.nightcode.common.annotations.Beta;
-import org.nightcode.common.util.monitoring.Collector;
+import org.nightcode.common.util.monitoring.impl.CollectorType;
 
 import java.util.Collection;
 
@@ -23,7 +23,7 @@ import java.util.Collection;
  * A tag interface for collector holder classes.
  */
 @Beta
-interface CollectorHolder extends Collector {
+public interface CollectorHolder extends Collector {
 
   void addChild(Collector child, String... tagValues);
 

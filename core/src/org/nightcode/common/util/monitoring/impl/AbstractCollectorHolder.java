@@ -16,6 +16,8 @@ package org.nightcode.common.util.monitoring.impl;
 
 import org.nightcode.common.annotations.Beta;
 import org.nightcode.common.util.monitoring.Collector;
+import org.nightcode.common.util.monitoring.CollectorHolder;
+import org.nightcode.common.util.monitoring.MonitoringContext;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,13 +29,13 @@ import java.util.Map;
 abstract class AbstractCollectorHolder<T extends Collector> implements CollectorHolder {
 
   protected final T target;
-  protected final MonitoringManager monitoringManager;
+  protected final MonitoringContext context;
 
   protected final Map<List<String>, Collector> children = new HashMap<>();
 
-  AbstractCollectorHolder(T target, MonitoringManager monitoringManager) {
+  AbstractCollectorHolder(T target, MonitoringContext context) {
     this.target = target;
-    this.monitoringManager = monitoringManager;
+    this.context = context;
   }
 
   @Override public void addChild(Collector child, String... tagValues) {

@@ -16,9 +16,11 @@ package org.nightcode.common.util.monitoring.impl;
 
 import org.nightcode.common.annotations.Beta;
 import org.nightcode.common.util.monitoring.Collector;
+import org.nightcode.common.util.monitoring.CollectorHolder;
 import org.nightcode.common.util.monitoring.Gauge;
 import org.nightcode.common.util.monitoring.Metric;
-import org.nightcode.common.util.monitoring.MonitoringProvider;
+import org.nightcode.common.util.monitoring.MonitoringContext;
+import org.nightcode.common.util.monitoring.MonitoringEngine;
 
 import java.util.function.Supplier;
 
@@ -29,15 +31,15 @@ class MetricImpl implements Metric {
 
   private final CollectorName name;
   private final CollectorType type;
-  private final MonitoringManager mm;
+  private final MonitoringContext context;
 
   private CollectorHolder collector;
 
-  MetricImpl(CollectorName name, @Nullable CollectorHolder collector, CollectorType type, MonitoringManager mm) {
+  MetricImpl(CollectorName name, @Nullable CollectorHolder collector, CollectorType type, MonitoringContext context) {
     this.name = name;
     this.collector = collector;
     this.type = type;
-    this.mm = mm;
+    this.context = context;
   }
 
   @Override public Collector collector() {
@@ -45,23 +47,23 @@ class MetricImpl implements Metric {
   }
 
   @Override public void doDeregister() {
-    mm.metrics().remove(name);
-    MonitoringProvider provider = mm.provider();
+    context.metrics().remove(name);
+    MonitoringEngine engine = context.engine();
     for (Collector child : collector.children()) {
-      provider.deregister(child);
+      engine.deregister(child);
     }
     collector.children().clear();
-    provider.deregister(collector);
+    engine.deregister(collector);
   }
 
   @Override public void doRegister() {
-    collector = type.create(name, mm);
-    mm.metrics().put(name, collector);
+    collector = type.create(name, context);
+    context.metrics().put(name, collector);
   }
 
   @Override public void doRegisterGauge(Supplier<?> gauge) {
-    collector = new GaugeHolder(mm.provider().createGauge(name, gauge), mm);
-    mm.metrics().put(name, collector);
+    collector = new GaugeHolder(context.engine().createGauge(name, gauge), context);
+    context.metrics().put(name, collector);
   }
 
   @Override public void doTags(String... tagValues) {

@@ -15,7 +15,10 @@
 package org.nightcode.common.util.monitoring;
 
 import org.nightcode.common.annotations.Beta;
+import org.nightcode.common.util.monitoring.impl.CollectorName;
 import org.nightcode.common.util.monitoring.impl.CollectorType;
+
+import java.util.Map;
 
 /**
  * A monitoring context.
@@ -25,9 +28,15 @@ public interface MonitoringContext extends MonitoringOperations {
 
   Metric createMetric(CollectorType type);
 
-  Metric metric();
+  MonitoringEngine engine();
 
   void lock();
+
+  Metric metric();
+
+  Map<CollectorName, CollectorHolder> metrics();
+
+  MonitoringProvider provider();
 
   void unlock();
 }

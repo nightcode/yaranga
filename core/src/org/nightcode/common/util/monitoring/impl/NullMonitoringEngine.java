@@ -19,17 +19,17 @@ import org.nightcode.common.util.monitoring.Collector;
 import org.nightcode.common.util.monitoring.Counter;
 import org.nightcode.common.util.monitoring.Gauge;
 import org.nightcode.common.util.monitoring.Histogram;
-import org.nightcode.common.util.monitoring.MonitoringProvider;
+import org.nightcode.common.util.monitoring.MonitoringEngine;
 import org.nightcode.common.util.monitoring.Timer;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 /**
- *  Null implementation of {@link MonitoringProvider} interface.
+ *  Null implementation of {@link MonitoringEngine} interface.
  */
 @Beta
-class NullMonitoringProvider implements MonitoringProvider {
+class NullMonitoringEngine implements MonitoringEngine {
 
   @Override public boolean deregister(Collector metric) {
     return true;
@@ -57,8 +57,8 @@ class NullMonitoringProvider implements MonitoringProvider {
         return 0;
       }
 
-      @Override public Counter.Child tags(String... tagValues) {
-        return new Counter.Child() {
+      @Override public Child tags(String... tagValues) {
+        return new Child() {
           @Override public void inc() {
             // do nothing
           }
@@ -103,7 +103,7 @@ class NullMonitoringProvider implements MonitoringProvider {
     };
   }
 
-  @Override public <V> Gauge createGauge(CollectorName name, Supplier<V> gauge) {
+  @Override public Gauge createGauge(CollectorName name, Supplier<?> gauge) {
     return new Gauge() {
       @Override public CollectorName name() {
         return name;
@@ -117,8 +117,8 @@ class NullMonitoringProvider implements MonitoringProvider {
 
   @Override public Histogram createHistogram(CollectorName name) {
     return new Histogram() {
-      @Override public Histogram.Child tags(String... tagValues) {
-        return new Histogram.Child() {
+      @Override public Child tags(String... tagValues) {
+        return new Child() {
           @Override public CollectorName name() {
             return CollectorName.of(name, tagValues);
           }
@@ -149,13 +149,13 @@ class NullMonitoringProvider implements MonitoringProvider {
 
   @Override public Timer createTimer(CollectorName name) {
     return new Timer() {
-      @Override public Timer.Child tags(String... tagValues) {
-        return new Timer.Child() {
+      @Override public Child tags(String... tagValues) {
+        return new Child() {
           @Override public CollectorName name() {
             return CollectorName.of(name, tagValues);
           }
 
-          @Override public Timer.Context startTimer() {
+          @Override public Context startTimer() {
             return () -> 0;
           }
 
@@ -177,10 +177,6 @@ class NullMonitoringProvider implements MonitoringProvider {
         // do nothing
       }
     };
-  }
-
-  @Override public String name() {
-    return NullMonitoringProvider.class.getSimpleName();
   }
 
   @Override public char nameSeparator() {

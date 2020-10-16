@@ -16,9 +16,11 @@ package org.nightcode.common.util.monitoring.impl;
 
 import org.nightcode.common.annotations.Beta;
 import org.nightcode.common.util.monitoring.Collector;
+import org.nightcode.common.util.monitoring.CollectorHolder;
 import org.nightcode.common.util.monitoring.Counter;
 import org.nightcode.common.util.monitoring.Gauge;
 import org.nightcode.common.util.monitoring.Histogram;
+import org.nightcode.common.util.monitoring.MonitoringContext;
 import org.nightcode.common.util.monitoring.Timer;
 
 /**
@@ -28,8 +30,8 @@ import org.nightcode.common.util.monitoring.Timer;
 public enum CollectorType {
 
   COUNTER(Counter.class) {
-    @Override CollectorHolder create(CollectorName name, MonitoringManager mm) {
-      return new CounterHolder(mm.provider().createCounter(name), mm);
+    @Override CollectorHolder create(CollectorName name, MonitoringContext context) {
+      return new CounterHolder(context.engine().createCounter(name), context);
     }
 
     @Override Collector createChild(Collector collector, String... tagValues) {
@@ -37,8 +39,8 @@ public enum CollectorType {
     }
   },
   GAUGE(Gauge.class) {
-    @Override CollectorHolder create(CollectorName name, MonitoringManager mm) {
-      return new GaugeHolder(mm.provider().createGauge(name), mm);
+    @Override CollectorHolder create(CollectorName name, MonitoringContext context) {
+      return new GaugeHolder(context.engine().createGauge(name), context);
     }
 
     @Override Collector createChild(Collector collector, String... tagValues) {
@@ -46,8 +48,8 @@ public enum CollectorType {
     }
   },
   HISTOGRAM(Histogram.class) {
-    @Override CollectorHolder create(CollectorName name, MonitoringManager mm) {
-      return new HistogramHolder(mm.provider().createHistogram(name), mm);
+    @Override CollectorHolder create(CollectorName name, MonitoringContext context) {
+      return new HistogramHolder(context.engine().createHistogram(name), context);
     }
 
     @Override Collector createChild(Collector collector, String... tagValues) {
@@ -55,8 +57,8 @@ public enum CollectorType {
     }
   },
   TIMER(Timer.class) {
-    @Override CollectorHolder create(CollectorName name, MonitoringManager mm) {
-      return new TimerHolder(mm.provider().createTimer(name), mm);
+    @Override CollectorHolder create(CollectorName name, MonitoringContext context) {
+      return new TimerHolder(context.engine().createTimer(name), context);
     }
 
     @Override Collector createChild(Collector collector, String... tagValues) {
@@ -74,7 +76,7 @@ public enum CollectorType {
     return collectorClass;
   }
 
-  abstract CollectorHolder create(CollectorName name, MonitoringManager mm);
+  abstract CollectorHolder create(CollectorName name, MonitoringContext context);
 
   abstract Collector createChild(Collector collector, String... tagValues);
 }

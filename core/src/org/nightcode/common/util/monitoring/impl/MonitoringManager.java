@@ -1,23 +1,31 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.nightcode.common.util.monitoring.impl;
 
 import org.nightcode.common.annotations.Beta;
 import org.nightcode.common.util.logging.LogManager;
 import org.nightcode.common.util.logging.Logger;
-import org.nightcode.common.util.monitoring.Collector;
 import org.nightcode.common.util.monitoring.Counter;
 import org.nightcode.common.util.monitoring.Gauge;
 import org.nightcode.common.util.monitoring.Histogram;
-import org.nightcode.common.util.monitoring.Metric;
-import org.nightcode.common.util.monitoring.MonitoringContext;
+import org.nightcode.common.util.monitoring.MonitoringEngine;
 import org.nightcode.common.util.monitoring.MonitoringProvider;
 import org.nightcode.common.util.monitoring.Timer;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
+import java.lang.reflect.Constructor;
 import java.util.function.Supplier;
-
-import javax.annotation.Nullable;
 
 /**
  * Base class for monitoring.
@@ -25,265 +33,211 @@ import javax.annotation.Nullable;
 @Beta
 public final class MonitoringManager {
 
-  private static final MonitoringManager INSTANCE;
-
   private static final Logger LOGGER = LogManager.getLogger(MonitoringManager.class);
 
+  private static final MonitoringManager INSTANCE;
+
   static {
-    MonitoringProvider provider = null;
+    MonitoringEngine engine = null;
     String cname = null;
+    try {
+      cname = System.getProperty("yaranga.monitoring.engine");
+      if (cname != null) {
+        try {
+          Class<?> clazz = ClassLoader.getSystemClassLoader().loadClass(cname);
+          engine = (MonitoringEngine) clazz.newInstance();
+        } catch (ClassNotFoundException ex) {
+          Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(cname);
+          engine = (MonitoringEngine) clazz.newInstance();
+        }
+      }
+    } catch (Exception ex) {
+      LOGGER.error(ex, "unable to load MonitoringEngine '%s'", cname);
+    }
+    if (engine == null) {
+      engine = new NullMonitoringEngine();
+    }
+
+    MonitoringProvider provider = null;
+    cname = null;
     try {
       cname = System.getProperty("yaranga.monitoring.provider");
       if (cname != null) {
         try {
           Class<?> clazz = ClassLoader.getSystemClassLoader().loadClass(cname);
-          provider = (MonitoringProvider) clazz.newInstance();
+          Constructor<?> constructor = clazz.getConstructor(MonitoringEngine.class);
+          provider = (MonitoringProvider) constructor.newInstance(new Object[] {engine});
         } catch (ClassNotFoundException ex) {
           Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(cname);
-          provider = (MonitoringProvider) clazz.newInstance();
+          Constructor<?> constructor = clazz.getConstructor(MonitoringEngine.class);
+          provider = (MonitoringProvider) constructor.newInstance(new Object[] {engine});
         }
       }
     } catch (Exception ex) {
       LOGGER.error(ex, "unable to load MonitoringProvider '%s'", cname);
     }
-
     if (provider == null) {
-      provider = new NullMonitoringProvider();
+      provider = new DefaultMonitoringProvider(engine);
     }
 
     String subsystem = System.getProperty("yaranga.monitoring.subsystem");
     INSTANCE = new MonitoringManager(subsystem, provider);
-    LOGGER.config("MonitoringManager has been initialized with provider '%s'", provider.name());
+    LOGGER.config("MonitoringManager has been initialized with provider '%s' and engine '%s'"
+        , provider.getClass().getName(), engine.getClass().getName());
+  }
+
+  public static Counter counter(String name) {
+    return INSTANCE.counterImpl(name);
+  }
+
+  public static Counter counter(String name, String... tagNames) {
+    return INSTANCE.counterImpl(name, tagNames);
+  }
+
+  public static boolean deregister(String name) {
+    return INSTANCE.deregisterImpl(name);
+  }
+
+  public static Gauge gauge(String name, Supplier<?> gauge) {
+    return INSTANCE.gaugeImpl(name, gauge);
+  }
+
+  public static Gauge gauge(String name, String... tagNames) {
+    return INSTANCE.gaugeImpl(name, tagNames);
+  }
+
+  public static Histogram histogram(String name) {
+    return INSTANCE.histogramImpl(name);
+  }
+
+  public static Histogram histogram(String name, String... tagNames) {
+    return INSTANCE.histogramImpl(name, tagNames);
+  }
+
+  public static char nameSeparator() {
+    return INSTANCE.provider.engine().nameSeparator();
+  }
+
+  public static Counter registerCounter(String name) {
+    return INSTANCE.registerCounterImpl(name);
+  }
+
+  public static Counter registerCounter(String name, String... tagNames) {
+    return INSTANCE.registerCounterImpl(name, tagNames);
+  }
+
+  public static Gauge registerGauge(String name, Supplier<?> gauge) {
+    return INSTANCE.registerGaugeImpl(name, gauge);
+  }
+
+  public static Gauge registerGauge(String name, String... tagNames) {
+    return INSTANCE.registerGaugeImpl(name, tagNames);
+  }
+
+  public static Histogram registerHistogram(String name) {
+    return INSTANCE.registerHistogramImpl(name);
+  }
+
+  public static Histogram registerHistogram(String name, String... tagNames) {
+    return INSTANCE.registerHistogramImpl(name, tagNames);
+  }
+
+  public static Timer registerTimer(String name) {
+    return INSTANCE.registerTimerImpl(name);
+  }
+
+  public static Timer registerTimer(String name, String... tagNames) {
+    return INSTANCE.registerTimerImpl(name, tagNames);
   }
 
   public static String subsystem() {
     return INSTANCE.subsystem;
   }
 
-  public static Counter counter(String name) {
-    return (Counter) INSTANCE.computeIfAbsent(CollectorName.build(name), CollectorType.COUNTER);
-  }
-
-  public static Counter counter(String name, String... tagNames) {
-    return (Counter) INSTANCE.computeIfAbsent(CollectorName.build(name, tagNames), CollectorType.COUNTER);
-  }
-
-  public static boolean deregister(String name) {
-    return INSTANCE.deregister(CollectorName.build(name));
-  }
-
-  public static <V> Gauge gauge(String name, Supplier<V> gauge) {
-    return (Gauge) INSTANCE.computeIfAbsentGauge(CollectorName.build(name), gauge);
-  }
-
-  public static Gauge gauge(String name, String... tagNames) {
-    return (Gauge) INSTANCE.computeIfAbsent(CollectorName.build(name, tagNames), CollectorType.GAUGE);
-  }
-
-  public static Histogram histogram(String name) {
-    return (Histogram) INSTANCE.computeIfAbsent(CollectorName.build(name), CollectorType.HISTOGRAM);
-  }
-
-  public static Histogram histogram(String name, String... tagNames) {
-    return (Histogram) INSTANCE.computeIfAbsent(CollectorName.build(name, tagNames), CollectorType.HISTOGRAM);
-  }
-
-  public static Counter registerCounter(String name) {
-    return (Counter) INSTANCE.register(CollectorName.build(name), CollectorType.COUNTER);
-  }
-
-  public static Counter registerCounter(String name, String... tagNames) {
-    return (Counter) INSTANCE.register(CollectorName.build(name, tagNames), CollectorType.COUNTER);
-  }
-
-  public static <V> Gauge registerGauge(String name, Supplier<V> gauge) {
-    return (Gauge) INSTANCE.registerGauge(CollectorName.build(name), gauge);
-  }
-
-  public static Gauge registerGauge(String name, String... tagNames) {
-    return (Gauge) INSTANCE.register(CollectorName.build(name, tagNames), CollectorType.GAUGE);
-  }
-
-  public static Histogram registerHistogram(String name) {
-    return (Histogram) INSTANCE.register(CollectorName.build(name), CollectorType.HISTOGRAM);
-  }
-
-  public static Histogram registerHistogram(String name, String... tagNames) {
-    return (Histogram) INSTANCE.register(CollectorName.build(name, tagNames), CollectorType.HISTOGRAM);
-  }
-
-  public static Timer registerTimer(String name) {
-    return (Timer) INSTANCE.register(CollectorName.build(name), CollectorType.TIMER);
-  }
-
-  public static Timer registerTimer(String name, String... tagNames) {
-    return (Timer) INSTANCE.register(CollectorName.build(name, tagNames), CollectorType.TIMER);
-  }
-
   public static Timer timer(String name) {
-    return (Timer) INSTANCE.computeIfAbsent(CollectorName.build(name), CollectorType.TIMER);
+    return INSTANCE.timerImpl(name);
   }
 
   public static Timer timer(String name, String... tagNames) {
-    return (Timer) INSTANCE.computeIfAbsent(CollectorName.build(name, tagNames), CollectorType.TIMER);
-  }
-
-  static char nameSeparator() {
-    return INSTANCE.provider.nameSeparator();
+    return INSTANCE.timerImpl(name, tagNames);
   }
 
   private final String subsystem;
   private final MonitoringProvider provider;
 
-  private final Map<CollectorName, CollectorHolder> metrics;
-
-  private final ReentrantLock lock = new ReentrantLock();
-
-  private MonitoringManager(@Nullable String subsystem, MonitoringProvider provider) {
-    this.provider = provider;
+  private MonitoringManager(String subsystem, MonitoringProvider provider) {
     if (subsystem == null) {
       subsystem = "";
     }
     this.subsystem = subsystem;
-    this.metrics = new HashMap<>();
+    this.provider = provider;
   }
 
-  void lock() {
-    lock.lock();
+  private Counter counterImpl(String name) {
+    return (Counter) provider.computeIfAbsent(CollectorName.build(name), CollectorType.COUNTER);
   }
 
-  Map<CollectorName, CollectorHolder> metrics() {
-    return metrics;
+  private Counter counterImpl(String name, String... tagNames) {
+    return (Counter) provider.computeIfAbsent(CollectorName.build(name, tagNames), CollectorType.COUNTER);
   }
 
-  MonitoringProvider provider() {
-    return provider;
+  private boolean deregisterImpl(String name) {
+    return provider.deregister(CollectorName.build(name));
   }
 
-  Collector tags(CollectorName name, String... tagValues) {
-    MonitoringContext context = context(name);
-    context.lock();
-    try {
-      Metric metric = context.metric();
-      if (metric == null) {
-        throw new IllegalArgumentException("a collector with name " + name + " does not exist");
-      }
-      context.registerCollectorTags(metric, tagValues);
-      return metric.tags(tagValues);
-    } finally {
-      context.unlock();
-    }
+  private Gauge gaugeImpl(String name, Supplier<?> gauge) {
+    return (Gauge) provider.computeIfAbsentGauge(CollectorName.build(name), gauge);
   }
 
-  Collector tags(CollectorName name, Supplier<?> gauge, String... tagValues) {
-    MonitoringContext context = context(name);
-    context.lock();
-    try {
-      Metric metric = context.metric();
-      if (metric == null) {
-        throw new IllegalArgumentException("a collector with name " + name + " does not exist");
-      }
-      context.registerGaugeTags(metric, gauge, tagValues);
-      return metric.tags(tagValues);
-    } finally {
-      context.unlock();
-    }
+  private Gauge gaugeImpl(String name, String... tagNames) {
+    return (Gauge) provider.computeIfAbsent(CollectorName.build(name, tagNames), CollectorType.GAUGE);
   }
 
-  void unlock() {
-    lock.unlock();
+  private Histogram histogramImpl(String name) {
+    return (Histogram) provider.computeIfAbsent(CollectorName.build(name), CollectorType.HISTOGRAM);
   }
 
-  private MonitoringContext context(CollectorName name) {
-    return new MonitoringContextImpl(name, this);
+  private Histogram histogramImpl(String name, String... tagNames) {
+    return (Histogram) provider.computeIfAbsent(CollectorName.build(name, tagNames), CollectorType.HISTOGRAM);
   }
 
-  private Collector computeIfAbsent(CollectorName name, CollectorType type) {
-    MonitoringContext context = context(name);
-    context.lock();
-    try {
-      Metric metric = context.metric();
-      if (metric != null) {
-        Collector collector = metric.collector();
-        if (!(type.collectorClass().isAssignableFrom(collector.getClass()))) {
-          throw new IllegalArgumentException("collector with such name '"
-              + name + "' and different type is already in use");
-        }
-        return collector;
-      }
-      metric = context.createMetric(type);
-      context.registerCollector(metric);
-      return metric.collector();
-    } finally {
-      context.unlock();
-    }
+  private Counter registerCounterImpl(String name) {
+    return (Counter) provider.register(CollectorName.build(name), CollectorType.COUNTER);
   }
 
-  private Collector computeIfAbsentGauge(CollectorName name, Supplier<?> gauge) {
-    MonitoringContext context = context(name);
-    context.lock();
-    try {
-      Metric metric = context.metric();
-      if (metric != null) {
-        Collector collector = metric.collector();
-        if (!(CollectorType.GAUGE.collectorClass().isAssignableFrom(collector.getClass()))) {
-          throw new IllegalArgumentException("collector with such name '"
-              + name + "' and different type is already in use");
-        }
-        return collector;
-      }
-      metric = context.createMetric(CollectorType.GAUGE);
-      context.registerGauge(metric, gauge);
-      return metric.collector();
-    } finally {
-      context.unlock();
-    }
+  private Counter registerCounterImpl(String name, String... tagNames) {
+    return (Counter) provider.register(CollectorName.build(name, tagNames), CollectorType.COUNTER);
   }
 
-  private boolean deregister(CollectorName name) {
-    MonitoringContext context = context(name);
-    context.lock();
-    try {
-      Metric metric = context.metric();
-      if (metric == null) {
-        return false;
-      }
-      context.deregisterCollector(metric);
-      return true;
-    } finally {
-      context.unlock();
-    }
+  private Gauge registerGaugeImpl(String name, Supplier<?> gauge) {
+    return (Gauge) provider.registerGauge(CollectorName.build(name), gauge);
   }
 
-  private Collector register(CollectorName name, CollectorType type) {
-    MonitoringContext context = context(name);
-    context.lock();
-    try {
-      Metric metric = context.metric();
-      if (metric != null) {
-        throw new IllegalArgumentException("a collector with name " + name + " already exists");
-      }
-      metric = context.createMetric(type);
-      context.registerCollector(metric);
-      return metric.collector();
-    } finally {
-      context.unlock();
-    }
+  private Gauge registerGaugeImpl(String name, String... tagNames) {
+    return (Gauge) provider.register(CollectorName.build(name, tagNames), CollectorType.GAUGE);
   }
 
-  private Collector registerGauge(CollectorName name,  Supplier<?> gauge) {
-    MonitoringContext context = context(name);
-    context.lock();
-    try {
-      Metric metric = context.metric();
-      if (metric != null) {
-        throw new IllegalArgumentException("a collector with name " + name + " already exists");
-      }
-      metric = context.createMetric(CollectorType.GAUGE);
-      context.registerGauge(metric, gauge);
-      return metric.collector();
-    } finally {
-      context.unlock();
-    }
+  private Histogram registerHistogramImpl(String name) {
+    return (Histogram) provider.register(CollectorName.build(name), CollectorType.HISTOGRAM);
+  }
+
+  private Histogram registerHistogramImpl(String name, String... tagNames) {
+    return (Histogram) provider.register(CollectorName.build(name, tagNames), CollectorType.HISTOGRAM);
+  }
+
+  private Timer registerTimerImpl(String name) {
+    return (Timer) provider.register(CollectorName.build(name), CollectorType.TIMER);
+  }
+
+  private Timer registerTimerImpl(String name, String... tagNames) {
+    return (Timer) provider.register(CollectorName.build(name, tagNames), CollectorType.TIMER);
+  }
+
+  private Timer timerImpl(String name) {
+    return (Timer) provider.computeIfAbsent(CollectorName.build(name), CollectorType.TIMER);
+  }
+
+  private Timer timerImpl(String name, String... tagNames) {
+    return (Timer) provider.computeIfAbsent(CollectorName.build(name, tagNames), CollectorType.TIMER);
   }
 }

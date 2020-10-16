@@ -12,26 +12,30 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.util.monitoring.impl;
+package org.nightcode.common.util.monitoring;
 
 import org.nightcode.common.annotations.Beta;
-import org.nightcode.common.util.monitoring.Gauge;
-import org.nightcode.common.util.monitoring.MonitoringContext;
+import org.nightcode.common.util.monitoring.impl.CollectorName;
 
 import java.util.function.Supplier;
 
+/**
+ * Interface to provide monitoring engine implementations.
+ */
 @Beta
-class GaugeHolder extends AbstractCollectorHolder<Gauge> implements Gauge {
+public interface MonitoringEngine {
 
-  GaugeHolder(Gauge target, MonitoringContext context) {
-    super(target, context);
-  }
+  boolean deregister(Collector metric);
 
-  @Override public Gauge.Child tags(Supplier<?> gauge, String... tagValues) {
-    return (Gauge.Child) context.provider().tags(name(), gauge, tagValues);
-  }
+  Counter createCounter(CollectorName name);
 
-  @Override public CollectorType type() {
-    return CollectorType.GAUGE;
-  }
+  Gauge createGauge(CollectorName name);
+
+  Gauge createGauge(CollectorName name, Supplier<?> gauge);
+
+  Histogram createHistogram(CollectorName name);
+
+  Timer createTimer(CollectorName name);
+
+  char nameSeparator();
 }
