@@ -95,11 +95,11 @@ public final class CollectorName {
       return false;
     }
     CollectorName other = (CollectorName) obj;
-    return Objects.equals(name, other.name);
+    return Objects.equals(fullName, other.fullName);
   }
 
   @Override public int hashCode() {
-    return Objects.hash(name);
+    return Objects.hash(fullName);
   }
 
   @Override public String toString() {
