@@ -53,7 +53,7 @@ class MetricImpl implements Metric {
       engine.deregister(child);
     }
     collector.children().clear();
-    engine.deregister(collector);
+    engine.deregister(collector.target());
   }
 
   @Override public void doRegister() {
