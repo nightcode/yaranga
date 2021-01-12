@@ -21,6 +21,18 @@ import java.util.function.Supplier;
  */
 public interface Logger {
 
+  void log(LogLevel level, String message);
+
+  void log(LogLevel level, String message, Object... args);
+
+  void log(LogLevel level, String message, Throwable thrown);
+
+  void log(LogLevel level, Throwable thrown, String message, Object... args);
+
+  void log(LogLevel level, Supplier<?> supplier);
+
+  void log(LogLevel level, Supplier<?> supplier, Throwable thrown);
+
   void trace(String message);
 
   void trace(String message, Object... args);

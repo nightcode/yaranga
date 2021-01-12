@@ -39,6 +39,36 @@ class JulLoggerAdapter implements Logger {
     this.logger = logger;
   }
 
+  @Override public void log(LogLevel level, String message) {
+    Level l = toJulLevel(level);
+    log(l, message);
+  }
+
+  @Override public void log(LogLevel level, String message, Object... args) {
+    Level l = toJulLevel(level);
+    log(l, message, args);
+  }
+
+  @Override public void log(LogLevel level, String message, Throwable thrown) {
+    Level l = toJulLevel(level);
+    log(l, message, thrown);
+  }
+
+  @Override public void log(LogLevel level, Throwable thrown, String message, Object... args) {
+    Level l = toJulLevel(level);
+    log(l, () -> String.format(message, args), thrown);
+  }
+
+  @Override public void log(LogLevel level, Supplier<?> supplier) {
+    Level l = toJulLevel(level);
+    log(l, supplier);
+  }
+
+  @Override public void log(LogLevel level, Supplier<?> supplier, Throwable thrown) {
+    Level l = toJulLevel(level);
+    log(l, supplier, thrown);
+  }
+
   @Override public void trace(String message) {
     log(Level.FINEST, message);
   }
@@ -275,5 +305,33 @@ class JulLoggerAdapter implements Logger {
     record.setLoggerName(name);
     record.setSourceClassName(sourceClassName);
     logger.log(record);
+  }
+
+  private Level toJulLevel(LogLevel level) {
+    Level l;
+    switch (level) {
+      case TRACE:
+        l = Level.FINEST;
+        break;
+      case DEBUG:
+        l = Level.FINE;
+        break;
+      case INFO:
+        l = Level.INFO;
+        break;
+      case CONFIG:
+        l = Level.CONFIG;
+        break;
+      case WARN:
+      case ERROR:
+        l = Level.WARNING;
+        break;
+      case FATAL:
+        l = Level.SEVERE;
+        break;
+      default:
+        l = Level.INFO;
+    }
+    return l;
   }
 }
