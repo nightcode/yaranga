@@ -12,15 +12,9 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.util.monitoring.impl;
+package org.nightcode.common.util.monitoring;
 
 import org.nightcode.common.annotations.Beta;
-import org.nightcode.common.util.monitoring.Collector;
-import org.nightcode.common.util.monitoring.Counter;
-import org.nightcode.common.util.monitoring.Gauge;
-import org.nightcode.common.util.monitoring.Histogram;
-import org.nightcode.common.util.monitoring.MonitoringEngine;
-import org.nightcode.common.util.monitoring.Timer;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -29,13 +23,17 @@ import java.util.function.Supplier;
  *  Null implementation of {@link MonitoringEngine} interface.
  */
 @Beta
-class NullMonitoringEngine implements MonitoringEngine {
+public final class NullMonitoringEngine implements MonitoringEngine {
 
-  @Override public boolean deregister(Collector metric) {
+  @Override public boolean deregister(Collector collector) {
     return true;
   }
 
-  @Override public Counter createCounter(CollectorName name) {
+  @Override public <C extends Collector> C register(Supplier<C> supplier) {
+    return supplier.get();
+  }
+
+  @Override public Counter registerCounter(String name, String help, String... tagNames) {
     return new Counter() {
       @Override public void inc() {
         // do nothing
@@ -78,49 +76,17 @@ class NullMonitoringEngine implements MonitoringEngine {
           @Override public long getCount() {
             return 0;
           }
-
-          @Override public CollectorName name() {
-            return CollectorName.of(name, tagValues);
-          }
         };
       }
-
-      @Override public CollectorName name() {
-        return name;
-      }
     };
   }
 
-  @Override public Gauge createGauge(CollectorName name) {
-    return new Gauge() {
-      @Override public CollectorName name() {
-        return name;
-      }
-
-      @Override public Child tags(Supplier<?> gauge, String... tagValues) {
-        return () -> CollectorName.of(name, tagValues);
-      }
-    };
-  }
-
-  @Override public Gauge createGauge(CollectorName name, Supplier<?> gauge) {
-    return new Gauge() {
-      @Override public CollectorName name() {
-        return name;
-      }
-
-      @Override public Child tags(Supplier<?> gauge, String... tagValues) {
-        return () -> CollectorName.of(name, tagValues);
-      }
-    };
-  }
-
-  @Override public Histogram createHistogram(CollectorName name) {
+  @Override public Histogram registerHistogram(String name, String help, String... tagNames) {
     return new Histogram() {
       @Override public Child tags(String... tagValues) {
         return new Child() {
-          @Override public CollectorName name() {
-            return CollectorName.of(name, tagValues);
+          @Override public long count() {
+            return 0;
           }
 
           @Override public void update(int value) {
@@ -133,8 +99,8 @@ class NullMonitoringEngine implements MonitoringEngine {
         };
       }
 
-      @Override public CollectorName name() {
-        return name;
+      @Override public long count() {
+        return 0;
       }
 
       @Override public void update(int value) {
@@ -147,12 +113,12 @@ class NullMonitoringEngine implements MonitoringEngine {
     };
   }
 
-  @Override public Timer createTimer(CollectorName name) {
+  @Override public Timer registerTimer(String name, String help, String... tagNames) {
     return new Timer() {
       @Override public Child tags(String... tagValues) {
         return new Child() {
-          @Override public CollectorName name() {
-            return CollectorName.of(name, tagValues);
+          @Override public long count() {
+            return 0;
           }
 
           @Override public Context startTimer() {
@@ -165,8 +131,8 @@ class NullMonitoringEngine implements MonitoringEngine {
         };
       }
 
-      @Override public CollectorName name() {
-        return name;
+      @Override public long count() {
+        return 0;
       }
 
       @Override public Context startTimer() {
@@ -180,6 +146,6 @@ class NullMonitoringEngine implements MonitoringEngine {
   }
 
   @Override public char nameSeparator() {
-    return '.';
+    return '_';
   }
 }

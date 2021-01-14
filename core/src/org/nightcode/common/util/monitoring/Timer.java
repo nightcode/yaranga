@@ -41,10 +41,14 @@ public interface Timer extends Collector {
   }
 
   /**
-   /**
    * An interface for Timer's child.
    */
   interface Child extends Collector {
+
+    /**
+     * Returns a count of events.
+     */
+    long count();
 
     /**
      * Returns a new {@link Timer.Context}.
@@ -80,6 +84,11 @@ public interface Timer extends Collector {
       }
     }
   }
+
+  /**
+   * Returns a count of events.
+   */
+  long count();
 
   /**
    * Set tag values.

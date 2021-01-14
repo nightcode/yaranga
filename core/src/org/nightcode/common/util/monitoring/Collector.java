@@ -15,7 +15,6 @@
 package org.nightcode.common.util.monitoring;
 
 import org.nightcode.common.annotations.Beta;
-import org.nightcode.common.util.monitoring.impl.CollectorName;
 
 /**
  * A tag interface for collector classes.
@@ -23,10 +22,4 @@ import org.nightcode.common.util.monitoring.impl.CollectorName;
 @Beta
 public interface Collector {
 
-  /**
-   * Returns collector name.
-   *
-   * @return collector name
-   */
-  CollectorName name();
 }

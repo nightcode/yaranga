@@ -15,7 +15,6 @@
 package org.nightcode.common.util.monitoring;
 
 import org.nightcode.common.annotations.Beta;
-import org.nightcode.common.util.monitoring.impl.CollectorName;
 
 import java.util.function.Supplier;
 
@@ -25,17 +24,15 @@ import java.util.function.Supplier;
 @Beta
 public interface MonitoringEngine {
 
-  boolean deregister(Collector metric);
+  boolean deregister(Collector collector);
 
-  Counter createCounter(CollectorName name);
+  <C extends Collector> C register(Supplier<C> supplier);
 
-  Gauge createGauge(CollectorName name);
+  Counter registerCounter(String name, String help, String... tagNames);
 
-  Gauge createGauge(CollectorName name, Supplier<?> gauge);
+  Histogram registerHistogram(String name, String help, String... tagNames);
 
-  Histogram createHistogram(CollectorName name);
-
-  Timer createTimer(CollectorName name);
+  Timer registerTimer(String name, String help, String... tagNames);
 
   char nameSeparator();
 }

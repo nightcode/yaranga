@@ -27,10 +27,14 @@ public interface Histogram extends Collector {
    */
   interface Child extends Collector {
 
+    long count();
+
     void update(int value);
 
     void update(long value);
   }
+
+  long count();
 
   /**
    * Set tag values.
