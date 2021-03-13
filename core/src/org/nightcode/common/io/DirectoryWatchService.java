@@ -178,7 +178,7 @@ public class DirectoryWatchService implements AutoCloseable {
         }
       });
     } catch (IOException ex) {
-      LOGGER.warn(ex, "unable to bootstrap listener %s with directory '%s'", resolved.toString());
+      LOGGER.warn(ex, "unable to bootstrap listener with directory '%s'", resolved.toString());
     }
   }
 
