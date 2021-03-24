@@ -96,7 +96,7 @@ public final class Jvm {
     }
 
     int p = (int) (System.currentTimeMillis() / 1000);
-    System.err.printf("unable to get real PID, used %s instead\n", p);
+    System.err.printf("unable to get real PID, used %s instead%n", p);
     return p;
   }
 

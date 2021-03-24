@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.nightcode.common.util.props.PropertiesStorage.Type;
+
 /**
  * Main properties class.
  */
