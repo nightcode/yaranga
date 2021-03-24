@@ -28,6 +28,13 @@ public class NetworkUtilsTest {
     Assert.assertArrayEquals(new byte[] {(byte) 0xC0, (byte) 0xA8, (byte) 0x17, (byte) 0x22}, NetworkUtils.ipAddressToByteArray("192.168.23.34"));
     Assert.assertArrayEquals(new byte[] {(byte) 0xC0, (byte) 0xA8, (byte) 0x17, (byte) 0x23}, NetworkUtils.ipAddressToByteArray("192.168.23.35"));
     Assert.assertArrayEquals(new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}, NetworkUtils.ipAddressToByteArray("255.255.255.255"));
+
+    try {
+      NetworkUtils.ipAddressToByteArray("FEDC:BA98:7654:3210:FEDC:BA98:7654:3210");
+      Assert.fail("should throw IllegalArgumentException");
+    } catch (IllegalArgumentException ex) {
+      Assert.assertEquals("unsupported IP address value 'FEDC:BA98:7654:3210:FEDC:BA98:7654:3210'", ex.getMessage());
+    }
   }
 
   @Test public void testCidrToIpAddressRange() throws UnknownHostException {
@@ -60,14 +67,35 @@ public class NetworkUtilsTest {
     Assert.assertEquals(28, range.subnetBits());
     Assert.assertArrayEquals(new byte[] {(byte) 0x0A, (byte) 0x62, (byte) 0x01, (byte) 0x40}, range.firstAddress().getAddress());
     Assert.assertArrayEquals(new byte[] {(byte) 0x0A, (byte) 0x62, (byte) 0x01, (byte) 0x4F}, range.lastAddress().getAddress());
+
+    try {
+      NetworkUtils.cidrToIpAddressRange("0.0.0.0/0");
+      Assert.fail("should throw IllegalArgumentException");
+    } catch (IllegalArgumentException ex) {
+      Assert.assertEquals("illegal CIDR value '0.0.0.0/0'", ex.getMessage());
+    }
+
+    try {
+      NetworkUtils.cidrToIpAddressRange("0.0.0.0/33");
+      Assert.fail("should throw IllegalArgumentException");
+    } catch (IllegalArgumentException ex) {
+      Assert.assertEquals("illegal CIDR value '0.0.0.0/33'", ex.getMessage());
+    }
+
+    try {
+      NetworkUtils.cidrToIpAddressRange("FEDC:BA98:7654:3210:FEDC:BA98:7654:3210/64");
+      Assert.fail("should throw IllegalArgumentException");
+    } catch (IllegalArgumentException ex) {
+      Assert.assertEquals("unsupported CIDR value 'FEDC:BA98:7654:3210:FEDC:BA98:7654:3210/64'", ex.getMessage());
+    }
   }
 
   @Test public void testCidrPattern() {
-    Assert.assertTrue(NetworkUtils.cidrPattern().matcher("0.0.0.0/1").matches());
-    Assert.assertTrue(NetworkUtils.cidrPattern().matcher("255.255.255.255/32").matches());
-    Assert.assertTrue(NetworkUtils.cidrPattern().matcher("10.98.1.64/28").matches());
-    Assert.assertFalse(NetworkUtils.cidrPattern().matcher("0.0.0.0/0").matches());
-    Assert.assertFalse(NetworkUtils.cidrPattern().matcher("0.0.0.0/33").matches());
-    Assert.assertFalse(NetworkUtils.cidrPattern().matcher("256.255.255.255/32").matches());
+    Assert.assertTrue(NetworkUtils.cidrIpV4Pattern().matcher("0.0.0.0/1").matches());
+    Assert.assertTrue(NetworkUtils.cidrIpV4Pattern().matcher("255.255.255.255/32").matches());
+    Assert.assertTrue(NetworkUtils.cidrIpV4Pattern().matcher("10.98.1.64/28").matches());
+    Assert.assertFalse(NetworkUtils.cidrIpV4Pattern().matcher("0.0.0.0/0").matches());
+    Assert.assertFalse(NetworkUtils.cidrIpV4Pattern().matcher("0.0.0.0/33").matches());
+    Assert.assertFalse(NetworkUtils.cidrIpV4Pattern().matcher("256.255.255.255/32").matches());
   }
 }

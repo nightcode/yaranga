@@ -66,14 +66,14 @@ public final class NetworkUtils {
     }
   }
 
-  private static final Pattern CIDR_PATTERN
+  private static final Pattern CIDR_IP_V4_PATTERN
       = Pattern.compile("^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\\.(?!$)|/(3[0-2]|[1-2][0-9]|[1-9]){1}$)){4}");
 
   /**
-   * Returns CIDR pattern.
+   * Returns CIDR IPv4 pattern.
    */
-  public static Pattern cidrPattern() {
-    return CIDR_PATTERN;
+  public static Pattern cidrIpV4Pattern() {
+    return CIDR_IP_V4_PATTERN;
   }
 
   /**
@@ -86,28 +86,37 @@ public final class NetworkUtils {
       throw new IllegalArgumentException("illegal CIDR value '" + cidr + '\'');
     }
     char[] array = cidr.toCharArray();
-    byte[] ipAddress = ipV4AddressToByteArray(array, 0, slashIndex);
-    int ip = byteArrayToInt(ipAddress);
-    int subnetBits = getDecimalDigitNumber(array, slashIndex + 1, array.length - slashIndex - 1);
-    if (subnetBits < 0 || subnetBits > 32) {
-      throw new IllegalArgumentException("illegal CIDR value '" + cidr + '\'');
+    byte[] ipAddress = ipAddressToByteArray(array, 0, slashIndex);
+
+    if (ipAddress != null && ipAddress.length == 4) {
+      int ip = byteArrayToInt(ipAddress);
+      int subnetBits = getDecimalDigitNumber(array, slashIndex + 1, array.length - slashIndex - 1);
+      if (subnetBits < 1 || subnetBits > 32) {
+        throw new IllegalArgumentException("illegal CIDR value '" + cidr + '\'');
+      }
+      int subnetMask = 0xFFFFFFFF << (32 - subnetBits);
+      int hostMask = ~subnetMask;
+
+      int networkAddress = ip & subnetMask;
+      int broadcastAddress = ip | hostMask;
+
+      return IpAddressRange.of(InetAddress.getByAddress(intToByteArray(networkAddress))
+          , InetAddress.getByAddress(intToByteArray(broadcastAddress)), subnetBits);
     }
-    int subnetMask = 0xFFFFFFFF << (32 - subnetBits);
-    int hostMask = ~subnetMask;
 
-    int networkAddress = ip & subnetMask;
-    int broadcastAddress = ip | hostMask;
-
-    return IpAddressRange.of(InetAddress.getByAddress(intToByteArray(networkAddress))
-        , InetAddress.getByAddress(intToByteArray(broadcastAddress)), subnetBits);
+    throw new IllegalArgumentException("unsupported CIDR value '" + cidr + '\'');
   }
 
   /**
-   * Converts IP address to int representation.
+   * Converts IP address to byte array representation.
    */
   public static byte[] ipAddressToByteArray(final String ipAddress) {
     Objects.requireNonNull(ipAddress, "IP address");
-    return ipV4AddressToByteArray(ipAddress.toCharArray(), 0, ipAddress.length());
+    byte[] result = ipAddressToByteArray(ipAddress.toCharArray(), 0, ipAddress.length());
+    if (result == null) {
+      throw new IllegalArgumentException("unsupported IP address value '" + ipAddress + '\'');
+    }
+    return result;
   }
 
   private static int byteArrayToInt(byte[] src) {
@@ -135,6 +144,20 @@ public final class NetworkUtils {
     array[2] = (byte) (src >>>  8);
     array[3] = (byte) (src >>>  0);
     return array;
+  }
+
+  private static byte[] ipAddressToByteArray(char[] src, int offset, int length) {
+    boolean ipV4 = true;
+    for (int i = offset; i < offset + length; i++) {
+      if (src[i] == ':') {
+        ipV4 = false;
+        break;
+      }
+    }
+    if (!ipV4) {
+      return null;
+    }
+    return ipV4AddressToByteArray(src, offset, length);
   }
 
   private static byte[] ipV4AddressToByteArray(char[] src, int offset, int length) {
