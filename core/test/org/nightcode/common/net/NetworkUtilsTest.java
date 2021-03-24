@@ -36,6 +36,16 @@ public class NetworkUtilsTest {
     Assert.assertArrayEquals(new byte[] {(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00}, range.firstAddress().getAddress());
     Assert.assertArrayEquals(new byte[] {(byte) 0x7F, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}, range.lastAddress().getAddress());
 
+    range = NetworkUtils.cidrToIpAddressRange("0.0.0.0/32");
+    Assert.assertEquals(32, range.subnetBits());
+    Assert.assertArrayEquals(new byte[] {(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00}, range.firstAddress().getAddress());
+    Assert.assertArrayEquals(new byte[] {(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00}, range.lastAddress().getAddress());
+
+    range = NetworkUtils.cidrToIpAddressRange("255.255.255.255/1");
+    Assert.assertEquals(1, range.subnetBits());
+    Assert.assertArrayEquals(new byte[] {(byte) 0x80, (byte) 0x00, (byte) 0x00, (byte) 0x00}, range.firstAddress().getAddress());
+    Assert.assertArrayEquals(new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}, range.lastAddress().getAddress());
+
     range = NetworkUtils.cidrToIpAddressRange("255.255.255.255/32");
     Assert.assertEquals(32, range.subnetBits());
     Assert.assertArrayEquals(new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}, range.firstAddress().getAddress());

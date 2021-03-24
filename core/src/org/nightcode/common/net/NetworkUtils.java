@@ -87,20 +87,19 @@ public final class NetworkUtils {
     }
     char[] array = cidr.toCharArray();
     byte[] ipAddress = ipV4AddressToByteArray(array, 0, slashIndex);
-    long ip = byteArrayToLong(ipAddress);
+    int ip = byteArrayToInt(ipAddress);
     int subnetBits = getDecimalDigitNumber(array, slashIndex + 1, array.length - slashIndex - 1);
     if (subnetBits < 0 || subnetBits > 32) {
       throw new IllegalArgumentException("illegal CIDR value '" + cidr + '\'');
     }
-    int hostBits = 32 - subnetBits;
-    int subnetMask = 0xFFFFFFFF << hostBits;
-    int hostMask = 0xFFFFFFFF >>> subnetBits;
+    int subnetMask = 0xFFFFFFFF << (32 - subnetBits);
+    int hostMask = ~subnetMask;
 
-    long networkAddress = ip & subnetMask;
-    long broadcastAddress = ip | hostMask;
+    int networkAddress = ip & subnetMask;
+    int broadcastAddress = ip | hostMask;
 
-    return IpAddressRange.of(InetAddress.getByAddress(longToByteArray(networkAddress))
-        , InetAddress.getByAddress(longToByteArray(broadcastAddress)), subnetBits);
+    return IpAddressRange.of(InetAddress.getByAddress(intToByteArray(networkAddress))
+        , InetAddress.getByAddress(intToByteArray(broadcastAddress)), subnetBits);
   }
 
   /**
@@ -111,7 +110,7 @@ public final class NetworkUtils {
     return ipV4AddressToByteArray(ipAddress.toCharArray(), 0, ipAddress.length());
   }
 
-  private static long byteArrayToLong(byte[] src) {
+  private static int byteArrayToInt(byte[] src) {
     return (((src[0] & 0xFF) << 24) + ((src[1] & 0xFF) << 16) + ((src[2] & 0xFF) << 8) + ((src[3] & 0xFF) << 0));
   }
 
@@ -129,7 +128,7 @@ public final class NetworkUtils {
     return result;
   }
 
-  private static byte[] longToByteArray(long src) {
+  private static byte[] intToByteArray(int src) {
     byte[] array = new byte[4];
     array[0] = (byte) (src >>> 24);
     array[1] = (byte) (src >>> 16);
