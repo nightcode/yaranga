@@ -77,6 +77,17 @@ public final class NetworkUtils {
   }
 
   /**
+   * Converts byte array to IP address.
+   */
+  public static String byteArrayToIpAddress(byte[] src) {
+    Objects.requireNonNull(src, "byte array");
+    if (src.length != 4) {
+      throw new IllegalArgumentException("unsupported IP address byte array representation");
+    }
+    return (src[0] & 0xFF) + "." + (src[1] & 0xFF) + '.' + (src[2] & 0xFF) + '.' + (src[3] & 0xFF);
+  }
+
+  /**
    * Converts CIDR to IP range.
    */
   public static IpAddressRange cidrToIpAddressRange(String cidr) throws UnknownHostException {

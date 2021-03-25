@@ -21,7 +21,7 @@ import org.junit.Test;
 
 public class NetworkUtilsTest {
 
-  @Test public void testIpAddressToInt() {
+  @Test public void testIpAddressToByteArray() {
     Assert.assertArrayEquals(new byte[] {(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00}, NetworkUtils.ipAddressToByteArray("0.0.0.0"));
     Assert.assertArrayEquals(new byte[] {(byte) 0x03, (byte) 0x30, (byte) 0x00, (byte) 0x00}, NetworkUtils.ipAddressToByteArray("3.48.0.0"));
     Assert.assertArrayEquals(new byte[] {(byte) 0x03, (byte) 0x3F, (byte) 0xFF, (byte) 0xFF}, NetworkUtils.ipAddressToByteArray("3.63.255.255"));
@@ -97,5 +97,15 @@ public class NetworkUtilsTest {
     Assert.assertFalse(NetworkUtils.cidrIpV4Pattern().matcher("0.0.0.0/0").matches());
     Assert.assertFalse(NetworkUtils.cidrIpV4Pattern().matcher("0.0.0.0/33").matches());
     Assert.assertFalse(NetworkUtils.cidrIpV4Pattern().matcher("256.255.255.255/32").matches());
+  }
+
+  @Test public void testByteArrayToIpAddress() {
+    Assert.assertEquals("0.0.0.0", NetworkUtils.byteArrayToIpAddress(new byte[] {(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00}));
+    Assert.assertEquals("3.48.0.0", NetworkUtils.byteArrayToIpAddress(new byte[] {(byte) 0x03, (byte) 0x30, (byte) 0x00, (byte) 0x00}));
+    Assert.assertEquals("3.63.255.255", NetworkUtils.byteArrayToIpAddress(new byte[] {(byte) 0x03, (byte) 0x3F, (byte) 0xFF, (byte) 0xFF}));
+    Assert.assertEquals("192.168.23.34", NetworkUtils.byteArrayToIpAddress(new byte[] {(byte) 0xC0, (byte) 0xA8, (byte) 0x17, (byte) 0x22}));
+    Assert.assertEquals("192.168.23.35", NetworkUtils.byteArrayToIpAddress(new byte[] {(byte) 0xC0, (byte) 0xA8, (byte) 0x17, (byte) 0x23}));
+    Assert.assertEquals("255.255.255.255", NetworkUtils.byteArrayToIpAddress(new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}));
+
   }
 }
