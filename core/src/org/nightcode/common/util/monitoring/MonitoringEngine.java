@@ -28,6 +28,8 @@ public interface MonitoringEngine {
 
   <C extends Collector> C register(Supplier<C> supplier);
 
+  <C extends Collector> void registerSilent(Supplier<C> supplier);
+
   Counter registerCounter(String name, String help, String... tagNames);
 
   Histogram registerHistogram(String name, String help, String... tagNames);

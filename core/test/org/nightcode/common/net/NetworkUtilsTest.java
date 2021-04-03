@@ -106,6 +106,5 @@ public class NetworkUtilsTest {
     Assert.assertEquals("192.168.23.34", NetworkUtils.byteArrayToIpAddress(new byte[] {(byte) 0xC0, (byte) 0xA8, (byte) 0x17, (byte) 0x22}));
     Assert.assertEquals("192.168.23.35", NetworkUtils.byteArrayToIpAddress(new byte[] {(byte) 0xC0, (byte) 0xA8, (byte) 0x17, (byte) 0x23}));
     Assert.assertEquals("255.255.255.255", NetworkUtils.byteArrayToIpAddress(new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}));
-
   }
 }

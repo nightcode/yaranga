@@ -33,6 +33,10 @@ public final class NullMonitoringEngine implements MonitoringEngine {
     return supplier.get();
   }
 
+  @Override public <C extends Collector> void registerSilent(Supplier<C> supplier) {
+    // do nothing
+  }
+
   @Override public Counter registerCounter(String name, String help, String... tagNames) {
     return new Counter() {
       @Override public void inc() {
