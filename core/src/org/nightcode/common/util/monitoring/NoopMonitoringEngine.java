@@ -23,7 +23,7 @@ import java.util.function.Supplier;
  *  Null implementation of {@link MonitoringEngine} interface.
  */
 @Beta
-public final class NullMonitoringEngine implements MonitoringEngine {
+public final class NoopMonitoringEngine implements MonitoringEngine {
 
   @Override public boolean deregister(Collector collector) {
     return true;
