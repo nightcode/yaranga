@@ -18,8 +18,6 @@ final class PropertiesEmptyStorage implements PropertiesStorage {
 
   private static final PropertiesStorage INSTANCE = new PropertiesEmptyStorage();
 
-  private static final PropertyException NOT_FOUND = new PropertyNotFoundException("'empty' storage implementation");
-
   static PropertiesStorage instance() {
     return INSTANCE;
   }

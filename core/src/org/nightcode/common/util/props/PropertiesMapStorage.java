@@ -14,6 +14,7 @@
 
 package org.nightcode.common.util.props;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -48,6 +49,9 @@ public class PropertiesMapStorage implements PropertiesStorage {
         break;
       case STRING:
         property = Property.createString((String) properties.get(key));
+        break;
+      case COLLECTION:
+        property = Property.createCollection((Collection<?>) properties.get(key));
         break;
       default:
         throw new PropertyException("unsupported property type: " + type);

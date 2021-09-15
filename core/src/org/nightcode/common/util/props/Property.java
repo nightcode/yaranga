@@ -16,6 +16,8 @@ package org.nightcode.common.util.props;
 
 import org.nightcode.common.annotations.Beta;
 
+import java.util.Collection;
+
 /**
  * Property container.
  */
@@ -52,6 +54,12 @@ public final class Property {
     return property;
   }
 
+  public static Property createCollection(Collection<?> value) {
+    Property property = new Property();
+    property.setCollectionValue(value);
+    return property;
+  }
+
   private int bitField;
 
   private boolean booleanValue;
@@ -59,6 +67,7 @@ public final class Property {
   private int intValue;
   private long longValue;
   private String stringValue;
+  private Collection<?> collectionValue;
 
   private Property() {
     // do nothing
@@ -70,6 +79,10 @@ public final class Property {
 
   byte getByteValue() {
     return byteValue;
+  }
+
+  Collection<?> getCollectionValue() {
+    return collectionValue;
   }
 
   int getIntValue() {
@@ -92,6 +105,10 @@ public final class Property {
     return (bitField & 0x00000002) == 0x00000002;
   }
 
+  boolean hasCollectionValue() {
+    return (bitField & 0x00000020) == 0x00000020;
+  }
+
   boolean hasIntValue() {
     return (bitField & 0x00000004) == 0x00000004;
   }
@@ -112,6 +129,11 @@ public final class Property {
   private void setByteValue(byte value) {
     bitField |= 0x00000002;
     byteValue = value;
+  }
+
+  private void setCollectionValue(Collection<?> value) {
+    bitField |= 0x00000020;
+    collectionValue = value;
   }
 
   private void setIntValue(int value) {

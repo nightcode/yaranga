@@ -14,6 +14,9 @@
 
 package org.nightcode.common.util.props;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.Assert;
@@ -59,5 +62,25 @@ public class PropertiesTest {
 
     System.setProperty(key + "-long", "6553600000");
     Assert.assertEquals(6553600000L, properties.getLongValue(key + "-long"));
+  }
+
+  @Test public void testMapStorage() {
+    Map<String, Object> map = new HashMap<>();
+    map.put("boolean", Boolean.TRUE);
+    map.put("byte", Byte.MAX_VALUE);
+    map.put("int", Integer.MAX_VALUE);
+    map.put("long", Long.MAX_VALUE);
+    map.put("string", "STRING");
+    map.put("collection", Collections.singleton("COLLECTION"));
+
+    Properties properties = Properties.instance();
+    properties.setPropertiesStorage(new PropertiesMapStorage(map));
+
+    Assert.assertEquals(Boolean.TRUE, properties.getBooleanValue("boolean"));
+    Assert.assertEquals(Byte.MAX_VALUE, properties.getByteValue("byte"));
+    Assert.assertEquals(Integer.MAX_VALUE, properties.getIntValue("int"));
+    Assert.assertEquals(Long.MAX_VALUE, properties.getLongValue("long"));
+    Assert.assertEquals("STRING", properties.getStringValue("string"));
+    Assert.assertEquals(Collections.singleton("COLLECTION"), properties.getCollectionValue("collection", String.class));
   }
 }

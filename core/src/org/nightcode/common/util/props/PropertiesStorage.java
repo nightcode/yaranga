@@ -30,7 +30,8 @@ public interface PropertiesStorage {
     BYTE,
     INT,
     LONG,
-    STRING
+    STRING,
+    COLLECTION
   }
 
   /**
