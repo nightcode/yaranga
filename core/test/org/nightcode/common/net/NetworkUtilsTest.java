@@ -14,6 +14,8 @@
 
 package org.nightcode.common.net;
 
+import org.nightcode.common.base.Hexs;
+
 import java.net.UnknownHostException;
 
 import org.junit.Assert;
@@ -28,42 +30,41 @@ public class NetworkUtilsTest {
     Assert.assertArrayEquals(new byte[] {(byte) 0xC0, (byte) 0xA8, (byte) 0x17, (byte) 0x22}, NetworkUtils.ipAddressToByteArray("192.168.23.34"));
     Assert.assertArrayEquals(new byte[] {(byte) 0xC0, (byte) 0xA8, (byte) 0x17, (byte) 0x23}, NetworkUtils.ipAddressToByteArray("192.168.23.35"));
     Assert.assertArrayEquals(new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}, NetworkUtils.ipAddressToByteArray("255.255.255.255"));
-
-    try {
-      NetworkUtils.ipAddressToByteArray("FEDC:BA98:7654:3210:FEDC:BA98:7654:3210");
-      Assert.fail("should throw IllegalArgumentException");
-    } catch (IllegalArgumentException ex) {
-      Assert.assertEquals("unsupported IP address value 'FEDC:BA98:7654:3210:FEDC:BA98:7654:3210'", ex.getMessage());
-    }
   }
 
   @Test public void testCidrToIpAddressRange() throws UnknownHostException {
     NetworkUtils.IpAddressRange range = NetworkUtils.cidrToIpAddressRange("0.0.0.0/1");
+    Assert.assertEquals(NetworkUtils.AddressFamily.IP_V4, range.family());
     Assert.assertEquals(1, range.subnetBits());
     Assert.assertArrayEquals(new byte[] {(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00}, range.firstAddress().getAddress());
     Assert.assertArrayEquals(new byte[] {(byte) 0x7F, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}, range.lastAddress().getAddress());
 
     range = NetworkUtils.cidrToIpAddressRange("0.0.0.0/32");
+    Assert.assertEquals(NetworkUtils.AddressFamily.IP_V4, range.family());
     Assert.assertEquals(32, range.subnetBits());
     Assert.assertArrayEquals(new byte[] {(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00}, range.firstAddress().getAddress());
     Assert.assertArrayEquals(new byte[] {(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00}, range.lastAddress().getAddress());
 
     range = NetworkUtils.cidrToIpAddressRange("255.255.255.255/1");
+    Assert.assertEquals(NetworkUtils.AddressFamily.IP_V4, range.family());
     Assert.assertEquals(1, range.subnetBits());
     Assert.assertArrayEquals(new byte[] {(byte) 0x80, (byte) 0x00, (byte) 0x00, (byte) 0x00}, range.firstAddress().getAddress());
     Assert.assertArrayEquals(new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}, range.lastAddress().getAddress());
 
     range = NetworkUtils.cidrToIpAddressRange("255.255.255.255/32");
+    Assert.assertEquals(NetworkUtils.AddressFamily.IP_V4, range.family());
     Assert.assertEquals(32, range.subnetBits());
     Assert.assertArrayEquals(new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}, range.firstAddress().getAddress());
     Assert.assertArrayEquals(new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}, range.lastAddress().getAddress());
 
     range = NetworkUtils.cidrToIpAddressRange("3.58.1.97/12");
+    Assert.assertEquals(NetworkUtils.AddressFamily.IP_V4, range.family());
     Assert.assertEquals(12, range.subnetBits());
     Assert.assertArrayEquals(new byte[] {(byte) 0x03, (byte) 0x30, (byte) 0x00, (byte) 0x00}, range.firstAddress().getAddress());
     Assert.assertArrayEquals(new byte[] {(byte) 0x03, (byte) 0x3F, (byte) 0xFF, (byte) 0xFF}, range.lastAddress().getAddress());
 
     range = NetworkUtils.cidrToIpAddressRange("10.98.1.64/28");
+    Assert.assertEquals(NetworkUtils.AddressFamily.IP_V4, range.family());
     Assert.assertEquals(28, range.subnetBits());
     Assert.assertArrayEquals(new byte[] {(byte) 0x0A, (byte) 0x62, (byte) 0x01, (byte) 0x40}, range.firstAddress().getAddress());
     Assert.assertArrayEquals(new byte[] {(byte) 0x0A, (byte) 0x62, (byte) 0x01, (byte) 0x4F}, range.lastAddress().getAddress());
@@ -82,12 +83,7 @@ public class NetworkUtilsTest {
       Assert.assertEquals("illegal CIDR value '0.0.0.0/33'", ex.getMessage());
     }
 
-    try {
-      NetworkUtils.cidrToIpAddressRange("FEDC:BA98:7654:3210:FEDC:BA98:7654:3210/64");
-      Assert.fail("should throw IllegalArgumentException");
-    } catch (IllegalArgumentException ex) {
-      Assert.assertEquals("unsupported CIDR value 'FEDC:BA98:7654:3210:FEDC:BA98:7654:3210/64'", ex.getMessage());
-    }
+
   }
 
   @Test public void testCidrPattern() {
@@ -106,5 +102,45 @@ public class NetworkUtilsTest {
     Assert.assertEquals("192.168.23.34", NetworkUtils.byteArrayToIpAddress(new byte[] {(byte) 0xC0, (byte) 0xA8, (byte) 0x17, (byte) 0x22}));
     Assert.assertEquals("192.168.23.35", NetworkUtils.byteArrayToIpAddress(new byte[] {(byte) 0xC0, (byte) 0xA8, (byte) 0x17, (byte) 0x23}));
     Assert.assertEquals("255.255.255.255", NetworkUtils.byteArrayToIpAddress(new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}));
+  }
+
+  @Test public void testCidrToIpV4AddressRange() throws UnknownHostException {
+    NetworkUtils.IpAddressRange range;
+
+    range = NetworkUtils.cidrToIpAddressRange("2001:db8:abcd:0012::0/128");
+    Assert.assertEquals(NetworkUtils.AddressFamily.IP_V6, range.family());
+    Assert.assertEquals(128, range.subnetBits());
+    Assert.assertArrayEquals(Hexs.hex().toByteArray("20010DB8ABCD00120000000000000000"), range.firstAddress().getAddress());
+    Assert.assertArrayEquals(Hexs.hex().toByteArray("20010DB8ABCD00120000000000000000"), range.lastAddress().getAddress());
+
+    range = NetworkUtils.cidrToIpAddressRange("2001:db8::/126");
+    Assert.assertEquals(NetworkUtils.AddressFamily.IP_V6, range.family());
+    Assert.assertEquals(126, range.subnetBits());
+    Assert.assertArrayEquals(Hexs.hex().toByteArray("20010db8000000000000000000000000"), range.firstAddress().getAddress());
+    Assert.assertArrayEquals(Hexs.hex().toByteArray("20010db8000000000000000000000003"), range.lastAddress().getAddress());
+
+    range = NetworkUtils.cidrToIpAddressRange("FEDC:BA98:7654:3210:FEDC:BA98:7654:3210/64");
+    Assert.assertEquals(NetworkUtils.AddressFamily.IP_V6, range.family());
+    Assert.assertEquals(64, range.subnetBits());
+    Assert.assertArrayEquals(Hexs.hex().toByteArray("FEDCBA98765432100000000000000000"), range.firstAddress().getAddress());
+    Assert.assertArrayEquals(Hexs.hex().toByteArray("FEDCBA9876543210FFFFFFFFFFFFFFFF"), range.lastAddress().getAddress());
+
+    range = NetworkUtils.cidrToIpAddressRange("2002:0000:0000:1234:0000:0000:0000:0000/64");
+    Assert.assertEquals(NetworkUtils.AddressFamily.IP_V6, range.family());
+    Assert.assertEquals(64, range.subnetBits());
+    Assert.assertArrayEquals(Hexs.hex().toByteArray("20020000000012340000000000000000"), range.firstAddress().getAddress());
+    Assert.assertArrayEquals(Hexs.hex().toByteArray("2002000000001234ffffffffffffffff"), range.lastAddress().getAddress());
+
+    range = NetworkUtils.cidrToIpAddressRange("2001:DB8::/48");
+    Assert.assertEquals(NetworkUtils.AddressFamily.IP_V6, range.family());
+    Assert.assertEquals(48, range.subnetBits());
+    Assert.assertArrayEquals(Hexs.hex().toByteArray("20010db8000000000000000000000000"), range.firstAddress().getAddress());
+    Assert.assertArrayEquals(Hexs.hex().toByteArray("20010db80000ffffffffffffffffffff"), range.lastAddress().getAddress());
+
+    range = NetworkUtils.cidrToIpAddressRange("2001:558::/31");
+    Assert.assertEquals(NetworkUtils.AddressFamily.IP_V6, range.family());
+    Assert.assertEquals(31, range.subnetBits());
+    Assert.assertArrayEquals(Hexs.hex().toByteArray("20010558000000000000000000000000"), range.firstAddress().getAddress());
+    Assert.assertArrayEquals(Hexs.hex().toByteArray("20010559ffffffffffffffffffffffff"), range.lastAddress().getAddress());
   }
 }

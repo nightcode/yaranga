@@ -17,17 +17,18 @@ public final class Jvm {
 
   private static final long SECOND = TimeUnit.SECONDS.toMillis(1);
   private static final long MINUTE = TimeUnit.MINUTES.toMillis(1);
-  private static final long HOUR = TimeUnit.HOURS.toMillis(1);
-  private static final long DAY = TimeUnit.DAYS.toMillis(1);
+  private static final long HOUR   = TimeUnit.HOURS.toMillis(1);
+  private static final long DAY    = TimeUnit.DAYS.toMillis(1);
 
   private final static RuntimeMXBean RUNTIME_MX_BEAN = ManagementFactory.getRuntimeMXBean();
-  private final static ThreadMXBean THREAD_MX_BEAN = ManagementFactory.getThreadMXBean();
+  private final static ThreadMXBean  THREAD_MX_BEAN  = ManagementFactory.getThreadMXBean();
 
   private static final int PID = getPid();
+
   private static final String BOOT_CLASSPATH = RUNTIME_MX_BEAN.getBootClassPath();
-  private static final String CLASSPATH = RUNTIME_MX_BEAN.getClassPath();
-  private static final String LIBRARY_PATH = RUNTIME_MX_BEAN.getLibraryPath();
-  private static final String VM_ARGUMENTS = getVmArguments();
+  private static final String CLASSPATH      = RUNTIME_MX_BEAN.getClassPath();
+  private static final String LIBRARY_PATH   = RUNTIME_MX_BEAN.getLibraryPath();
+  private static final String VM_ARGUMENTS   = getVmArguments();
 
   public static String bootClassPath() {
     return BOOT_CLASSPATH;
@@ -65,6 +66,10 @@ public final class Jvm {
       }
     }
     return formatted;
+  }
+
+  public static long uptimeMs() {
+    return RUNTIME_MX_BEAN.getUptime();
   }
 
   public static String vmArguments() {
