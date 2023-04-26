@@ -18,7 +18,7 @@
   <groupId>org.nightcode.yaranga</groupId>
   <artifactId>yaranga-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.11.1</version>
+  <version>0.11.2-SNAPSHOT</version>
   <name>Yaranga (Parent) ${project.version}</name>
   <description>Useful stuff for Java 1.8+.</description>
   <url>http://github.com/nightcode/yaranga/</url>
@@ -28,10 +28,7 @@
   </modules>
 
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
-    <java.version>1.8</java.version>
+    <java.version>8</java.version>
 
     <inject.version>1</inject.version>
     <jsr305.version>3.0.2</jsr305.version>
@@ -48,7 +45,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>2.2.1</version>
+            <version>3.2.1</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -61,7 +58,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.0.1</version>
+            <version>3.5.0</version>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
@@ -88,7 +85,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-release-plugin</artifactId>
-            <version>2.5.3</version>
+            <version>3.0.0</version>
             <configuration>
               <autoVersionSubmodules>true</autoVersionSubmodules>
               <useReleaseProfile>false</useReleaseProfile>
@@ -166,13 +163,11 @@
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>${junit.version}</version>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.easymock</groupId>
         <artifactId>easymock</artifactId>
         <version>${easymock.version}</version>
-        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -204,7 +199,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.7.0</version>
+        <version>3.11.0</version>
         <configuration>
           <source>${java.version}</source>
           <target>${java.version}</target>
@@ -214,13 +209,20 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0</version>
+        <configuration>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>2.4</version>
+        <version>3.3.0</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.2.2</version>
         <configuration>
           <configLocation>checkstyle.xml</configLocation>
           <failsOnError>true</failsOnError>
@@ -240,7 +242,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.1</version>
+        <version>0.8.8</version>
         <executions>
           <execution>
             <id>default-prepare-agent</id>

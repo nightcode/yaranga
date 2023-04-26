@@ -25,14 +25,9 @@ public final class Jvm {
 
   private static final int PID = getPid();
 
-  private static final String BOOT_CLASSPATH = RUNTIME_MX_BEAN.getBootClassPath();
   private static final String CLASSPATH      = RUNTIME_MX_BEAN.getClassPath();
   private static final String LIBRARY_PATH   = RUNTIME_MX_BEAN.getLibraryPath();
   private static final String VM_ARGUMENTS   = getVmArguments();
-
-  public static String bootClassPath() {
-    return BOOT_CLASSPATH;
-  }
 
   public static String classPath() {
     return CLASSPATH;

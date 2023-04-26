@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.easymock.EasyMock;
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -75,39 +76,61 @@ public class ServiceManagerTest {
     }
   }
 
-  @SuppressWarnings("unchecked")
   @Test public void shutdownAll() throws ExecutionException, InterruptedException {
-    CompletableFuture<Service.State> stateFutureMock = EasyMock.createMock(CompletableFuture.class);
+    CompletableFuture<Service.State> stateFuture = new CompletableFuture<>();
+    Service serviceMock = new AbstractService("TestService") {
+      @Override protected void doStart() {
+        doStart();
+      }
 
-    Service serviceMock = EasyMock.createStrictMock(Service.class);
-    EasyMock.expect(serviceMock.serviceName()).andReturn("serviceMock").times(3);
-    EasyMock.expect(serviceMock.stop()).andReturn(stateFutureMock).once();
-    EasyMock.expect(stateFutureMock.get()).andReturn(Service.State.TERMINATED).once();
-    EasyMock.replay(serviceMock);
+      @Override protected void doStop() {
+        stopped();
+      }
+
+      @Override public CompletableFuture<State> stop() {
+        CompletableFuture<Service.State> cf = super.stop();
+        try {
+          stateFuture.complete(cf.get());
+        } catch (Exception ex) {
+          throw new RuntimeException(ex);
+        }
+        return stateFuture;
+      }
+    };
  
     ServiceManager serviceManager = new ServiceManager();
     serviceManager.addShutdownHook(serviceMock);
     serviceManager.shutdownAll();
 
-    EasyMock.verify(serviceMock);
+    Assert.assertEquals(stateFuture.get(), Service.State.TERMINATED);
   }
 
-  @SuppressWarnings("unchecked")
-  @Test public void shutdownAllWithTimeout()
-      throws ExecutionException, TimeoutException, InterruptedException {
-    CompletableFuture<Service.State> stateFutureMock = EasyMock.createMock(CompletableFuture.class);
+  @Test public void shutdownAllWithTimeout() throws ExecutionException, TimeoutException, InterruptedException {
+    CompletableFuture<Service.State> stateFuture = new CompletableFuture<>();
+    Service serviceMock = new AbstractService("TestService") {
+      @Override protected void doStart() {
+        doStart();
+      }
 
-    Service serviceMock = EasyMock.createStrictMock(Service.class);
-    EasyMock.expect(serviceMock.serviceName()).andReturn("serviceMock").times(3);
-    EasyMock.expect(serviceMock.stop()).andReturn(stateFutureMock).once();
-    EasyMock.expect(stateFutureMock.get(10 * 1000, TimeUnit.MILLISECONDS))
-        .andReturn(Service.State.TERMINATED).once();
-    EasyMock.replay(serviceMock);
+      @Override protected void doStop() {
+        stopped();
+      }
+
+      @Override public CompletableFuture<State> stop() {
+        CompletableFuture<Service.State> cf = super.stop();
+        try {
+          stateFuture.complete(cf.get());
+        } catch (Exception ex) {
+          throw new RuntimeException(ex);
+        }
+        return stateFuture;
+      }
+    };
  
     ServiceManager serviceManager = new ServiceManager();
     serviceManager.addShutdownHook(serviceMock);
     serviceManager.shutdownAll(10 * 1000, TimeUnit.MILLISECONDS);
 
-    EasyMock.verify(serviceMock);
+    Assert.assertEquals(stateFuture.get(), Service.State.TERMINATED);
   }
 }
