@@ -14,7 +14,7 @@ Download [the latest jar][1] via Maven:
 <dependency>
   <groupId>org.nightcode.yaranga</groupId>
   <artifactId>yaranga</artifactId>
-  <version>0.11.1</version>
+  <version>0.11.2</version>
 </dependency>
 ```
 
