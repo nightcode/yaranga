@@ -1,6 +1,6 @@
 # Yaranga 
 
-[![Build Status](https://travis-ci.org/nightcode/yaranga.svg?branch=master)](https://travis-ci.org/nightcode/yaranga)
+[![Build Status](https://github.com/nightcode/yaranga/actions/workflows/maven.yml/badge.svg)](https://github.com/nightcode/yaranga/actions/workflows/maven.yml)
 [![GitHub license](https://img.shields.io/github/license/nightcode/yaranga.svg)](https://github.com/nightcode/yaranga/blob/master/LICENSE)
 [![Maven Central](https://img.shields.io/maven-central/v/org.nightcode.yaranga/yaranga.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3Aorg.nightcode.yaranga%20a%3Ayaranga)
 
