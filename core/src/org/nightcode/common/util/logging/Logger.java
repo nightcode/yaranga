@@ -18,7 +18,10 @@ import java.util.function.Supplier;
 
 /**
  * Main logger interface.
+ *
+ * @deprecated would be removed in next release
  */
+@Deprecated
 public interface Logger {
 
   void log(LogLevel level, String message);

@@ -16,7 +16,10 @@ package org.nightcode.common.util.logging;
 
 /**
  * Logging manager.
+ *
+ * @deprecated would be removed in next release
  */
+@Deprecated
 public final class LogManager {
 
   public static Logger getLogger(Class<?> clazz) {

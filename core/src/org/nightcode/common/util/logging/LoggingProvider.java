@@ -16,7 +16,9 @@ package org.nightcode.common.util.logging;
 
 /**
  * Logging provider.
+ * @deprecated would be removed in next release
  */
+@Deprecated
 public interface LoggingProvider {
 
   Logger createLogger(Class<?> clazz);

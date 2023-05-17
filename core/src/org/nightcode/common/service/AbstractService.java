@@ -14,8 +14,7 @@
 
 package org.nightcode.common.service;
 
-import org.nightcode.common.util.logging.LogManager;
-import org.nightcode.common.util.logging.Logger;
+import org.nightcode.common.util.logging.Log;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -39,7 +38,6 @@ public abstract class AbstractService implements Service {
     return s == RUNNING;
   }
 
-  protected final Logger logger;
   private final String serviceName;
 
   final AtomicInteger state = new AtomicInteger(NEW);
@@ -53,7 +51,6 @@ public abstract class AbstractService implements Service {
 
   protected AbstractService(String serviceName) {
     this.serviceName = serviceName;
-    this.logger = LogManager.getLogger(this);
   }
 
   @Override public String serviceName() {
@@ -67,7 +64,7 @@ public abstract class AbstractService implements Service {
       mainLock.lock();
       try {
         if (state.compareAndSet(s, STARTING)) {
-          logger.debug("[%s]: starting service..", serviceName);
+          Log.debug().log(getClass(), "[{}]: starting service..", serviceName);
           doStart();
         }
       } catch (Throwable th) {
@@ -91,7 +88,7 @@ public abstract class AbstractService implements Service {
         } else if (s < RUNNING) {
           stopAfterStart = true;
         } else if (s < STOPPING && state.compareAndSet(s, STOPPING)) {
-          logger.debug("[%s]: stopping service..", serviceName);
+          Log.debug().log(getClass(), "[{}]: stopping service..", serviceName);
           doStop();
         }
       } catch (Throwable th) {
@@ -144,11 +141,11 @@ public abstract class AbstractService implements Service {
       int s = state.get();
       state.set(FAILED);
       if (s < RUNNING) {
-        logger.warn(cause, "[%s]: exception occurred while starting service:", serviceName);
+        Log.warn().log(getClass(), cause, "[{}]: exception occurred while starting service:", serviceName);
         startFuture.completeExceptionally(cause);
         stopFuture.completeExceptionally(new Exception("service failed to start", cause));
       } else if (s < TERMINATED) {
-        logger.warn(cause, "[%s]: exception occurred while stopping service:", serviceName);
+        Log.warn().log(getClass(), cause, "[{}]: exception occurred while stopping service:", serviceName);
         stopFuture.completeExceptionally(cause);
       }
     } finally {
@@ -166,7 +163,7 @@ public abstract class AbstractService implements Service {
     mainLock.lock();
     try {
       if (state.compareAndSet(s, RUNNING)) {
-        logger.info("[%s]: service has been started", serviceName);
+        Log.info().log(getClass(), "[{}]: service has been started", serviceName);
         if (stopAfterStart) {
           stop();
         } else {
@@ -197,7 +194,7 @@ public abstract class AbstractService implements Service {
     mainLock.lock();
     try {
       state.set(TERMINATED);
-      logger.info("[%s]: service has been stopped", serviceName);
+      Log.info().log(getClass(), "[{}]: service has been stopped", serviceName);
       startFuture.complete(State.TERMINATED);
       stopFuture.complete(State.TERMINATED);
     } finally {

@@ -14,6 +14,8 @@
 
 package org.nightcode.common.service;
 
+import org.nightcode.common.util.logging.Log;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -68,7 +70,7 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
       if (queue.offer(message)) {
         int recheck = state();
         if (!AbstractService.isRunning(recheck) && queue.remove(message)) {
-          logger.info("[%s]: message <%s> has been skipped (queue remaining capacity %s)"
+          Log.info().log(getClass(), "[{}]: message <{}> has been skipped (queue remaining capacity {})"
               , serviceName(), message, queue.remainingCapacity());
           return false;
         }
@@ -80,13 +82,13 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
           if (queue.offer(message, 100, TimeUnit.MILLISECONDS)) {
             int recheck = state();
             if (!AbstractService.isRunning(recheck) && queue.remove(message)) {
-              logger.info("[%s]: message <%s> has been rejected", serviceName(), message);
+              Log.info().log(getClass(), "[{}]: message <{}> has been rejected", serviceName(), message);
               return false;
             }
             return true;
           }
         } catch (InterruptedException ex) {
-          logger.warn(ex, "[%s]: exception:", serviceName());
+          Log.warn().log(getClass(), ex, "[{}]: exception:", serviceName());
           Thread.currentThread().interrupt();
         }
       }

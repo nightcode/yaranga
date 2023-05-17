@@ -16,7 +16,9 @@ package org.nightcode.common.util.logging;
 
 /**
  * The Log Level enum.
+ * @deprecated would be removed in next release
  */
+@Deprecated
 public enum LogLevel {
   TRACE,
   DEBUG,

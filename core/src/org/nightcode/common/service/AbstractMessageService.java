@@ -15,6 +15,7 @@
 package org.nightcode.common.service;
 
 import org.nightcode.common.base.Throwables;
+import org.nightcode.common.util.logging.Log;
 
 /**
  * Abstract message service.
@@ -50,7 +51,7 @@ public abstract class AbstractMessageService<M> extends AbstractService implemen
         if (propagateException) {
           throw Throwables.propagate(ex);
         }
-        logger.warn(ex, "[%s]: exception occurred while submitting message <%s>", serviceName(), message);
+        Log.warn().log(getClass(), ex, "[{}]: exception occurred while submitting message <{}>", serviceName(), message);
       }
     }
     return false;

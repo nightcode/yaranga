@@ -14,6 +14,8 @@
 
 package org.nightcode.common.service;
 
+import org.nightcode.common.util.logging.Log;
+
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -46,11 +48,11 @@ public abstract class AbstractThreadService extends AbstractService implements S
                   Exception tmpException = lastFailedCause;
                   lastFailedCause = null;
                   onStart();
-                  logger.debug(tmpException, "[%s]: service has been restarted", serviceName());
+                  Log.debug().log(getClass(), tmpException, "[{}]: service has been restarted", serviceName());
                 }
                 service();
               } catch (InterruptedException ex) {
-                logger.warn(ex, "[%s]: service has been interrupted", serviceName());
+                Log.warn().log(getClass(), ex, "[{}]: service has been interrupted", serviceName());
                 interrupted = true;
                 if (restart) {
                   restart = false;
@@ -58,29 +60,29 @@ public abstract class AbstractThreadService extends AbstractService implements S
                   try {
                     onStop();
                   } catch (Exception ex2) {
-                    logger.trace(ex2, "[%s]: exception occurred", serviceName());
+                    Log.warn().log(getClass(), ex2, "[{}]: exception occurred", serviceName());
                   }
                 } else {
                   break;
                 }
               } catch (Exception ex) {
-                logger.warn(ex, "[%s]: service's exception", serviceName());
+                Log.warn().log(getClass(), ex, "[{}]: service's exception", serviceName());
                 lastFailedCause = ex;
                 try {
                   onStop();
                 } catch (Exception ex2) {
-                  logger.trace(ex2, "[%s]: exception occurred", serviceName());
+                  Log.trace().log(getClass(), ex2, "[{}]: exception occurred", serviceName());
                 }
                 try {
                   Thread.sleep(restartTimeoutMs);
                 } catch (InterruptedException interrupt) {
-                  logger.trace(interrupt, "[%s]: exception occurred", serviceName());
+                  Log.trace().log(getClass(), interrupt, "[{}]: exception occurred", serviceName());
                 }
               }
             }
           } catch (Throwable th) {
             th.printStackTrace();
-            logger.fatal(th, "[%s]: Service will be stopped. Unexpected error.", serviceName());
+            Log.fatal().log(getClass(), th, "[{}]: Service would be stopped. Unexpected error.", serviceName());
           }
         }
 

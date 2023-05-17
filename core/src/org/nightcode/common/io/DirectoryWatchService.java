@@ -1,8 +1,7 @@
 package org.nightcode.common.io;
 
 import org.nightcode.common.annotations.Beta;
-import org.nightcode.common.util.logging.LogManager;
-import org.nightcode.common.util.logging.Logger;
+import org.nightcode.common.util.logging.Log;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -67,8 +66,6 @@ public class DirectoryWatchService implements AutoCloseable {
       this.relative = (base.equals(resolved)) ? "" : resolved.substring(base.length() + 1);
     }
   }
-
-  private static final Logger LOGGER = LogManager.getLogger(DirectoryWatchService.class);
 
   private static final int DEFAULT_MAX_DEPTH = 1;
 
@@ -142,7 +139,7 @@ public class DirectoryWatchService implements AutoCloseable {
       try (Stream<Path> stream = Files.walk(resolved, maxDepth, FileVisitOption.FOLLOW_LINKS)) {
         stream.forEach(candidate -> addPath0(base, candidate));
       } catch (IOException ex) {
-        LOGGER.warn(ex, "unable to walk directory '%s'", resolved.toString());
+        Log.warn().log(getClass(), ex, "unable to walk directory '{}'", resolved);
       }
       bootstrapPath(listeners, base, resolved);
     }
@@ -154,7 +151,7 @@ public class DirectoryWatchService implements AutoCloseable {
         WatchKey watchKey = resolved.register(ws, EVENT_KINDS);
         watchKeys.put(watchKey, new WatchPath(base, resolved.toString()));
       } catch (IOException ex) {
-        LOGGER.warn(ex, "unable to add directory '%s'", resolved.toString());
+        Log.warn().log(getClass(), ex, "unable to add directory '{}'", resolved);
       }
     }
   }
@@ -178,7 +175,7 @@ public class DirectoryWatchService implements AutoCloseable {
         }
       });
     } catch (IOException ex) {
-      LOGGER.warn(ex, "unable to bootstrap listener with directory '%s'", resolved.toString());
+      Log.warn().log(getClass(), ex, "unable to bootstrap listener with directory '{}'", resolved);
     }
   }
 
@@ -213,7 +210,7 @@ public class DirectoryWatchService implements AutoCloseable {
         WatchPath pathInfo = watchKeys.get(watchKey);
         for (WatchEvent<?> watchEvent : watchKey.pollEvents()) {
           if (watchEvent.kind() == OVERFLOW) {
-            LOGGER.warn("OVERFLOW event for %s"
+            Log.warn().log(getClass(), "OVERFLOW event for {}"
                 , pathInfo.base + (pathInfo.relative.isEmpty() ? "" : "/" + pathInfo.relative));
             bootstrap(listeners);
             continue;

@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 class JulLoggerAdapter implements Logger {
 

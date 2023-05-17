@@ -16,7 +16,9 @@ package org.nightcode.common.util.logging;
 
 /**
  * Provider for JUL.
+ * @deprecated would be removed in next release
  */
+@Deprecated
 public final class JulLoggingProvider implements LoggingProvider {
 
   private static final LoggingProvider INSTANCE = new JulLoggingProvider();

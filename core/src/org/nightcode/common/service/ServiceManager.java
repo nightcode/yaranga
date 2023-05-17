@@ -14,8 +14,7 @@
 
 package org.nightcode.common.service;
 
-import org.nightcode.common.util.logging.LogManager;
-import org.nightcode.common.util.logging.Logger;
+import org.nightcode.common.util.logging.Log;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,8 +31,6 @@ import javax.inject.Singleton;
  */
 @Singleton
 public final class ServiceManager {
-
-  private static final Logger LOGGER = LogManager.getLogger(ServiceManager.class);
 
   private static final ServiceManager INSTANCE = new ServiceManager();
 
@@ -54,21 +51,21 @@ public final class ServiceManager {
     if (serv != null) {
       throw new IllegalStateException("service <" + service.serviceName() + "> has already been added");
     }
-    LOGGER.config("[ServiceManager]: shutdown hook for service <%s> has been added", service.serviceName());
+    Log.info().log(getClass(), "[ServiceManager]: shutdown hook for service <{}> has been added", service.serviceName());
   }
 
   public void removeShutdownHook(Service service) {
     Objects.requireNonNull(service, "service");
     Service serv = services.remove(service.serviceName());
     if (serv == null) {
-      LOGGER.info("[ServiceManager]: service <%s> has never been added", service.serviceName());
+      Log.info().log(getClass(), "[ServiceManager]: service <{}> has never been added", service.serviceName());
     } else {
-      LOGGER.config("[ServiceManager]: shutdown hook for service <%s> has been removed", service.serviceName());
+      Log.info().log(getClass(), "[ServiceManager]: shutdown hook for service <{}> has been removed", service.serviceName());
     }
   }
 
   public void shutdownAll() {
-    LOGGER.info("[ServiceManager]: external termination in progress..");
+    Log.info().log(getClass(), "[ServiceManager]: external termination in progress..");
     Map<String, Future<Service.State>> futures = new HashMap<>();
     for (final Service service : services.values()) {
         futures.put(service.serviceName(), service.stop());
@@ -77,7 +74,7 @@ public final class ServiceManager {
       try {
         value.get();
       } catch (Exception ex) {
-        LOGGER.warn(ex, "[ServiceManager]: cannot stop service <%s>", key);
+        Log.warn().log(getClass(), ex, "[ServiceManager]: cannot stop service <{}>", key);
       }
 
     });
@@ -85,7 +82,7 @@ public final class ServiceManager {
   }
 
   public void shutdownAll(long timeout, TimeUnit unit) {
-    LOGGER.info("[ServiceManager]: external termination in progress..");
+    Log.info().log(getClass(), "[ServiceManager]: external termination in progress..");
     Map<String, Future<Service.State>> futures = new HashMap<>();
     for (final Service service : services.values()) {
         futures.put(service.serviceName(), service.stop());
@@ -94,7 +91,7 @@ public final class ServiceManager {
       try {
         value.get(timeout, unit);
       } catch (Exception ex) {
-        LOGGER.warn(ex, "[ServiceManager]: cannot stop service <%s>", key);
+        Log.warn().log(getClass(), ex, "[ServiceManager]: cannot stop service <{}>", key);
       }
     });
     services.clear();
