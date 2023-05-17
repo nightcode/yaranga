@@ -18,7 +18,7 @@
   <parent>
     <groupId>org.nightcode.yaranga</groupId>
     <artifactId>yaranga-parent</artifactId>
-    <version>0.11.2</version>
+    <version>0.11.3-SNAPSHOT</version>
   </parent>
 
   <artifactId>yaranga</artifactId>
@@ -32,8 +32,8 @@
     </dependency>
 
     <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
+      <groupId>org.jetbrains</groupId>
+      <artifactId>annotations</artifactId>
     </dependency>
 
     <dependency>

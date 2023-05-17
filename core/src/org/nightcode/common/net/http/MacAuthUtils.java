@@ -19,7 +19,7 @@ import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * MAC authentication helper class.

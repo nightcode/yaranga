@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * OAuth helper class.
@@ -54,7 +54,7 @@ public final class OAuthUtils {
       return encodedValue;
     }
 
-    @Override public int compareTo(@Nonnull RequestParameter requestParameter) {
+    @Override public int compareTo(@NotNull RequestParameter requestParameter) {
       int result = encodedName.compareTo(requestParameter.encodedName);
       if (result != 0) {
         return  result;

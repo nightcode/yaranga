@@ -14,7 +14,7 @@
 
 package org.nightcode.common.base;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * An object which convert hexadecimal string to byte array and vice versa.
