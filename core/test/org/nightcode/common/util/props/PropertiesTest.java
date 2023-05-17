@@ -26,7 +26,7 @@ public class PropertiesTest {
 
   @Test public void testReadProperty() {
     Properties properties = Properties.instance();
-    properties.setPropertiesStorage(new SystemPropertiesStorage());
+    properties.setPropertiesStorage(SystemPropertiesStorage.INSTANCE);
 
     String key = UUID.randomUUID().toString();
     Assert.assertNull(System.getProperty(key));

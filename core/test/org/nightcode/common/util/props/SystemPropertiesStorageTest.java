@@ -8,7 +8,7 @@ import org.junit.Test;
 public class SystemPropertiesStorageTest {
 
   @Test public void testReadProperty() throws Exception {
-    PropertiesStorage storage = new SystemPropertiesStorage();
+    PropertiesStorage storage = SystemPropertiesStorage.INSTANCE;
     
     String key = UUID.randomUUID().toString();
     Assert.assertNull(System.getProperty(key));
