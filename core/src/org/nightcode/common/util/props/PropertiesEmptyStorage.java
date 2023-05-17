@@ -14,17 +14,9 @@
 
 package org.nightcode.common.util.props;
 
-final class PropertiesEmptyStorage implements PropertiesStorage {
+public enum PropertiesEmptyStorage implements PropertiesStorage {
 
-  private static final PropertiesStorage INSTANCE = new PropertiesEmptyStorage();
-
-  static PropertiesStorage instance() {
-    return INSTANCE;
-  }
-
-  private PropertiesEmptyStorage() {
-    // do nothing
-  }
+  INSTANCE;
 
   @Override public Property readProperty(String key, Type type, NotFoundPolicy notFoundPolicy)
       throws PropertyException {

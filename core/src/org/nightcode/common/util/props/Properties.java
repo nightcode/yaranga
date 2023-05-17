@@ -35,7 +35,7 @@ public final class Properties {
     return INSTANCE;
   }
 
-  private volatile PropertiesStorage storage = PropertiesEmptyStorage.instance();
+  private volatile PropertiesStorage storage = SystemPropertiesStorage.INSTANCE;
 
   private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
   private final ConcurrentMap<String, Property> properties = new ConcurrentHashMap<>();

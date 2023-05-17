@@ -18,7 +18,9 @@ package org.nightcode.common.util.props;
  * PropertiesStorage implementation which tries to read value from the system property
  * and if the system property is not defined tries to read from the environment variable.
  */
-public class SystemPropertiesStorage implements PropertiesStorage {
+public enum SystemPropertiesStorage implements PropertiesStorage {
+
+  INSTANCE;
 
   @Override public Property readProperty(String key, Type type, NotFoundPolicy notFoundPolicy)
       throws PropertyException {
@@ -51,11 +53,9 @@ public class SystemPropertiesStorage implements PropertiesStorage {
 
   private String readPropertyValue(String key) {
     String value = System.getProperty(key);
-
     if (value == null) {
       value = System.getenv(key);
     }
-
     return value;
   }
 }
