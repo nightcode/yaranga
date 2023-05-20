@@ -26,9 +26,9 @@ import static java.lang.String.format;
 /**
  * JUL implementation of LoggingHandler.
  */
-public enum JulLoggingHandler implements Log.LoggingHandler {
+public enum JulLoggingHandler implements LoggingHandler {
 
-  TRACER(Level.FINEST),
+  TRACE(Level.FINEST),
   DEBUG(Level.FINER),
   INFO(Level.INFO),
   WARN(Level.WARNING),
@@ -49,6 +49,10 @@ public enum JulLoggingHandler implements Log.LoggingHandler {
 
   JulLoggingHandler(Level level) {
     this.level = level;
+  }
+
+  @Override public boolean isEnabled(@NotNull Class<?> clazz) {
+    return getLogger(clazz).isLoggable(level);
   }
 
   @Override public void log(@NotNull Class<?> clazz, String message) {

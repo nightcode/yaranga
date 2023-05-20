@@ -15,6 +15,8 @@
 package org.nightcode.common.service;
 
 import org.nightcode.common.util.logging.Log;
+import org.nightcode.common.util.logging.LogManager;
+import org.nightcode.common.util.logging.Logger;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -38,6 +40,7 @@ public abstract class AbstractService implements Service {
     return s == RUNNING;
   }
 
+  protected final Logger logger;
   private final String serviceName;
 
   final AtomicInteger state = new AtomicInteger(NEW);
@@ -51,6 +54,7 @@ public abstract class AbstractService implements Service {
 
   protected AbstractService(String serviceName) {
     this.serviceName = serviceName;
+    this.logger = LogManager.getLogger(this);
   }
 
   @Override public String serviceName() {

@@ -18,7 +18,7 @@
   <groupId>org.nightcode.yaranga</groupId>
   <artifactId>yaranga-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.11.3</version>
+  <version>0.11.4-SNAPSHOT</version>
   <name>Yaranga (Parent) ${project.version}</name>
   <description>Useful stuff for Java 1.8+.</description>
   <url>http://github.com/nightcode/yaranga/</url>
@@ -32,6 +32,7 @@
 
     <inject.version>1</inject.version>
     <jetbrains_annotations.version>17.0.0</jetbrains_annotations.version>
+    <log4j-api.version>2.20.0</log4j-api.version>
 
     <junit.version>4.13.1</junit.version>
     <easymock.version>3.6</easymock.version>
@@ -157,6 +158,12 @@
         <groupId>javax.inject</groupId>
         <artifactId>javax.inject</artifactId>
         <version>${inject.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>${log4j-api.version}</version>
       </dependency>
 
       <dependency>

@@ -14,46 +14,13 @@
 
 package org.nightcode.common.util.logging;
 
-import java.io.PrintStream;
-import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import static java.lang.String.format;
-import static java.lang.Thread.currentThread;
 
 /**
  * Log helper class.
  */
 public enum Log {
   ;
-
-  /**
-   * LoggingHandler interface.
-   */
-  public interface LoggingHandler {
-
-    void log(@NotNull Class<?> clazz, String message);
-
-    void log(@NotNull Class<?> clazz, String message, Object... params);
-
-    void log(@NotNull Class<?> clazz, String message, @Nullable Throwable thrown);
-
-    void log(@NotNull Class<?> clazz, Supplier<String> supplier, @Nullable Throwable thrown);
-
-    void log(@NotNull Class<?> clazz, Throwable thrown, String message, Object... params);
-
-    default void log(@NotNull Class<?> clazz, Throwable thrown) {
-      log(clazz, "", thrown);
-    }
-
-    default void log(@NotNull Class<?> clazz, Supplier<String> supplier) {
-      log(clazz, supplier, null);
-    }
-  }
 
   private static final AtomicReference<LoggingHandler> TRACE = new AtomicReference<>(PrintStreamLoggingHandler.OUT);
   private static final AtomicReference<LoggingHandler> DEBUG = new AtomicReference<>(PrintStreamLoggingHandler.OUT);
@@ -98,41 +65,5 @@ public enum Log {
     WARN.set(warn);
     ERROR.set(error);
     FATAL.set(fatal);
-  }
-
-  enum PrintStreamLoggingHandler implements LoggingHandler {
-    ERR(System.err),
-    OUT(System.out);
-
-    private final PrintStream stream;
-
-    PrintStreamLoggingHandler(PrintStream stream) {
-      this.stream = stream;
-    }
-
-    @Override public void log(@NotNull Class<?> clazz, String message) {
-      log(clazz, () -> message, null);
-    }
-
-    @Override public void log(@NotNull Class<?> clazz, String message, @Nullable Throwable thrown) {
-      log(clazz, () -> message, thrown);
-    }
-
-    @Override public void log(@NotNull Class<?> clazz, String message, Object... params) {
-      log(clazz, () -> format(message.replaceAll("\\{}", "%s"), params), null);
-    }
-
-    @Override public void log(@NotNull Class<?> clazz, Throwable thrown, String message, Object... params) {
-      log(clazz, () -> format(message.replaceAll("\\{}", "%s"), params), thrown);
-    }
-
-    @Override public void log(@NotNull Class<?> clazz, Supplier<String> message, @Nullable Throwable thrown) {
-      synchronized (stream) {
-        stream.printf("%s [%s/%s]: %s\n", LocalDateTime.now(), currentThread().getName(), clazz.getSimpleName(), message.get());
-        if (thrown != null) {
-          thrown.printStackTrace(stream);
-        }
-      }
-    }
   }
 }
