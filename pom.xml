@@ -18,7 +18,7 @@
   <groupId>org.nightcode.yaranga</groupId>
   <artifactId>yaranga-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.11.4</version>
+  <version>0.11.5-SNAPSHOT</version>
   <name>Yaranga (Parent) ${project.version}</name>
   <description>Useful stuff for Java 1.8+.</description>
   <url>http://github.com/nightcode/yaranga/</url>
@@ -30,9 +30,8 @@
   <properties>
     <java.version>8</java.version>
 
-    <inject.version>1</inject.version>
     <jetbrains_annotations.version>17.0.0</jetbrains_annotations.version>
-    <log4j-api.version>2.20.0</log4j-api.version>
+    <log4j-api.version>2.22.1</log4j-api.version>
 
     <junit.version>4.13.1</junit.version>
     <easymock.version>3.6</easymock.version>
@@ -46,7 +45,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>3.2.1</version>
+            <version>3.3.0</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -59,7 +58,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.5.0</version>
+            <version>3.6.3</version>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
@@ -72,7 +71,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.5</version>
+            <version>3.1.0</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
@@ -86,7 +85,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-release-plugin</artifactId>
-            <version>3.0.0</version>
+            <version>3.0.1</version>
             <configuration>
               <autoVersionSubmodules>true</autoVersionSubmodules>
               <useReleaseProfile>false</useReleaseProfile>
@@ -97,7 +96,7 @@
           <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.7</version>
+            <version>1.6.13</version>
             <extensions>true</extensions>
             <configuration>
               <serverId>sonatype-nexus-staging</serverId>
@@ -155,12 +154,6 @@
       </dependency>
 
       <dependency>
-        <groupId>javax.inject</groupId>
-        <artifactId>javax.inject</artifactId>
-        <version>${inject.version}</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-api</artifactId>
         <version>${log4j-api.version}</version>
@@ -206,7 +199,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.11.0</version>
+        <version>3.12.1</version>
         <configuration>
           <source>${java.version}</source>
           <target>${java.version}</target>
@@ -217,7 +210,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.2.5</version>
         <configuration>
         </configuration>
       </plugin>
@@ -229,13 +222,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.2.2</version>
+        <version>3.3.1</version>
         <configuration>
           <configLocation>checkstyle.xml</configLocation>
           <failsOnError>true</failsOnError>
           <consoleOutput>true</consoleOutput>
           <linkXRef>false</linkXRef>
-          <enableRSS>false</enableRSS>
         </configuration>
         <executions>
           <execution>
@@ -249,7 +241,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.8</version>
+        <version>0.8.11</version>
         <executions>
           <execution>
             <id>default-prepare-agent</id>
@@ -269,7 +261,7 @@
       <plugin>
         <groupId>org.eluder.coveralls</groupId>
         <artifactId>coveralls-maven-plugin</artifactId>
-        <version>2.2.0</version>
+        <version>4.3.0</version>
       </plugin>
     </plugins>
   </build>

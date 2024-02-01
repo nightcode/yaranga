@@ -24,12 +24,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Singleton;
-
 /**
  * Service manager.
  */
-@Singleton
 public final class ServiceManager {
 
   private static final ServiceManager INSTANCE = new ServiceManager();

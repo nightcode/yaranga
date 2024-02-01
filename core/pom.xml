@@ -18,7 +18,7 @@
   <parent>
     <groupId>org.nightcode.yaranga</groupId>
     <artifactId>yaranga-parent</artifactId>
-    <version>0.11.4</version>
+    <version>0.11.5-SNAPSHOT</version>
   </parent>
 
   <artifactId>yaranga</artifactId>
@@ -26,11 +26,6 @@
   <name>Yaranga</name>
 
   <dependencies>
-    <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>org.jetbrains</groupId>
       <artifactId>annotations</artifactId>
