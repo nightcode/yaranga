@@ -18,9 +18,12 @@ package org.nightcode.common.service;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.easymock.EasyMock;
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -67,5 +70,27 @@ public class AbstractAsyncMessageServiceTest {
     assertTrue(service.submit(Boolean.TRUE));
     assertFalse(service.submit(Boolean.TRUE));
     service.stop().get();
+  }
+
+  @Test public void interruptLoop() throws Exception {
+    AbstractAsyncMessageService<Boolean> service = new AbstractAsyncMessageService<Boolean>("test", new LinkedBlockingQueue<>(1)) {
+      @Override protected void process(Boolean message) throws Exception {
+        Thread.sleep(Long.MAX_VALUE);
+      }
+    };
+    service.start().get();
+    assertTrue(service.submit(Boolean.TRUE));
+    assertTrue(service.submit(Boolean.TRUE));
+
+    CompletableFuture<Boolean> cf = new CompletableFuture<>();
+    
+    Thread t = new Thread(() -> cf.complete(service.submit(Boolean.FALSE)));
+    t.start();
+    t.interrupt();
+
+    Thread.sleep(100);
+    service.stop();
+
+    Assert.assertFalse(cf.get(1000, TimeUnit.MILLISECONDS));
   }
 }

@@ -90,6 +90,9 @@ public abstract class AbstractAsyncMessageService<M> extends AbstractThreadServi
         } catch (InterruptedException ex) {
           Log.warn().log(getClass(), ex, "[{}]: exception:", serviceName());
           Thread.currentThread().interrupt();
+          if (!isRunning()) {
+            return false;
+          }
         }
       }
     }
