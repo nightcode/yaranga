@@ -14,7 +14,7 @@
 
 package org.nightcode.common.net;
 
-import org.nightcode.common.util.event.EventListener;
+import org.nightcode.common.lang.EventListener;
 
 import java.net.InetSocketAddress;
 
@@ -27,7 +27,7 @@ public class ConnectionTest {
   private static InetSocketAddress ADDRESS = InetSocketAddress.createUnresolved("localhost", 12345);
 
   @Test public void testAddStateListener() {
-    Connection<InetSocketAddress> connection = new Connection<InetSocketAddress>("connection", ADDRESS) {
+    Connection<InetSocketAddress> connection = new Connection<>("connection", ADDRESS) {
       @Override public void close() {
         // do nothing
       }
@@ -47,7 +47,7 @@ public class ConnectionTest {
   }
 
   @Test public void testRemoveStateListener() {
-    Connection<InetSocketAddress> connection = new Connection<InetSocketAddress>("connection", ADDRESS) {
+    Connection<InetSocketAddress> connection = new Connection<>("connection", ADDRESS) {
       @Override public void close() {
         // do nothing
       }

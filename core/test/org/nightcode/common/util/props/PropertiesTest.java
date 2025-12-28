@@ -33,35 +33,35 @@ public class PropertiesTest {
     Assert.assertNull(System.getenv(key));
 
     try {
-      properties.getStringValue(key);
+      properties.getString(key);
       Assert.fail("MUST throw PropertyException");
     } catch (IllegalStateException ex) {
       Assert.assertEquals("org.nightcode.common.util.props.PropertyNotFoundException: unable to read property '"
           + key + "' of type STRING", ex.getMessage());
     }
 
-    String targetString = properties.getStringValue(key + "def", "DEFAULT");
+    String targetString = properties.getString(key + "def", "DEFAULT");
     Assert.assertEquals("DEFAULT", targetString);
 
     System.setProperty(key, "bla-bla");
-    targetString = properties.getStringValue(key);
+    targetString = properties.getString(key);
     Assert.assertEquals("bla-bla", targetString);
 
     String path = System.getenv("PATH");
-    targetString = properties.getStringValue("PATH");
+    targetString = properties.getString("PATH");
     Assert.assertEquals(path, targetString);
 
     System.setProperty(key + "-boolean", "true");
-    Assert.assertEquals(true, properties.getBooleanValue(key + "-boolean"));
+    Assert.assertEquals(true, properties.getBoolean(key + "-boolean"));
 
     System.setProperty(key + "-byte", "7");
-    Assert.assertEquals((byte) 7, properties.getByteValue(key + "-byte"));
+    Assert.assertEquals((byte) 7, properties.getByte(key + "-byte"));
 
     System.setProperty(key + "-int", "65536");
-    Assert.assertEquals(65536, properties.getIntValue(key + "-int"));
+    Assert.assertEquals(65536, properties.getInt(key + "-int"));
 
     System.setProperty(key + "-long", "6553600000");
-    Assert.assertEquals(6553600000L, properties.getLongValue(key + "-long"));
+    Assert.assertEquals(6553600000L, properties.getLong(key + "-long"));
   }
 
   @Test public void testMapStorage() {
@@ -76,11 +76,11 @@ public class PropertiesTest {
     Properties properties = Properties.instance();
     properties.setPropertiesStorage(new PropertiesMapStorage(map));
 
-    Assert.assertEquals(Boolean.TRUE, properties.getBooleanValue("boolean"));
-    Assert.assertEquals(Byte.MAX_VALUE, properties.getByteValue("byte"));
-    Assert.assertEquals(Integer.MAX_VALUE, properties.getIntValue("int"));
-    Assert.assertEquals(Long.MAX_VALUE, properties.getLongValue("long"));
-    Assert.assertEquals("STRING", properties.getStringValue("string"));
-    Assert.assertEquals(Collections.singleton("COLLECTION"), properties.getCollectionValue("collection", String.class));
+    Assert.assertEquals(Boolean.TRUE, properties.getBoolean("boolean"));
+    Assert.assertEquals(Byte.MAX_VALUE, properties.getByte("byte"));
+    Assert.assertEquals(Integer.MAX_VALUE, properties.getInt("int"));
+    Assert.assertEquals(Long.MAX_VALUE, properties.getLong("long"));
+    Assert.assertEquals("STRING", properties.getString("string"));
+    Assert.assertEquals(Collections.singleton("COLLECTION"), properties.getCollection("collection", String.class));
   }
 }

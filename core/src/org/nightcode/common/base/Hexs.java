@@ -77,9 +77,8 @@ public final class Hexs {
     java.util.Objects.requireNonNull(bytes, "bytes");
     Objects.validArgument(offset >= 0, "offset must be equal or greater than zero");
     Objects.validArgument(length >= 0, "length must be greater than zero");
-    Objects.validArgument(offset + length <= bytes.length
-        , "(offset + length) must be less than %s", bytes.length);
-    if (byteSeparator != null && byteSeparator.length() > 0) {
+    Objects.validArgument(offset + length <= bytes.length, "(offset + length) must be less than %s", bytes.length);
+    if (byteSeparator != null && !byteSeparator.isEmpty()) {
       return fromByteArrayInternal(bytes, offset, length, byteSeparator);
     } else {
       return fromByteArrayInternal(bytes, offset, length);

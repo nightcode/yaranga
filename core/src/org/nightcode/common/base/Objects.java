@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2008 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -96,7 +94,7 @@ public final class Objects {
       if (placeholderStart == -1) {
         break;
       }
-      sb.append(message.substring(templateStart, placeholderStart));
+      sb.append(message, templateStart, placeholderStart);
       sb.append(argument);
       templateStart = placeholderStart + 2;
     }

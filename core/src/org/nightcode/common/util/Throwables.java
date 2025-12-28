@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2008 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.base;
+package org.nightcode.common.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -51,13 +49,8 @@ public final class Throwables {
     return out.toString();
   }
 
-  public static RuntimeException propagate(Throwable throwable) {
-    java.util.Objects.requireNonNull(throwable);
-    if (Error.class.isInstance(throwable)) {
-      throw Error.class.cast(throwable);
-    } else if (RuntimeException.class.isInstance(throwable)) {
-      throw RuntimeException.class.cast(throwable);
-    }
-    throw new RuntimeException(throwable);
+  @SuppressWarnings("unchecked")
+  public static <T extends Throwable> RuntimeException rethrow(Throwable throwable) throws T {
+    throw (T) throwable;
   }
 }

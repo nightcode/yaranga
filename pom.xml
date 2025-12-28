@@ -18,9 +18,9 @@
   <groupId>org.nightcode.yaranga</groupId>
   <artifactId>yaranga-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.11.6</version>
+  <version>0.12-SNAPSHOT</version>
   <name>Yaranga (Parent) ${project.version}</name>
-  <description>Useful stuff for Java 1.8+.</description>
+  <description>Useful stuff for Java 21+.</description>
   <url>http://github.com/nightcode/yaranga/</url>
 
   <modules>
@@ -28,7 +28,7 @@
   </modules>
 
   <properties>
-    <java.version>8</java.version>
+    <java.version>21</java.version>
 
     <jetbrains_annotations.version>17.0.0</jetbrains_annotations.version>
     <log4j-api.version>2.22.1</log4j-api.version>
@@ -212,6 +212,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.2.5</version>
         <configuration>
+          <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
         </configuration>
       </plugin>
       <plugin>
@@ -222,7 +223,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.3.1</version>
+        <version>3.6.0</version>
         <configuration>
           <configLocation>checkstyle.xml</configLocation>
           <failsOnError>true</failsOnError>
@@ -237,11 +238,18 @@
             </goals>
           </execution>
         </executions>
+        <dependencies>
+          <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>12.3.0</version>
+          </dependency>
+        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.11</version>
+        <version>0.8.14</version>
         <executions>
           <execution>
             <id>default-prepare-agent</id>

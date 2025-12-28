@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.base;
+package org.nightcode.common.util;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -68,6 +68,6 @@ public class ThrowablesTest {
   @Test public void testGetStackTrace() {
     Exception exception = new TestException("message");
     String stackTrace = Throwables.getStackTrace(exception);
-    Assert.assertEquals("org.nightcode.common.base.ThrowablesTest$TestException: message\n", stackTrace);
+    Assert.assertEquals("org.nightcode.common.util.ThrowablesTest$TestException: message\n", stackTrace);
   }
 }

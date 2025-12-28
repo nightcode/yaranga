@@ -4,7 +4,7 @@
 [![GitHub license](https://img.shields.io/github/license/nightcode/yaranga.svg)](https://github.com/nightcode/yaranga/blob/master/LICENSE)
 [![Maven Central](https://img.shields.io/maven-central/v/org.nightcode.yaranga/yaranga.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3Aorg.nightcode.yaranga%20a%3Ayaranga)
 
-Useful stuff for Java 1.8+.
+Useful stuff for Java 21+.
 
 Download
 --------
