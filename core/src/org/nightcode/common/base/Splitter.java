@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2008 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,10 +14,16 @@
 
 package org.nightcode.common.base;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * An object that divides CharSequence into a map of key/value pairs.
@@ -27,36 +31,25 @@ import java.util.Map;
 public final class Splitter {
 
   private interface Matcher {
+
     boolean matches(char c);
   }
 
-  private static final class CharMatcher implements Matcher {
-
-    private final char c;
-
-    private CharMatcher(char c) {
-      this.c = c;
-    }
-
+  private record CharMatcher(char c) implements Matcher {
     public boolean matches(char c) {
       return this.c == c;
     }
   }
 
-  private static final class CharsMatcher implements Matcher {
-
-    private final char[] chars;
-
-    private CharsMatcher(char[] chars) {
-      this.chars = chars;
-    }
-
+  private record CharsMatcher(char[] chars) implements Matcher {
     @Override public boolean matches(char c) {
       return Arrays.binarySearch(chars, c) >= 0;
     }
   }
 
   private static final Matcher NONE = c -> false;
+
+  private static final Function<String, String> BYPASS = value -> value;
 
   /**
    * Returns a splitter that uses the given fixed
@@ -66,20 +59,26 @@ public final class Splitter {
    * @return a splitter with the desired configuration
    */
   public static Splitter on(String pairSeparator) {
-    return new Splitter(pairSeparator, "=", NONE, NONE);
+    return new Splitter(pairSeparator, "=", NONE, NONE, BYPASS);
   }
 
-  private final String keyValueSeparator;
-  private final String pairSeparator;
-  private final Matcher keyTrimMatcher;
-  private final Matcher valueTrimMatcher;
+  private static String decodeUri(String uri) {
+    return URLDecoder.decode(uri, StandardCharsets.UTF_8);
+  }
 
-  private Splitter(String pairSeparator, String keyValueSeparator, Matcher keyTrimMatcher,
-      Matcher valueTrimMatcher) {
-    this.pairSeparator = pairSeparator;
+  private final String                   keyValueSeparator;
+  private final String                   pairSeparator;
+  private final Matcher                  keyTrimMatcher;
+  private final Matcher                  valueTrimMatcher;
+  private final Function<String, String> transformer;
+
+  private Splitter(String pairSeparator, String keyValueSeparator, Matcher keyTrimMatcher, Matcher valueTrimMatcher,
+                   Function<String, String> transformer) {
+    this.pairSeparator     = pairSeparator;
     this.keyValueSeparator = keyValueSeparator;
-    this.keyTrimMatcher = keyTrimMatcher;
-    this.valueTrimMatcher = valueTrimMatcher;
+    this.keyTrimMatcher    = keyTrimMatcher;
+    this.valueTrimMatcher  = valueTrimMatcher;
+    this.transformer       = transformer;
   }
 
   /**
@@ -88,15 +87,15 @@ public final class Splitter {
    * @param source the sequence of characters to split
    * @return a map of key/value pairs
    */
-  public Map<String, String> split(final CharSequence source) {
-    java.util.Objects.requireNonNull(source, "source");
-    Map<String, String> parameters = new HashMap<>();
-    Iterator<String> i = new StringIterator(source, pairSeparator);
+  public Map<String, List<String>> split(final CharSequence source) {
+    Objects.requireNonNull(source, "source");
+    Map<String, List<String>> parameters = new HashMap<>();
+    Iterator<String>          i          = new StringIterator(source, pairSeparator);
     while (i.hasNext()) {
       String keyValue = i.next();
 
       int keyValueSeparatorPosition = keyValueSeparatorStart(keyValue);
-      if (keyValueSeparatorPosition == 0 || keyValue.length() == 0) {
+      if (keyValueSeparatorPosition == 0 || keyValue.isEmpty()) {
         continue;
       }
       if (keyValueSeparatorPosition < 0) {
@@ -104,7 +103,7 @@ public final class Splitter {
         continue;
       }
       int keyStart = 0;
-      int keyEnd = keyValueSeparatorPosition;
+      int keyEnd   = keyValueSeparatorPosition;
 
       while (keyStart < keyEnd && keyTrimMatcher.matches(keyValue.charAt(keyStart))) {
         keyStart++;
@@ -114,7 +113,7 @@ public final class Splitter {
       }
 
       int valueStart = keyValueSeparatorPosition + keyValueSeparator.length();
-      int valueEnd = keyValue.length();
+      int valueEnd   = keyValue.length();
 
       while (valueStart < valueEnd && valueTrimMatcher.matches(keyValue.charAt(valueStart))) {
         valueStart++;
@@ -123,9 +122,11 @@ public final class Splitter {
         valueEnd--;
       }
 
-      String key = keyValue.substring(keyStart, keyEnd);
-      String value = keyValue.substring(valueStart, valueEnd);
-      parameters.put(key, value);
+      String key   = transformer.apply(keyValue.substring(keyStart, keyEnd));
+      String value = transformer.apply(keyValue.substring(valueStart, valueEnd));
+
+      List<String> values = parameters.computeIfAbsent(key, k -> new ArrayList<>());
+      values.add(value);
     }
     return parameters;
   }
@@ -139,7 +140,7 @@ public final class Splitter {
    */
   public Splitter trim(char c) {
     Matcher matcher = new CharMatcher(c);
-    return new Splitter(pairSeparator, keyValueSeparator, matcher, matcher);
+    return new Splitter(pairSeparator, keyValueSeparator, matcher, matcher, transformer);
   }
 
   /**
@@ -151,7 +152,7 @@ public final class Splitter {
    */
   public Splitter trim(char[] chars) {
     Matcher matcher = new CharsMatcher(chars);
-    return new Splitter(pairSeparator, keyValueSeparator, matcher, matcher);
+    return new Splitter(pairSeparator, keyValueSeparator, matcher, matcher, transformer);
   }
 
   /**
@@ -162,7 +163,7 @@ public final class Splitter {
    * @return a splitter with the desired configuration
    */
   public Splitter trimKeys(char c) {
-    return new Splitter(pairSeparator, keyValueSeparator, new CharMatcher(c), valueTrimMatcher);
+    return new Splitter(pairSeparator, keyValueSeparator, new CharMatcher(c), valueTrimMatcher, transformer);
   }
 
   /**
@@ -173,8 +174,7 @@ public final class Splitter {
    * @return a splitter with the desired configuration
    */
   public Splitter trimKeys(char[] chars) {
-    return new Splitter(pairSeparator, keyValueSeparator, new CharsMatcher(chars)
-        , valueTrimMatcher);
+    return new Splitter(pairSeparator, keyValueSeparator, new CharsMatcher(chars), valueTrimMatcher, transformer);
   }
 
   /**
@@ -185,7 +185,7 @@ public final class Splitter {
    * @return a splitter with the desired configuration
    */
   public Splitter trimValues(char c) {
-    return new Splitter(pairSeparator, keyValueSeparator, keyTrimMatcher, new CharMatcher(c));
+    return new Splitter(pairSeparator, keyValueSeparator, keyTrimMatcher, new CharMatcher(c), transformer);
   }
 
   /**
@@ -196,7 +196,11 @@ public final class Splitter {
    * @return a splitter with the desired configuration
    */
   public Splitter trimValues(char[] chars) {
-    return new Splitter(pairSeparator, keyValueSeparator, keyTrimMatcher, new CharsMatcher(chars));
+    return new Splitter(pairSeparator, keyValueSeparator, keyTrimMatcher, new CharsMatcher(chars), transformer);
+  }
+
+  public Splitter withDecoder() {
+    return new Splitter(pairSeparator, keyValueSeparator, keyTrimMatcher, valueTrimMatcher, Splitter::decodeUri);
   }
 
   /**
@@ -207,7 +211,7 @@ public final class Splitter {
    * @return a splitter with the desired configuration
    */
   public Splitter withKeyValueSeparator(String keyValueSeparator) {
-    return new Splitter(pairSeparator, keyValueSeparator, keyTrimMatcher, valueTrimMatcher);
+    return new Splitter(pairSeparator, keyValueSeparator, keyTrimMatcher, valueTrimMatcher, transformer);
   }
 
   private boolean isKeyValueSeparator(String source, int position) {
