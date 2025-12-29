@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.util.event;
+package org.nightcode.common.lang;
 
 /**
  * An event interface.

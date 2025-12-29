@@ -13,7 +13,7 @@
  */
 
 /**
- * Interfaces for events.
+ * Classes and interfaces for lang.
  */
 
-package org.nightcode.common.util.event;
+package org.nightcode.common.lang;
