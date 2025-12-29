@@ -13,7 +13,7 @@
  */
 
 /**
- * IO classes.
+ * This package contains classes and interfaces for util.
  */
 
-package org.nightcode.common.io;
+package org.nightcode.common.util;

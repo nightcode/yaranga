@@ -12,8 +12,25 @@
  * limitations under the License.
  */
 
-/**
- * IO classes.
- */
+package org.nightcode.common.util;
 
-package org.nightcode.common.io;
+public interface Clock {
+
+  Clock SYSTEM = new Clock() {
+    public long currentMillis() {
+      return System.currentTimeMillis();
+    }
+
+    public long nanoTime() {
+      return System.nanoTime();
+    }
+  };
+
+  static Clock sys() {
+    return SYSTEM;
+  }
+
+  long currentMillis();
+
+  long nanoTime();
+}

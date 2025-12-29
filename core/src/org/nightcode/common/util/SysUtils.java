@@ -12,8 +12,26 @@
  * limitations under the License.
  */
 
-/**
- * IO classes.
- */
+package org.nightcode.common.util;
 
-package org.nightcode.common.io;
+/**
+ * Properties helper class.
+ */
+public enum SysUtils {
+  ;
+
+  public static void setPropertyIfAbsent(String name, String value) {
+    String currentValue = readPropertyValue(name);
+    if (currentValue == null || currentValue.isEmpty()) {
+      System.setProperty(name, value);
+    }
+  }
+
+  private static String readPropertyValue(String key) {
+    String value = System.getProperty(key);
+    if (value == null) {
+      value = System.getenv(key);
+    }
+    return value;
+  }
+}
