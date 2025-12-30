@@ -12,8 +12,11 @@
  * limitations under the License.
  */
 
-/**
- * This package contains classes and interfaces for monitoring.
- */
-
 package org.nightcode.common.util.monitoring;
+
+public record Quantile(double quantile, double error) {
+
+  @Override public String toString() {
+    return String.format("Q{q=%.3f, eps=%.3f}", quantile, error);
+  }
+}
