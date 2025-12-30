@@ -26,6 +26,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.jetbrains.annotations.NotNull;
+import org.nightcode.common.util.Clock;
 
 /**
  * OAuth helper class.
@@ -72,10 +73,9 @@ public final class OAuthUtils {
       if (this == obj) {
         return true;
       }
-      if (!(obj instanceof RequestParameter)) {
+      if (!(obj instanceof RequestParameter other)) {
         return false;
       }
-      RequestParameter other = (RequestParameter) obj;
       return Objects.equals(encodedName, other.encodedName)
           && Objects.equals(encodedValue, other.encodedValue);
     }
@@ -91,7 +91,7 @@ public final class OAuthUtils {
    * @return nonce value
    */
   public static String getNonce() {
-    return Long.toString(System.nanoTime());
+    return Long.toString(Clock.sys().nanoTime());
   }
 
   /**
@@ -121,8 +121,8 @@ public final class OAuthUtils {
    * @return signature base string
    * @throws AuthException if some of parameters has unacceptable value
    */
-  public static String getSignatureBaseString(String requestMethod, String requestUrl,
-      Map<String, String> protocolParameters) throws AuthException {
+  public static String getSignatureBaseString(String requestMethod, String requestUrl, Map<String, String> protocolParameters)
+      throws AuthException {
     StringBuilder sb = new StringBuilder();
     sb.append(requestMethod.toUpperCase()).append("&")
         .append(AuthUtils.percentEncode(normalizeUrl(requestUrl))).append("&")
@@ -139,7 +139,7 @@ public final class OAuthUtils {
    * @return timestamp value
    */
   public static String getTimestamp() {
-    return Long.toString(System.currentTimeMillis() / 1000);
+    return Long.toString(Clock.sys().currentMillis() / 1000);
   }
 
   /**
@@ -237,7 +237,7 @@ public final class OAuthUtils {
       }
     }
     String path = uri.getRawPath();
-    if (path == null || path.length() == 0) {
+    if (path == null || path.isEmpty()) {
       path = "/";
     }
 

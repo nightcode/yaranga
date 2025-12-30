@@ -14,9 +14,9 @@
 
 package org.nightcode.common.net.http;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Auth helper class.
@@ -30,17 +30,12 @@ public final class AuthUtils {
    *
    * @param source source string for encoding
    * @return encoded string
-   * @throws AuthException if the named encoding is not supported
    */
-  public static String percentEncode(String source) throws AuthException {
-    try {
-      return URLEncoder.encode(source, "UTF-8")
-          .replace("+", "%20")
-          .replace("*", "%2A")
-          .replace("%7E", "~");
-    } catch (UnsupportedEncodingException ex) {
-      throw new AuthException("cannot encode value '" + source + "'", ex);
-    }
+  public static String percentEncode(String source) {
+    return URLEncoder.encode(source, StandardCharsets.UTF_8)
+        .replace("+", "%20")
+        .replace("*", "%2A")
+        .replace("%7E", "~");
   }
 
   /**
@@ -48,15 +43,9 @@ public final class AuthUtils {
    *
    * @param source source string for decoding
    * @return decoded string
-   * @throws AuthException if character encoding needs to be consulted, but
-   *                        named character encoding is not supported
    */
-  public static String percentDecode(String source) throws AuthException {
-    try {
-      return URLDecoder.decode(source, "UTF-8");
-    } catch (java.io.UnsupportedEncodingException ex) {
-      throw new AuthException("cannot decode value '" + source + "'", ex);
-    }
+  public static String percentDecode(String source) {
+    return URLDecoder.decode(source, StandardCharsets.UTF_8);
   }
 
   // Suppress default constructor for noninstantiability.

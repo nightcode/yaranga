@@ -14,8 +14,8 @@
 
 package org.nightcode.common.net;
 
-import org.nightcode.common.util.event.Event;
-import org.nightcode.common.util.event.EventListener;
+import org.nightcode.common.lang.Event;
+import org.nightcode.common.lang.EventListener;
 
 import java.io.Closeable;
 import java.io.IOException;

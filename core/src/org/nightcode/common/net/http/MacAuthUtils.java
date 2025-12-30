@@ -96,7 +96,7 @@ public final class MacAuthUtils {
       throw new AuthException(ex);
     }
     String path = uri.getRawPath();
-    if (path == null || path.length() == 0) {
+    if (path == null || path.isEmpty()) {
       path = "/";
     }
     String host;

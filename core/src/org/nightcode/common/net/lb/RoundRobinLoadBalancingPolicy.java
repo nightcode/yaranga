@@ -15,7 +15,7 @@
 package org.nightcode.common.net.lb;
 
 import org.nightcode.common.net.Connection;
-import org.nightcode.common.util.event.Event;
+import org.nightcode.common.lang.Event;
 
 import java.util.Collection;
 import java.util.Iterator;
