@@ -22,33 +22,19 @@ public enum SystemPropertiesStorage implements PropertiesStorage {
 
   INSTANCE;
 
-  @Override public Property readProperty(String key, Type type, NotFoundPolicy notFoundPolicy)
-      throws PropertyException {
+  @Override public Property readProperty(String key, Type type, NotFoundPolicy notFoundPolicy) throws PropertyException {
     String value = readPropertyValue(key);
     if (value == null) {
       return notFoundPolicy.apply(key, type);
     }
-    Property property;
-    switch (type) {
-      case BOOLEAN:
-        property = Property.createBoolean(Boolean.parseBoolean(value));
-        break;
-      case BYTE:
-        property = Property.createByte(Byte.parseByte(value));
-        break;
-      case INT:
-        property = Property.createInt(Integer.parseInt(value));
-        break;
-      case LONG:
-        property = Property.createLong(Long.parseLong(value));
-        break;
-      case STRING:
-        property = Property.createString(readPropertyValue(key));
-        break;
-      default:
-        throw new PropertyException("unsupported property type: " + type);
-    }
-    return property;
+    return switch (type) {
+      case BOOLEAN -> Property.createBoolean(Boolean.parseBoolean(value));
+      case BYTE -> Property.createByte(Byte.parseByte(value));
+      case INT -> Property.createInt(Integer.parseInt(value));
+      case LONG -> Property.createLong(Long.parseLong(value));
+      case STRING -> Property.createString(value);
+      default -> throw new PropertyException("unsupported property type: " + type);
+    };
   }
 
   private String readPropertyValue(String key) {

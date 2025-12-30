@@ -29,8 +29,7 @@ public class CompositePropertiesStorage implements PropertiesStorage {
     this.storages = Collections.unmodifiableList(Arrays.asList(storages));
   }
 
-  @Override public Property readProperty(String key, Type type, NotFoundPolicy notFoundPolicy)
-      throws PropertyException {
+  @Override public Property readProperty(String key, Type type, NotFoundPolicy notFoundPolicy) throws PropertyException {
     Property property;
     for (PropertiesStorage storage : storages) {
       try {

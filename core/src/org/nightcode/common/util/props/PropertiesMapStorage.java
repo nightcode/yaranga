@@ -28,34 +28,17 @@ public class PropertiesMapStorage implements PropertiesStorage {
     this.properties = properties;
   }
 
-  @Override public Property readProperty(String key, Type type, NotFoundPolicy notFoundPolicy)
-      throws PropertyException {
+  @Override public Property readProperty(String key, Type type, NotFoundPolicy notFoundPolicy) throws PropertyException {
     if (!properties.containsKey(key)) {
       return notFoundPolicy.apply(key, type);
     }
-    Property property;
-    switch (type) {
-      case BOOLEAN:
-        property = Property.createBoolean((boolean) properties.get(key));
-        break;
-      case BYTE:
-        property = Property.createByte((byte) properties.get(key));
-        break;
-      case INT:
-        property = Property.createInt((int) properties.get(key));
-        break;
-      case LONG:
-        property = Property.createLong((long) properties.get(key));
-        break;
-      case STRING:
-        property = Property.createString((String) properties.get(key));
-        break;
-      case COLLECTION:
-        property = Property.createCollection((Collection<?>) properties.get(key));
-        break;
-      default:
-        throw new PropertyException("unsupported property type: " + type);
-    }
-    return property;
+    return switch (type) {
+      case BOOLEAN -> Property.createBoolean((boolean) properties.get(key));
+      case BYTE -> Property.createByte((byte) properties.get(key));
+      case INT -> Property.createInt((int) properties.get(key));
+      case LONG -> Property.createLong((long) properties.get(key));
+      case STRING -> Property.createString((String) properties.get(key));
+      case COLLECTION -> Property.createCollection((Collection<?>) properties.get(key));
+    };
   }
 }

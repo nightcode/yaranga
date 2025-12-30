@@ -44,7 +44,7 @@ public final class Properties {
     // do nothing
   }
 
-  public boolean getBooleanValue(String key) {
+  public boolean getBoolean(String key) {
     Property property = properties.computeIfAbsent(key, k -> readProperty(k, Type.BOOLEAN, PropertiesStorage.THROW));
     if (!property.hasBooleanValue()) {
       throw new IllegalStateException("unable to get <" + key + "> of type boolean");
@@ -52,7 +52,7 @@ public final class Properties {
     return property.getBooleanValue();
   }
 
-  public boolean getBooleanValue(String key, boolean def) {
+  public boolean getBoolean(String key, boolean def) {
     Property property = properties.computeIfAbsent(key, k -> {
       Property p = readProperty(k, Type.BOOLEAN, PropertiesStorage.NULL_POLICY);
       if (p == null) {
@@ -66,7 +66,7 @@ public final class Properties {
     return property.getBooleanValue();
   }
 
-  public byte getByteValue(String key) {
+  public byte getByte(String key) {
     Property property = properties.computeIfAbsent(key, k -> readProperty(k, Type.BYTE, PropertiesStorage.THROW));
     if (!property.hasByteValue()) {
       throw new IllegalStateException("unable to get <" + key + "> of type byte");
@@ -74,7 +74,7 @@ public final class Properties {
     return property.getByteValue();
   }
 
-  public byte getByteValue(String key, byte def) {
+  public byte getByte(String key, byte def) {
     Property property = properties.computeIfAbsent(key, k -> {
       Property p = readProperty(k, Type.BYTE, PropertiesStorage.NULL_POLICY);
       if (p == null) {
@@ -88,7 +88,7 @@ public final class Properties {
     return property.getByteValue();
   }
 
-  public <T> Collection<T> getCollectionValue(String key, Class<T> clazz) {
+  public <T> Collection<T> getCollection(String key, Class<T> clazz) {
     Property property = properties.computeIfAbsent(key, k -> readProperty(k, Type.COLLECTION, PropertiesStorage.THROW));
     if (!property.hasCollectionValue()) {
       throw new IllegalStateException("unable to get <" + key + "> of type Collection");
@@ -96,7 +96,7 @@ public final class Properties {
     return (Collection<T>) property.getCollectionValue();
   }
 
-  public <T> Collection<T> getCollectionValue(String key, Class<T> clazz, Collection<T> def) {
+  public <T> Collection<T> getCollection(String key, Class<T> clazz, Collection<T> def) {
     Property property = properties.computeIfAbsent(key, k -> {
       Property p = readProperty(k, Type.COLLECTION, PropertiesStorage.NULL_POLICY);
       if (p == null) {
@@ -110,7 +110,7 @@ public final class Properties {
     return (Collection<T>) property.getCollectionValue();
   }
 
-  public int getIntValue(String key) {
+  public int getInt(String key) {
     Property property = properties.computeIfAbsent(key, k -> readProperty(k, Type.INT, PropertiesStorage.THROW));
     if (!property.hasIntValue()) {
       throw new IllegalStateException("unable to get <" + key + "> of type int");
@@ -118,7 +118,7 @@ public final class Properties {
     return property.getIntValue();
   }
 
-  public int getIntValue(String key, int def) {
+  public int getInt(String key, int def) {
     Property property = properties.computeIfAbsent(key, k -> {
       Property p = readProperty(k, Type.INT, PropertiesStorage.NULL_POLICY);
       if (p == null) {
@@ -132,7 +132,7 @@ public final class Properties {
     return property.getIntValue();
   }
 
-  public long getLongValue(String key) {
+  public long getLong(String key) {
     Property property = properties.computeIfAbsent(key, k -> readProperty(k, Type.LONG, PropertiesStorage.THROW));
     if (!property.hasLongValue()) {
       throw new IllegalStateException("unable to get <" + key + "> of type long");
@@ -140,7 +140,7 @@ public final class Properties {
     return property.getLongValue();
   }
 
-  public long getLongValue(String key, long def) {
+  public long getLong(String key, long def) {
     Property property = properties.computeIfAbsent(key, k -> {
       Property p = readProperty(k, Type.LONG, PropertiesStorage.NULL_POLICY);
       if (p == null) {
@@ -154,7 +154,7 @@ public final class Properties {
     return property.getLongValue();
   }
 
-  public String getStringValue(String key) {
+  public String getString(String key) {
     Property property = properties.computeIfAbsent(key, k -> readProperty(k, Type.STRING, PropertiesStorage.THROW));
     if (!property.hasStringValue()) {
       throw new IllegalStateException("unable to get <" + key + "> of type String");
@@ -162,7 +162,7 @@ public final class Properties {
     return property.getStringValue();
   }
 
-  public String getStringValue(String key, String def) {
+  public String getString(String key, String def) {
     Property property = properties.computeIfAbsent(key, k -> {
       Property p = readProperty(k, Type.STRING, PropertiesStorage.NULL_POLICY);
       if (p == null) {

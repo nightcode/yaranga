@@ -18,8 +18,7 @@ public enum PropertiesEmptyStorage implements PropertiesStorage {
 
   INSTANCE;
 
-  @Override public Property readProperty(String key, Type type, NotFoundPolicy notFoundPolicy)
-      throws PropertyException {
+  @Override public Property readProperty(String key, Type type, NotFoundPolicy notFoundPolicy) throws PropertyException {
     return notFoundPolicy.apply(key, type);
   }
 }
