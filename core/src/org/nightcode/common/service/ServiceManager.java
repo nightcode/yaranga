@@ -63,9 +63,9 @@ public final class ServiceManager {
 
   public void shutdownAll() {
     Log.info().log(getClass(), "[ServiceManager]: external termination in progress..");
-    Map<String, Future<Service.State>> futures = new HashMap<>();
+    Map<String, Future<Service>> futures = new HashMap<>();
     for (final Service service : services.values()) {
-        futures.put(service.serviceName(), service.stop());
+        futures.put(service.serviceName(), service.stopAsync());
     }
     futures.forEach((key, value) -> {
       try {
@@ -80,9 +80,9 @@ public final class ServiceManager {
 
   public void shutdownAll(long timeout, TimeUnit unit) {
     Log.info().log(getClass(), "[ServiceManager]: external termination in progress..");
-    Map<String, Future<Service.State>> futures = new HashMap<>();
+    Map<String, Future<Service>> futures = new HashMap<>();
     for (final Service service : services.values()) {
-        futures.put(service.serviceName(), service.stop());
+        futures.put(service.serviceName(), service.stopAsync());
     }
     futures.forEach((key, value) -> {
       try {

@@ -16,9 +16,12 @@ package org.nightcode.common.service;
 
 import java.util.concurrent.CompletableFuture;
 
+import org.nightcode.common.lang.Event;
+import org.nightcode.common.lang.EventListener;
+
 /**
  * An object that provides methods that can produce a Future for tracking
- * progress of {@link #start starting } or {@link #stop stopping}.
+ * progress of {@link #startAsync starting } or {@link #stopAsync stopping}.
  */
 public interface Service {
 
@@ -27,27 +30,70 @@ public interface Service {
    */
   enum State {
     NEW,
+    STARTING,
     RUNNING,
-    TERMINATED
+    STOPPING,
+    TERMINATED,
+    FAILED;
+  }
+
+  interface StateListener extends EventListener<Service, State> {
+    void onEvent(Event<Service, State> event);
   }
 
   /**
-   * Returns the service name.
+   * Registers the state listener.
    *
-   * @return the service name
+   * @param listener the state listener
+   */
+  void addEventListener(StateListener listener);
+
+  /**
+   * Returns reason of the service failure.
+   *
+   * @return reason of the service failure
+   */
+  Throwable failureCause();
+
+  /**
+   * Returns true if the service is running, else returns false.
+   *
+   * @return true if the service is running
+   */
+  boolean isRunning();
+
+  /**
+   * Deregisters the state listener.
+   *
+   * @param listener the state listener
+   */
+  void removeEventListener(StateListener listener);
+
+  /**
+   * Returns service name.
+   *
+   * @return service name
    */
   String serviceName();
 
   /**
    * Starts the service.
+   *
    * @return a Future representing the result of service's startup.
    */
-  CompletableFuture<State> start();
+  CompletableFuture<Service> startAsync();
+
+  /**
+   * Returns the service state.
+   *
+   * @return the service state
+   */
+  State state();
 
   /**
    * Stops the service.
    *
    * @return a Future representing the result of service's shutdown.
    */
-  CompletableFuture<State> stop();
+  CompletableFuture<Service> stopAsync();
 }

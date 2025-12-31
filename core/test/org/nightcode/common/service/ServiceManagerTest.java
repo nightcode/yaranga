@@ -17,7 +17,6 @@ package org.nightcode.common.service;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.easymock.EasyMock;
 import org.junit.Assert;
@@ -77,18 +76,18 @@ public class ServiceManagerTest {
   }
 
   @Test public void shutdownAll() throws ExecutionException, InterruptedException {
-    CompletableFuture<Service.State> stateFuture = new CompletableFuture<>();
-    Service serviceMock = new AbstractService("TestService") {
+    CompletableFuture<Service> stateFuture = new CompletableFuture<>();
+    Service serviceMock = new AbstractService() {
       @Override protected void doStart() {
-        doStart();
+        notifyStarted();
       }
 
       @Override protected void doStop() {
-        stopped();
+        notifyStopped();
       }
 
-      @Override public CompletableFuture<State> stop() {
-        CompletableFuture<Service.State> cf = super.stop();
+      @Override public CompletableFuture<Service> stopAsync() {
+        CompletableFuture<Service> cf = super.stopAsync();
         try {
           stateFuture.complete(cf.get());
         } catch (Exception ex) {
@@ -102,22 +101,22 @@ public class ServiceManagerTest {
     serviceManager.addShutdownHook(serviceMock);
     serviceManager.shutdownAll();
 
-    Assert.assertEquals(stateFuture.get(), Service.State.TERMINATED);
+    Assert.assertEquals(Service.State.TERMINATED, stateFuture.get().state());
   }
 
-  @Test public void shutdownAllWithTimeout() throws ExecutionException, TimeoutException, InterruptedException {
-    CompletableFuture<Service.State> stateFuture = new CompletableFuture<>();
-    Service serviceMock = new AbstractService("TestService") {
+  @Test public void shutdownAllWithTimeout() throws ExecutionException, InterruptedException {
+    CompletableFuture<Service> stateFuture = new CompletableFuture<>();
+    Service serviceMock = new AbstractService() {
       @Override protected void doStart() {
-        doStart();
+        notifyStarted();
       }
 
       @Override protected void doStop() {
-        stopped();
+        notifyStopped();
       }
 
-      @Override public CompletableFuture<State> stop() {
-        CompletableFuture<Service.State> cf = super.stop();
+      @Override public CompletableFuture<Service> stopAsync() {
+        CompletableFuture<Service> cf = super.stopAsync();
         try {
           stateFuture.complete(cf.get());
         } catch (Exception ex) {
@@ -131,6 +130,6 @@ public class ServiceManagerTest {
     serviceManager.addShutdownHook(serviceMock);
     serviceManager.shutdownAll(10 * 1000, TimeUnit.MILLISECONDS);
 
-    Assert.assertEquals(stateFuture.get(), Service.State.TERMINATED);
+    Assert.assertEquals(Service.State.TERMINATED, stateFuture.get().state());
   }
 }

@@ -14,65 +14,104 @@
 
 package org.nightcode.common.service;
 
+import org.nightcode.common.lang.Event;
 import org.nightcode.common.util.logging.Log;
-import org.nightcode.common.util.logging.LogManager;
-import org.nightcode.common.util.logging.Logger;
 
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static org.nightcode.common.service.Service.State.FAILED;
+import static org.nightcode.common.service.Service.State.NEW;
+import static org.nightcode.common.service.Service.State.RUNNING;
+import static org.nightcode.common.service.Service.State.STARTING;
+import static org.nightcode.common.service.Service.State.TERMINATED;
 
 /**
  * Provides default implementations of Service execution methods.
  */
 public abstract class AbstractService implements Service {
 
-  private static final int NEW        = 0x00000000;
-  private static final int STARTING   = 0x00000001;
-  private static final int RUNNING    = 0x00000002;
-  private static final int SHUTDOWN   = 0x00000004;
-  private static final int STOPPING   = 0x00000008;
-  private static final int TERMINATED = 0x00000010;
-  private static final int FAILED     = 0x00000020;
+  static class ServiceEvent implements Event<Service, State> {
+    private final Service service;
+    private final State   type;
 
-  static boolean isRunning(int s) {
-    return s == RUNNING;
+    ServiceEvent(Service service, State type) {
+      this.service = service;
+      this.type    = type;
+    }
+
+    @Override public Service subject() {
+      return service;
+    }
+
+    @Override public State type() {
+      return type;
+    }
   }
 
-  protected final Logger logger;
-  private final String serviceName;
+  final AtomicReference<State> state = new AtomicReference<>(NEW);
 
-  final AtomicInteger state = new AtomicInteger(NEW);
+  private volatile boolean shutdownWhenStartupFinishes = false;
 
   private final ReentrantLock lock = new ReentrantLock();
 
-  private final CompletableFuture<State> startFuture = new CompletableFuture<>();
-  private final CompletableFuture<State> stopFuture = new CompletableFuture<>();
+  private final CompletableFuture<Service> startFuture = new CompletableFuture<>();
+  private final CompletableFuture<Service> stopFuture = new CompletableFuture<>();
 
-  private volatile boolean stopAfterStart = false;
+  private final Set<StateListener> listeners = new CopyOnWriteArraySet<>();
 
-  protected AbstractService(String serviceName) {
-    this.serviceName = serviceName;
-    this.logger = LogManager.getLogger(this);
+  protected AbstractService() {
+    addEventListener(event -> {
+      if (event.type() == FAILED) {
+        Log.warn().log(getClass(), () -> "state changed to " + event.type() + " " + event.subject().failureCause());
+      } else {
+        Log.info().log(getClass(), "state changed to {}", event.type());
+      }
+    });
   }
 
-  @Override public String serviceName() {
-    return serviceName;
+  @Override public void addEventListener(StateListener listener) {
+    listeners.add(listener);
   }
 
-  @Override public CompletableFuture<State> start() {
-    int s = state.get();
-    if (s < RUNNING) {
+  @Override public Throwable failureCause() {
+    if (stopFuture.isCompletedExceptionally()) {
+      try {
+        stopFuture.get();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      } catch (ExecutionException e) {
+        return e.getCause();
+      }
+    }
+    throw new IllegalStateException("service has not failed, state: " + state.get());
+  }
+
+  @Override public boolean isRunning() {
+    return RUNNING.equals(state.get());
+  }
+
+  @Override public void removeEventListener(StateListener listener) {
+    listeners.remove(listener);
+  }
+
+  @Override public CompletableFuture<Service> startAsync() {
+    State s = state.get();
+    if (s.equals(NEW)) {
       final ReentrantLock mainLock = this.lock;
       mainLock.lock();
       try {
         if (state.compareAndSet(s, STARTING)) {
-          Log.debug().log(getClass(), "[{}]: starting service..", serviceName);
+          fireStateEvent(State.STARTING);
           doStart();
         }
       } catch (Throwable th) {
-        serviceFailed(th);
+        notifyFailed(th);
       } finally {
         mainLock.unlock();
       }
@@ -80,23 +119,30 @@ public abstract class AbstractService implements Service {
     return startFuture;
   }
 
-  @Override public CompletableFuture<State> stop() {
-    int s = state.get();
-    if (s < STOPPING) {
+  @Override public State state() {
+    return state.get();
+  }
+
+  @Override public CompletableFuture<Service> stopAsync() {
+    State s = state.get();
+    if (s.compareTo(State.RUNNING) <= 0) {
       final ReentrantLock mainLock = this.lock;
       mainLock.lock();
       try {
-        s = state.get();
-        if (s < STARTING) {
-          stopped();
-        } else if (s < RUNNING) {
-          stopAfterStart = true;
-        } else if (s < STOPPING && state.compareAndSet(s, STOPPING)) {
-          Log.debug().log(getClass(), "[{}]: stopping service..", serviceName);
-          doStop();
+        State previous = state.get();
+        switch (previous) {
+          case NEW -> notifyStopped();
+          case STARTING -> shutdownWhenStartupFinishes = true;
+          case RUNNING -> {
+            if (state.compareAndSet(previous, State.STOPPING)) {
+              fireStateEvent(State.STOPPING);
+              doStop();
+            }
+          }
+          default -> throw new AssertionError("should not happen, state:" + previous);
         }
       } catch (Throwable th) {
-        serviceFailed(th);
+        notifyFailed(th);
       } finally {
         mainLock.unlock();
       }
@@ -105,73 +151,63 @@ public abstract class AbstractService implements Service {
   }
 
   @Override public String toString() {
-    String st = stateAsString();
-    return serviceName + '[' + st + ']';
+    return serviceName() + '[' + state() + ']';
   }
 
   /**
    * This method should be used to initiate service startup.
-   * It will cause the service to call {@link #started()}.
+   * It will cause the service to call {@link #notifyStarted()}.
    * If startup fails, the invocation should cause
-   * the service to call {@link #serviceFailed(Throwable)}.
+   * the service to call {@link #notifyFailed(Throwable)}.
    */
   protected abstract void doStart();
 
   /**
    * This method should be used to initiate service shutdown.
-   * It will cause the service to call {@link #stopped()}.
+   * It will cause the service to call {@link #notifyStopped()}.
    * If shutdown fails, the invocation should cause
-   * the service to call {@link #serviceFailed(Throwable)}.
+   * the service to call {@link #notifyFailed(Throwable)}.
    */
   protected abstract void doStop();
 
-  protected final boolean isClosing() {
-    return state.get() > RUNNING;
-  }
-
-  protected final boolean isRunning() {
-    return state.get() == RUNNING;
-  }
-
-  protected final boolean isStopping() {
-    return state.get() == STOPPING;
-  }
-
-  protected final void serviceFailed(Throwable cause) {
+  protected final void notifyFailed(Throwable cause) {
     Objects.requireNonNull(cause, "cause");
     final ReentrantLock mainLock = this.lock;
     mainLock.lock();
     try {
-      int s = state.get();
+      State s = state.get();
       state.set(FAILED);
-      if (s < RUNNING) {
-        Log.warn().log(getClass(), cause, "[{}]: exception occurred while starting service:", serviceName);
+      if (s.compareTo(State.RUNNING) <= 0) {
         startFuture.completeExceptionally(cause);
-        stopFuture.completeExceptionally(new Exception("service failed to start", cause));
-      } else if (s < TERMINATED) {
-        Log.warn().log(getClass(), cause, "[{}]: exception occurred while stopping service:", serviceName);
         stopFuture.completeExceptionally(cause);
+        fireStateEvent(State.FAILED);
+      } else if (s.compareTo(State.TERMINATED) <= 0) {
+        stopFuture.completeExceptionally(cause);
+        fireStateEvent(State.FAILED);
       }
     } finally {
       mainLock.unlock();
     }
   }
 
-  protected final void started() {
-    int s = state.get();
-    if (s != STARTING) {
-      throw new IllegalStateException("cannot start service when it is " + s);
-    }
-
+  protected final void notifyStarted() {
     final ReentrantLock mainLock = this.lock;
     mainLock.lock();
     try {
+      State s = state.get();
+      if (s != STARTING) {
+        IllegalStateException failure = new IllegalStateException("cannot notifyStarted() when the service is " + s);
+        notifyFailed(failure);
+        throw failure;
+      }
+
       if (state.compareAndSet(s, RUNNING)) {
-        Log.info().log(getClass(), "[{}]: service has been started", serviceName);
-        if (stopAfterStart) {
-          stop();
+        if (shutdownWhenStartupFinishes) {
+          fireStateEvent(RUNNING);
+          stopAsync();
         } else {
-          startFuture.complete(State.RUNNING);
+          startFuture.complete(this);
+          fireStateEvent(RUNNING);
         }
       }
     } finally {
@@ -179,49 +215,30 @@ public abstract class AbstractService implements Service {
     }
   }
 
-  protected final int state() {
-    return state.get();
-  }
-
-  protected final String stateAsString() {
-    int s = state.get();
-    return s < STARTING ? "NEW" : s < RUNNING
-        ? "STARTING" : s < SHUTDOWN
-        ? "RUNNING" : s < STOPPING
-        ? "SHUTDOWN" : s < TERMINATED
-        ? "STOPPING" : s < FAILED
-        ? "TERMINATED" : "FAILED";
-  }
-
-  protected final void stopped() {
+  protected final void notifyStopped() {
     final ReentrantLock mainLock = this.lock;
     mainLock.lock();
     try {
       state.set(TERMINATED);
-      Log.info().log(getClass(), "[{}]: service has been stopped", serviceName);
-      startFuture.complete(State.TERMINATED);
-      stopFuture.complete(State.TERMINATED);
+      startFuture.complete(this);
+      stopFuture.complete(this);
+      fireStateEvent(State.TERMINATED);
     } finally {
       mainLock.unlock();
     }
   }
 
-  void shutdown() {
-    final ReentrantLock mainLock = this.lock;
-    mainLock.lock();
-    try {
-      transitState(SHUTDOWN);
-    } finally {
-      mainLock.unlock();
+  public String serviceName() {
+    return getClass().getSimpleName();
+  }
+
+  private void fireEvent(ServiceEvent event) {
+    for (StateListener listener : listeners) {
+      listener.onEvent(event);
     }
   }
 
-  private void transitState(int update) {
-    for (;;) {
-      int s = state.get();
-      if (s >= update || state.compareAndSet(s, update)) {
-        break;
-      }
-    }
+  private void fireStateEvent(State state) {
+    fireEvent(new ServiceEvent(this, state));
   }
 }

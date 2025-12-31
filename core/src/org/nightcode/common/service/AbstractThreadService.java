@@ -30,14 +30,12 @@ public abstract class AbstractThreadService extends AbstractService implements S
 
   private final Thread thread;
 
-  protected AbstractThreadService(final String serviceName) {
-    super(serviceName);
-
+  protected AbstractThreadService() {
     thread = new Thread(() -> {
       boolean interrupted = false;
       try {
         onStart();
-        started();
+        notifyStarted();
 
         if (isRunning()) {
           Exception lastFailedCause = null;
@@ -81,17 +79,16 @@ public abstract class AbstractThreadService extends AbstractService implements S
               }
             }
           } catch (Throwable th) {
-            th.printStackTrace();
             Log.fatal().log(getClass(), th, "[{}]: Service would be stopped. Unexpected error.", serviceName());
           }
         }
 
-        if (isStopping() || interrupted) {
+        if (state() == State.STOPPING || interrupted) {
           onStop();
         }
-        stopped();
+        notifyStopped();
       } catch (Throwable th) {
-        serviceFailed(th);
+        notifyFailed(th);
       } finally {
         if (interrupted) {
           Thread.currentThread().interrupt();
@@ -104,13 +101,13 @@ public abstract class AbstractThreadService extends AbstractService implements S
     thread.interrupt();
   }
 
-  @Override public final CompletableFuture<State> start() {
+  @Override public final CompletableFuture<Service> startAsync() {
     startUp();
-    return super.start();
+    return super.startAsync();
   }
 
-  @Override public final CompletableFuture<State> stop() {
-    return super.stop();
+  @Override public final CompletableFuture<Service> stopAsync() {
+    return super.stopAsync();
   }
 
   @Override protected final void doStart() {

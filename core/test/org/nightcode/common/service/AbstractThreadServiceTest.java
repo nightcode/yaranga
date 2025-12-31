@@ -14,8 +14,6 @@
 
 package org.nightcode.common.service;
 
-import org.nightcode.common.service.Service.State;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -24,11 +22,18 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.nightcode.common.service.Service.State;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.nightcode.common.service.Service.State.FAILED;
+import static org.nightcode.common.service.Service.State.NEW;
+import static org.nightcode.common.service.Service.State.RUNNING;
+import static org.nightcode.common.service.Service.State.STARTING;
+import static org.nightcode.common.service.Service.State.TERMINATED;
 
 /**
  * Unit test for {@link AbstractThreadService}.
@@ -36,107 +41,114 @@ import static org.junit.Assert.fail;
 public class AbstractThreadServiceTest {
     
   @Test public void getServiceName() {
-    Service service = new AbstractThreadService("ThreadServiceTest") {
-      @Override protected void service() throws Exception {
+    Service service = new AbstractThreadService() {
+      @Override protected void service() {
         // do nothing
+      }
+
+      @Override public String serviceName() {
+        return "ThreadServiceTest";
       }
     };
     assertEquals("ThreadServiceTest", service.serviceName());
   }
     
   @Test public void toStringPrint() throws ExecutionException, InterruptedException {
-    AbstractThreadService service = new AbstractThreadService("ThreadServiceTest") {
+    AbstractThreadService service = new AbstractThreadService() {
       @Override protected void service() throws Exception {
         Thread.sleep(Integer.MAX_VALUE);
       }
+
+      @Override public String serviceName() {
+        return "ThreadServiceTest";
+      }
     };
-    assertEquals("ThreadServiceTest[" + State.NEW + "]", service.toString());
-    service.start().get();
+    assertEquals("ThreadServiceTest[" + NEW + "]", service.toString());
+    service.startAsync().get();
     assertEquals("ThreadServiceTest[" + State.RUNNING + "]", service.toString());
-    service.stop().get();
-    assertEquals("ThreadServiceTest[" + State.TERMINATED + "]", service.toString());
+    service.stopAsync().get();
+    assertEquals("ThreadServiceTest[" + TERMINATED + "]", service.toString());
   }
   
-  @Test public void startCalled() throws ExecutionException, InterruptedException {
-    AbstractThreadService service = new AbstractThreadService("test") {
+  @Test public void startAsyncCalled() throws ExecutionException, InterruptedException {
+    AbstractThreadService service = new AbstractThreadService() {
       @Override protected void service() throws Exception {
         Thread.sleep(Integer.MAX_VALUE);
       }
     };
     
-    assertEquals(0x00, service.state());
-    service.start().get();
-    assertEquals(0x02, service.state());
+    assertEquals(NEW, service.state());
+    service.startAsync().get();
+    assertEquals(State.RUNNING, service.state());
   }
   
-  @Test public void startCalledException() {
-    AbstractThreadService service = new AbstractThreadService("test") {
-      @Override protected void onStart() throws Exception {
+  @Test public void startAsyncCalledException() {
+    AbstractThreadService service = new AbstractThreadService() {
+      @Override protected void onStart() {
         throw new RuntimeException("This service always throws exception when calling onStart() method.");
       }
 
-      @Override protected void service() throws Exception {
+      @Override protected void service() {
         throw new AssertionError();
       }
     };
     
-    assertEquals(0x00, service.state());
+    assertEquals(NEW, service.state());
     try {
-      service.start().get();
+      service.startAsync().get();
       fail("should throw exception");
     } catch (Throwable th) {
       assertTrue(th.getMessage().contains("This service always throws exception when calling onStart() method."));
-      assertEquals(0x20, service.state());
+      assertEquals(FAILED, service.state());
     }
   }
 
-  @Test public void startCalledExceptionCheckStopFuture() {
-    AbstractThreadService service = new AbstractThreadService("test") {
-      @Override protected void onStart() throws Exception {
+  @Test public void startAsyncCalledExceptionCheckStopFuture() {
+    AbstractThreadService service = new AbstractThreadService() {
+      @Override protected void onStart() {
         throw new RuntimeException("This service always throws exception when calling onStart() method.");
       }
 
-      @Override protected void service() throws Exception {
+      @Override protected void service() {
         throw new AssertionError();
       }
     };
 
-    assertEquals(0x00, service.state());
+    assertEquals(NEW, service.state());
     try {
-      service.start().get();
+      service.startAsync().get();
     } catch (Throwable th) {
       assertTrue(th.getMessage().contains("This service always throws exception when calling onStart() method."));
-      assertEquals(0x20, service.state());
+      assertEquals(FAILED, service.state());
 
       try {
-        service.stop().get();
+        service.stopAsync().get();
         fail("should throw exception");
       } catch (Throwable t) {
-        assertTrue(t.getMessage().contains("service failed to start"));
-        assertEquals(0x20, service.state());
+        assertTrue(th.getMessage().contains("This service always throws exception when calling onStart() method."));
+        assertEquals(FAILED, service.state());
       }
     }
   }
   
   @Test public void stopCalled() throws ExecutionException, InterruptedException {
-    AbstractThreadService service = new AbstractThreadService("test") {
-      @Override protected void service() throws Exception {
+    AbstractThreadService service = new AbstractThreadService() {
+      @Override protected void service() {
         // do nothing
       }
     };
-    assertEquals(0x00, service.state());
-    service.start().get();
-    service.stop().get();
-    assertEquals(0x10, service.state());
+    assertEquals(NEW, service.state());
+    service.startAsync().get();
+    service.stopAsync().get();
+    assertEquals(TERMINATED, service.state());
   }
   
-  @Test public void stopCalledExceptionIllegalState() 
-      throws ExecutionException, InterruptedException {
+  @Test public void stopCalledExceptionIllegalState() throws InterruptedException {
     final CountDownLatch startLatch = new CountDownLatch(1);
     final CountDownLatch stopLatch = new CountDownLatch(1);
 
-    AbstractThreadService service = new AbstractThreadService("test") {
-      @Override protected void onStart() throws Exception {
+    AbstractThreadService service = new AbstractThreadService() {
+      @Override protected void onStart() {
         startLatch.countDown();
         try {
           stopLatch.await();
@@ -145,31 +157,31 @@ public class AbstractThreadServiceTest {
         }
       }
 
-      @Override protected void service() throws Exception {
+      @Override protected void service() {
         // do nothing
       }
     };
 
-    assertEquals(0x00, service.state());
-    Future<State> startState = service.start();
+    assertEquals(NEW, service.state());
+    Future<Service> startState = service.startAsync();
     startLatch.await();
     
-    Future<State> stopState = service.stop();
-    assertEquals(0x01, service.state());    
+    Future<Service> stopState = service.stopAsync();
+    assertEquals(STARTING, service.state());    
     stopLatch.countDown();
 
     try {
-      assertEquals(State.TERMINATED, startState.get());
-      assertEquals(State.TERMINATED, stopState.get());
+      assertEquals(TERMINATED, startState.get().state());
+      assertEquals(TERMINATED, stopState.get().state());
     } catch (Throwable th) {
       fail();
     }
   }
   
-  @Test public void onStartCalled() throws ExecutionException, InterruptedException {
+  @Test public void onStartAsyncCalled() throws ExecutionException, InterruptedException {
     final AtomicInteger counter = new AtomicInteger(0);
-    AbstractThreadService service = new AbstractThreadService("test") {
-      @Override protected void onStart() throws Exception {
+    AbstractThreadService service = new AbstractThreadService() {
+      @Override protected void onStart() {
         counter.incrementAndGet();
       }
 
@@ -178,16 +190,16 @@ public class AbstractThreadServiceTest {
       }
     };
     
-    assertEquals(0x00, service.state());
-    service.start().get();
-    assertEquals(0x02, service.state());
+    assertEquals(NEW, service.state());
+    service.startAsync().get();
+    assertEquals(RUNNING, service.state());
     assertEquals(1, counter.get());
   }
   
   @Test public void onStopCalled() throws ExecutionException, InterruptedException {
     final AtomicInteger counter = new AtomicInteger(0);
-    AbstractThreadService service = new AbstractThreadService("test") {
-      @Override protected void onStop() throws Exception {
+    AbstractThreadService service = new AbstractThreadService() {
+      @Override protected void onStop() {
         counter.incrementAndGet();
       }
 
@@ -196,26 +208,26 @@ public class AbstractThreadServiceTest {
       }
     };
     
-    assertEquals(0x00, service.state());
-    service.start().get();
-    assertEquals(0x02, service.state());
-    service.stop().get();
+    assertEquals(NEW, service.state());
+    service.startAsync().get();
+    assertEquals(RUNNING, service.state());
+    service.stopAsync().get();
     assertEquals(1, counter.get());
   }
   
   @Test public void executionExceptionCheckState() throws Exception {
-    AbstractThreadService service = new AbstractThreadService("test") {
+    AbstractThreadService service = new AbstractThreadService() {
       @Override protected void onStop() throws Exception {
         Thread.sleep(Long.MAX_VALUE);
       }
 
-      @Override protected void service() throws Exception {
+      @Override protected void service() {
         throw new RuntimeException("This service always throws exception when calling service() method.");
       }
     };
     
-    service.start().get();
-    assertEquals(0x02, service.state());
+    service.startAsync().get();
+    assertEquals(RUNNING, service.state());
   }
   
   @Test public void interruptCalled() throws ExecutionException, InterruptedException {
@@ -223,12 +235,12 @@ public class AbstractThreadServiceTest {
     final AtomicInteger onStopCounter = new AtomicInteger(0);
     final AtomicInteger serviceCounter = new AtomicInteger(0);
     
-    AbstractThreadService service = new AbstractThreadService("test") {
-      @Override protected void onStart() throws Exception {
+    AbstractThreadService service = new AbstractThreadService() {
+      @Override protected void onStart() {
         onStartCounter.incrementAndGet();
       }
 
-      @Override protected void onStop() throws Exception {
+      @Override protected void onStop() {
         onStopCounter.incrementAndGet();
       }
 
@@ -238,9 +250,9 @@ public class AbstractThreadServiceTest {
       }
     };
 
-    assertEquals(0x00, service.state());
-    service.start().get();
-    assertEquals(0x02, service.state());
+    assertEquals(NEW, service.state());
+    service.startAsync().get();
+    assertEquals(RUNNING, service.state());
     service.interrupt();
     Thread.sleep(100);
 
@@ -254,12 +266,12 @@ public class AbstractThreadServiceTest {
     final AtomicInteger onStopCounter = new AtomicInteger(0);
     final AtomicInteger serviceCounter = new AtomicInteger(0);
     final AtomicBoolean firstTime = new AtomicBoolean(true);
-    AbstractThreadService service = new AbstractThreadService("test") {
-      @Override protected void onStart() throws Exception {
+    AbstractThreadService service = new AbstractThreadService() {
+      @Override protected void onStart() {
         onStartCounter.incrementAndGet();
       }
 
-      @Override protected void onStop() throws Exception {
+      @Override protected void onStop() {
         onStopCounter.incrementAndGet();
       }
 
@@ -273,8 +285,8 @@ public class AbstractThreadServiceTest {
         }
       }
     };
-    service.start().get();
-    assertEquals(0x02, service.state());
+    service.startAsync().get();
+    assertEquals(RUNNING, service.state());
     Thread.sleep(100);
     assertEquals(2, onStartCounter.get());
     assertEquals(1, onStopCounter.get());
@@ -282,19 +294,19 @@ public class AbstractThreadServiceTest {
   }
   
   @Test public void unexpectedException() throws ExecutionException, InterruptedException {
-    Service service = new AbstractThreadService("test") {
-      @Override protected void onStop() throws Exception {
+    Service service = new AbstractThreadService() {
+      @Override protected void onStop() {
         throw new RuntimeException("This service always throws exception when calling onStop() method.");
       }
 
-      @Override protected void service() throws Exception {
+      @Override protected void service() {
         throw new AssertionError("This service always throws error when calling service() method.");
       }
     };
-    service.start().get();
+    service.startAsync().get();
     Thread.sleep(100);
     try {
-      service.stop().get(1000, TimeUnit.MILLISECONDS);
+      service.stopAsync().get(1000, TimeUnit.MILLISECONDS);
     } catch (TimeoutException ex) {
       fail("TimeoutException has been thrown. This mean that we could not correctly stop service.");
     } catch (ExecutionException ex) {
