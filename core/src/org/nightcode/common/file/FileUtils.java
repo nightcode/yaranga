@@ -12,39 +12,23 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.util.monitoring;
+package org.nightcode.common.file;
 
-import org.nightcode.common.annotations.Beta;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 /**
- * Histogram collector, to track distributions of events.
+ * File utils.
  */
-@Beta
-public interface Histogram extends Collector {
+public enum FileUtils {
+  ;
 
-  /**
-   * An interface for Collector's child.
-   */
-  interface Child extends Collector {
-
-    long count();
-
-    void update(int value);
-
-    void update(long value);
+  public static long findInode(File file) throws IOException {
+    Object attribute = Files.getAttribute(file.toPath(), "unix:ino");
+    if (attribute == null) {
+      throw new IOException("cannot get unix:ino attribute");
+    }
+    return (long) attribute;
   }
-
-  long count();
-
-  /**
-   * Set tag values.
-   *
-   * @param tagValues tag values
-   * @return histogram
-   */
-  Child tags(String... tagValues);
-
-  void update(int value);
-
-  void update(long value);
 }

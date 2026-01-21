@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.util.logging;
+package org.nightcode.common.logging;
 
 import java.io.PrintStream;
 import java.time.LocalDateTime;

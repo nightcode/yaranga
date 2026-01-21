@@ -12,8 +12,11 @@
  * limitations under the License.
  */
 
-/**
- * IO classes.
- */
+package org.nightcode.common.monitoring;
 
-package org.nightcode.common.io;
+public record Quantile(double quantile, double error) {
+
+  @Override public String toString() {
+    return String.format("Q{q=%.3f, eps=%.3f}", quantile, error);
+  }
+}

@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.io;
+package org.nightcode.common.file;
 
 import org.nightcode.common.annotations.Beta;
-import org.nightcode.common.util.logging.Log;
+import org.nightcode.common.logging.Log;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -230,7 +230,7 @@ public class DirectoryWatchService implements AutoCloseable {
             continue;
           }
 
-          @SuppressWarnings("unchecked")
+          // noinspection unchecked
           WatchEvent<Path> pathEvent = (WatchEvent<Path>) watchEvent;
           String relative = (pathInfo.relative.isEmpty() ? "" : pathInfo.relative + "/") + pathEvent.context().toString();
           if (pathEvent.kind() == ENTRY_CREATE) {

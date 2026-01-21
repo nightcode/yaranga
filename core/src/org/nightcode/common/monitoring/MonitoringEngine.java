@@ -12,14 +12,29 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.util.monitoring;
+package org.nightcode.common.monitoring;
 
 import org.nightcode.common.annotations.Beta;
 
+import java.util.function.Supplier;
+
 /**
- * A tag interface for collector classes.
+ * Interface to provide monitoring engine implementations.
  */
 @Beta
-public interface Collector {
+public interface MonitoringEngine {
 
+  boolean deregister(Collector collector);
+
+  <C extends Collector> C register(Supplier<C> supplier);
+
+  <C extends Collector> void registerSilent(Supplier<C> supplier);
+
+  Counter registerCounter(String name, String help, String... tagNames);
+
+  Histogram registerHistogram(String name, String help, String... tagNames);
+
+  Timer registerTimer(String name, String help, String... tagNames);
+
+  char nameSeparator();
 }

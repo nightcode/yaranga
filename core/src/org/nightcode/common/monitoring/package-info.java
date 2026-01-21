@@ -16,4 +16,4 @@
  * This package contains classes and interfaces for monitoring.
  */
 
-package org.nightcode.common.util.monitoring;
+package org.nightcode.common.monitoring;

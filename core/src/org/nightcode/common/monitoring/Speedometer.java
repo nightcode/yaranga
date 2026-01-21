@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.util.monitoring;
+package org.nightcode.common.monitoring;
 
 import org.nightcode.common.annotations.Beta;
 import org.nightcode.common.base.Objects;

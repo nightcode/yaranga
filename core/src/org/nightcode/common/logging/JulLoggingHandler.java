@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.util.logging;
+package org.nightcode.common.logging;
 
 import java.util.function.Supplier;
 import java.util.logging.Level;

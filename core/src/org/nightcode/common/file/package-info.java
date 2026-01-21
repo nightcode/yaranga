@@ -12,23 +12,8 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.io;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-
 /**
- * File utils.
+ * IO classes.
  */
-public enum FileUtils {
-  ;
 
-  public static long findInode(File file) throws IOException {
-    Object attribute = Files.getAttribute(file.toPath(), "unix:ino");
-    if (attribute == null) {
-      throw new IOException("cannot get unix:ino attribute");
-    }
-    return (long) attribute;
-  }
-}
+package org.nightcode.common.file;

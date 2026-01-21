@@ -16,4 +16,4 @@
  * This package contains classes and interfaces for logging.
  */
 
-package org.nightcode.common.util.logging;
+package org.nightcode.common.logging;
