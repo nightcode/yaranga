@@ -13,7 +13,7 @@
  */
 
 /**
- * Classes and interfaces for Internet Messages.
+ * Classes and interfaces for id.
  */
 
-package org.nightcode.common.net.im;
+package org.nightcode.common.id;

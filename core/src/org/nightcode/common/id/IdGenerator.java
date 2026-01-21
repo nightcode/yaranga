@@ -12,26 +12,17 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.net.im;
-
-import org.nightcode.common.annotations.Beta;
-
-import java.util.Objects;
+package org.nightcode.common.id;
 
 /**
- * Internet Message helper class.
+ * Base interface for ID generation.
  */
-@Beta
-public final class InternetMessageUtils {
+public interface IdGenerator {
 
-  private static final ContentTypeParser CONTENT_TYPE_PARSER = new ContentTypeParser();
-
-  public static ContentType parseContentType(String src) {
-    Objects.requireNonNull(src, "content-type");
-    return CONTENT_TYPE_PARSER.parse(src);
-  }
-
-  private InternetMessageUtils() {
-    // do nothing
-  }
+  /**
+   * Returns unique id.
+   *
+   * @return the next id
+   */
+  long nextId();
 }
