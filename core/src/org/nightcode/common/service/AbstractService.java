@@ -15,7 +15,7 @@
 package org.nightcode.common.service;
 
 import org.nightcode.common.lang.Event;
-import org.nightcode.common.util.logging.Log;
+import org.nightcode.common.logging.Log;
 
 import java.util.Objects;
 import java.util.Set;

@@ -130,7 +130,6 @@ public class AbstractServiceTest {
       try {
         service.stopAsync().get();
       } catch (Throwable t) {
-        System.out.println(t.getMessage());
         assertTrue(th.getMessage().contains("This service always throws exception when calling doStart() method."));
         assertEquals(FAILED, service.state.get());
         return;
