@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.util.props;
+package org.nightcode.common.props;
 
 import java.util.Collection;
 import java.util.Map;

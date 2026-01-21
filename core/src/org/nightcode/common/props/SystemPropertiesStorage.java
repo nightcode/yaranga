@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.util.props;
+package org.nightcode.common.props;
 
 /**
  * PropertiesStorage implementation which tries to read value from the system property

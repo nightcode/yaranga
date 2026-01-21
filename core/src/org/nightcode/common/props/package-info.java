@@ -16,4 +16,4 @@
  * This package contains classes and interfaces for properties.
  */
 
-package org.nightcode.common.util.props;
+package org.nightcode.common.props;

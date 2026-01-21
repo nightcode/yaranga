@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.util.props;
+package org.nightcode.common.props;
 
 import org.nightcode.common.annotations.Beta;
 

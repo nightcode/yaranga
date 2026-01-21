@@ -12,13 +12,21 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.util.props;
+package org.nightcode.common.props;
 
-public enum PropertiesEmptyStorage implements PropertiesStorage {
+import org.nightcode.common.annotations.Beta;
 
-  INSTANCE;
+/**
+ * todo.
+ */
+@Beta
+public class PropertyNotFoundException extends PropertyException {
 
-  @Override public Property readProperty(String key, Type type, NotFoundPolicy notFoundPolicy) throws PropertyException {
-    return notFoundPolicy.apply(key, type);
+  public PropertyNotFoundException() {
+    super();
+  }
+
+  public PropertyNotFoundException(String message) {
+    super(message);
   }
 }

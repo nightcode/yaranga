@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.util.props;
+package org.nightcode.common.props;
 
 import org.nightcode.common.annotations.Beta;
 
@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static org.nightcode.common.util.props.PropertiesStorage.Type;
+import static org.nightcode.common.props.PropertiesStorage.Type;
 
 /**
  * Main properties class.
