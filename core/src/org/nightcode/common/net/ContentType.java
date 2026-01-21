@@ -12,39 +12,21 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.net.im;
+package org.nightcode.common.net;
 
 import java.util.Collections;
 import java.util.Map;
 
 /**
  * Content-Type header value holder.
+ *
+ * @param mediaType media type
+ * @param subType sub type
+ * @param parameters parameters
  */
-public class ContentType {
-
-  private final String mediaType;
-  private final String subType;
-  private final Map<String, String> parameters;
+public record ContentType(String mediaType, String subType, Map<String, String> parameters) {
 
   public ContentType(String mediaType, String subType) {
     this(mediaType, subType, Collections.emptyMap());
-  }
-
-  public ContentType(String mediaType, String subType, Map<String, String> parameters) {
-    this.mediaType = mediaType;
-    this.subType = subType;
-    this.parameters = parameters;
-  }
-
-  public String mediaType() {
-    return mediaType;
-  }
-
-  public Map<String, String> parameters() {
-    return parameters;
-  }
-
-  public String subType() {
-    return subType;
   }
 }

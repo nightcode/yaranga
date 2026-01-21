@@ -12,12 +12,16 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.util.props;
+package org.nightcode.common.props;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import org.nightcode.common.props.Properties;
+import org.nightcode.common.props.PropertiesMapStorage;
+import org.nightcode.common.props.SystemPropertiesStorage;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,7 +40,7 @@ public class PropertiesTest {
       properties.getString(key);
       Assert.fail("MUST throw PropertyException");
     } catch (IllegalStateException ex) {
-      Assert.assertEquals("org.nightcode.common.util.props.PropertyNotFoundException: unable to read property '"
+      Assert.assertEquals("org.nightcode.common.props.PropertyNotFoundException: unable to read property '"
           + key + "' of type STRING", ex.getMessage());
     }
 

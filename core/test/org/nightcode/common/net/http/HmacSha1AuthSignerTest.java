@@ -12,11 +12,9 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.net;
+package org.nightcode.common.net.http;
 
 import org.nightcode.common.base.Hexs;
-import org.nightcode.common.net.http.AuthSigner;
-import org.nightcode.common.net.http.HmacSha1AuthSigner;
 
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;

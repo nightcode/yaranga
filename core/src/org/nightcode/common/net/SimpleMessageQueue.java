@@ -12,23 +12,18 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.io;
+package org.nightcode.common.net;
 
 import java.util.Deque;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-
-import static org.nightcode.common.io.MessageQueue.State.FLUSH;
-import static org.nightcode.common.io.MessageQueue.State.IDLE;
-import static org.nightcode.common.io.MessageQueue.State.INTERRUPT;
-import static org.nightcode.common.io.MessageQueue.State.REFLUSH;
 
 public class SimpleMessageQueue<T> implements MessageQueue<T> {
 
   private final Deque<T> queue;
   private final Consumer<T> consumer;
 
-  private final AtomicReference<State> state = new AtomicReference<>(IDLE);
+  private final AtomicReference<State> state = new AtomicReference<>(State.IDLE);
 
   public SimpleMessageQueue(Deque<T> queue, Consumer<T> consumer) {
     this.queue = queue;
@@ -38,11 +33,11 @@ public class SimpleMessageQueue<T> implements MessageQueue<T> {
   @Override public void flush() {
     switch (state.get()) {
       case IDLE -> {
-        if (state.compareAndSet(IDLE, FLUSH)) {
+        if (state.compareAndSet(State.IDLE, State.FLUSH)) {
           flush0();
         }
       }
-      case FLUSH -> state.compareAndSet(FLUSH, REFLUSH);
+      case FLUSH -> state.compareAndSet(State.FLUSH, State.REFLUSH);
       case REFLUSH, INTERRUPT -> { }
       default -> throw new IllegalStateException("should not happen");
     }
@@ -57,7 +52,7 @@ public class SimpleMessageQueue<T> implements MessageQueue<T> {
   }
 
   @Override public void resume() {
-    if (state.compareAndSet(INTERRUPT, FLUSH)) {
+    if (state.compareAndSet(State.INTERRUPT, State.FLUSH)) {
       flush0();
     } else {
       flush();
@@ -68,7 +63,7 @@ public class SimpleMessageQueue<T> implements MessageQueue<T> {
     State s = state.get();
     switch (s) {
       case IDLE, INTERRUPT -> { }
-      case FLUSH, REFLUSH -> state.compareAndSet(s, INTERRUPT);
+      case FLUSH, REFLUSH -> state.compareAndSet(s, State.INTERRUPT);
       default -> throw new IllegalStateException("should not happen");
     }
   }
@@ -87,18 +82,18 @@ public class SimpleMessageQueue<T> implements MessageQueue<T> {
     while (true) {
       while (next != null) {
         consumer.accept(next);
-        if (INTERRUPT == state.get()) {
+        if (State.INTERRUPT == state.get()) {
           return;
         }
         next = queue.poll();
       }
       switch (state.get()) {
         case FLUSH -> {
-          if (state.compareAndSet(FLUSH, IDLE)) {
+          if (state.compareAndSet(State.FLUSH, State.IDLE)) {
             return;
           }
         }
-        case REFLUSH -> state.compareAndSet(REFLUSH, FLUSH);
+        case REFLUSH -> state.compareAndSet(State.REFLUSH, State.FLUSH);
         default -> throw new IllegalStateException("should not happen");
       }
       next = queue.poll();

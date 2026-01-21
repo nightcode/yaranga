@@ -30,7 +30,7 @@ import java.util.function.Function;
 
 import org.jetbrains.annotations.NotNull;
 import org.nightcode.common.lang.ThrowingRunnable;
-import org.nightcode.common.util.logging.Log;
+import org.nightcode.common.logging.Log;
 
 /**
  * Executor utils.

@@ -12,11 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.net;
-
-import org.nightcode.common.net.http.AuthException;
-import org.nightcode.common.net.http.AuthUtils;
-import org.nightcode.common.net.http.OAuthUtils;
+package org.nightcode.common.net.http;
 
 import java.util.HashMap;
 import java.util.Map;

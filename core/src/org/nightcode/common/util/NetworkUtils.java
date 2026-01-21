@@ -12,12 +12,13 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.net;
+package org.nightcode.common.util;
 
 import org.nightcode.common.annotations.Beta;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Objects;
@@ -39,42 +40,20 @@ public enum NetworkUtils {
 
   /**
    * IP range holder.
+   *
+   * @param family
+   * @param firstAddress
+   * @param lastAddress
+   * @param subnetBits
    */
-  public static final class IpAddressRange {
-    private final InetAddress firstAddress;
-    private final InetAddress lastAddress;
-    private final int subnetBits;
-    private final AddressFamily family;
+  public record IpAddressRange(AddressFamily family, InetAddress firstAddress, InetAddress lastAddress, int subnetBits) {
 
     public static IpAddressRange ofIpV4(InetAddress firstAddress, InetAddress lastAddress, int subnetBits) {
-      return new IpAddressRange(firstAddress, lastAddress, subnetBits, AddressFamily.IP_V4);
+      return new IpAddressRange(AddressFamily.IP_V4, firstAddress, lastAddress, subnetBits);
     }
 
     public static IpAddressRange ofIpV6(InetAddress firstAddress, InetAddress lastAddress, int subnetBits) {
-      return new IpAddressRange(firstAddress, lastAddress, subnetBits, AddressFamily.IP_V6);
-    }
-
-    private IpAddressRange(InetAddress firstAddress, InetAddress lastAddress, int subnetBits, AddressFamily family) {
-      this.firstAddress = firstAddress;
-      this.lastAddress = lastAddress;
-      this.subnetBits = subnetBits;
-      this.family = family;
-    }
-
-    public AddressFamily family() {
-      return family;
-    }
-
-    public InetAddress firstAddress() {
-      return firstAddress;
-    }
-
-    public InetAddress lastAddress() {
-      return lastAddress;
-    }
-
-    public int subnetBits() {
-      return subnetBits;
+      return new IpAddressRange(AddressFamily.IP_V6, firstAddress, lastAddress, subnetBits);
     }
 
     @Override public String toString() {
@@ -159,6 +138,14 @@ public enum NetworkUtils {
     throw new IllegalArgumentException("unsupported CIDR value '" + cidr + '\'');
   }
 
+  public static String getHostHeader(InetSocketAddress address) {
+    if (address.getPort() == 80 || address.getPort() == 443) {
+      return address.getHostName();
+    } else {
+      return address.getHostName() + ":" + address.getPort();
+    }
+  }
+
   /**
    * Converts IP address to byte array representation.
    */
@@ -177,7 +164,7 @@ public enum NetworkUtils {
   }
 
   private static int byteArrayToInt(byte[] src) {
-    return (((src[0] & 0xFF) << 24) + ((src[1] & 0xFF) << 16) + ((src[2] & 0xFF) << 8) + ((src[3] & 0xFF) << 0));
+    return (((src[0] & 0xFF) << 24) + ((src[1] & 0xFF) << 16) + ((src[2] & 0xFF) << 8) + ((src[3] & 0xFF)));
   }
 
   private static int getDecimalDigitNumber(char[] src, int offset, int length) {
@@ -199,7 +186,7 @@ public enum NetworkUtils {
     array[0] = (byte) (src >>> 24);
     array[1] = (byte) (src >>> 16);
     array[2] = (byte) (src >>>  8);
-    array[3] = (byte) (src >>>  0);
+    array[3] = (byte) (src);
     return array;
   }
 

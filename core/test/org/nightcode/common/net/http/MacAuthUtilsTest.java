@@ -12,10 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.net;
-
-import org.nightcode.common.net.http.AuthException;
-import org.nightcode.common.net.http.MacAuthUtils;
+package org.nightcode.common.net.http;
 
 import org.junit.Assert;
 import org.junit.Test;

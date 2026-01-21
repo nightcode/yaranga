@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import org.jetbrains.annotations.Nullable;
-import org.nightcode.common.util.logging.Log;
+import org.nightcode.common.logging.Log;
 
 /**
  * Reflect utils.

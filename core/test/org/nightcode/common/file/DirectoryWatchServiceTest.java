@@ -1,4 +1,4 @@
-package org.nightcode.common.io;
+package org.nightcode.common.file;
 
 import java.io.File;
 import java.io.IOException;

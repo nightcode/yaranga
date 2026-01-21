@@ -49,8 +49,8 @@ public final class Throwables {
     return out.toString();
   }
 
-  @SuppressWarnings("unchecked")
   public static <T extends Throwable> RuntimeException rethrow(Throwable throwable) throws T {
+    // noinspection unchecked
     throw (T) throwable;
   }
 }

@@ -12,9 +12,10 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.net;
+package org.nightcode.common.net.http;
 
 import org.nightcode.common.base.Hexs;
+import org.nightcode.common.util.NetworkUtils;
 
 import java.net.UnknownHostException;
 

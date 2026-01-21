@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.io;
+package org.nightcode.common.net;
 
 /**
  * MessageQueue interface.
@@ -22,7 +22,20 @@ package org.nightcode.common.io;
 public interface MessageQueue<M> {
 
   enum State {
-    IDLE, FLUSH, REFLUSH, INTERRUPT
+    IDLE(0x00),
+    FLUSH(0x01),
+    REFLUSH(0x02),
+    INTERRUPT(0x04);
+
+    private final int state;
+
+    State(int state) {
+      this.state = state;
+    }
+
+    public int state() {
+      return state;
+    }
   }
 
   void flush();

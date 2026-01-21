@@ -1,10 +1,11 @@
-package org.nightcode.common.net.im;
+package org.nightcode.common.net;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-class ContentTypeParser {
+enum ContentTypeParser {
+  ;
 
   private static final int SIG_TOKEN = 1;
   private static final int[] TOKEN_SIGNALS = new int[0xFF];
@@ -41,7 +42,7 @@ class ContentTypeParser {
     return i;
   }
 
-  public ContentType parse(String src) {
+  public static ContentType parse(String src) {
     char[] array = src.toCharArray();
     int length = array.length;
 
