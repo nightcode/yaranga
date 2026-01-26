@@ -12,23 +12,8 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.net.retry;
-
 /**
- *
+ * Classes and interfaces for zipkin.handler.
  */
-public interface RetryPolicy {
 
-  /**
-   *
-   */
-  enum Decision {
-    RETRY, RETHROW
-  }
-
-  Decision onException(Throwable cause);
-
-  static RetryPolicy defaultRetryPolicy() {
-    return new DefaultRetryPolicy();
-  }
-}
+package org.nightcode.tracing.zipkin.handler;

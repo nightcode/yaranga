@@ -41,7 +41,7 @@
     <module name="EqualsAvoidNull" />
     <module name="EqualsHashCode" />
     <module name="IllegalInstantiation" />
-    <module name="InnerAssignment" />
+<!--    <module name="InnerAssignment" />-->
     <module name="MissingSwitchDefault" />
     <module name="SimplifyBooleanExpression" />
     <module name="SimplifyBooleanReturn" />

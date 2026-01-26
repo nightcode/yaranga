@@ -14,13 +14,18 @@
 
 package org.nightcode.common.lang;
 
-/**
- * An event listener.
- *
- * @param <S> the event's subject
- * @param <T> the event's type
- */
-public interface EventListener<S, T extends Enum<T>> {
+import java.io.Closeable;
+import java.util.concurrent.TimeUnit;
 
-  void onEvent(Event<S, T> event);
+import org.nightcode.common.annotations.Beta;
+
+/**
+ * todo.
+ */
+@Beta
+public interface Timer extends Closeable {
+
+  void close();
+
+  TimerTask schedule(Runnable runnable, long delay, TimeUnit unit);
 }

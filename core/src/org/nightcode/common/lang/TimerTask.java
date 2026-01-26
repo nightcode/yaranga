@@ -14,13 +14,19 @@
 
 package org.nightcode.common.lang;
 
-/**
- * An event listener.
- *
- * @param <S> the event's subject
- * @param <T> the event's type
- */
-public interface EventListener<S, T extends Enum<T>> {
+import org.nightcode.common.annotations.Beta;
 
-  void onEvent(Event<S, T> event);
+/**
+ * todo.
+ */
+@Beta
+public interface TimerTask {
+
+  boolean cancel();
+
+  boolean isCancelled();
+
+  boolean isExpired();
+
+  Timer timer();
 }

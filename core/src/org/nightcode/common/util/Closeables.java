@@ -12,15 +12,26 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.lang;
+package org.nightcode.common.util;
+
+import java.io.Closeable;
+
+import org.nightcode.common.logging.Log;
 
 /**
- * An event listener.
- *
- * @param <S> the event's subject
- * @param <T> the event's type
+ * Closeable utils.
  */
-public interface EventListener<S, T extends Enum<T>> {
+public enum Closeables {
+  ;
 
-  void onEvent(Event<S, T> event);
+  public static void close(Closeable closeable) {
+    if (closeable == null) {
+      return;
+    }
+    try {
+      closeable.close();
+    } catch (Exception ex) {
+      Log.debug().log(Closeables.class, ex);
+    }
+  }
 }

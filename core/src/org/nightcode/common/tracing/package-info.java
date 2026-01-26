@@ -12,15 +12,8 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.lang;
-
 /**
- * An event listener.
- *
- * @param <S> the event's subject
- * @param <T> the event's type
+ * Classes and interfaces for tracing.
  */
-public interface EventListener<S, T extends Enum<T>> {
 
-  void onEvent(Event<S, T> event);
-}
+package org.nightcode.common.tracing;

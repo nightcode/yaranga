@@ -12,15 +12,22 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.lang;
+package org.nightcode.common.tracing;
+
+import io.micrometer.tracing.Tracer;
 
 /**
- * An event listener.
- *
- * @param <S> the event's subject
- * @param <T> the event's type
+ * NOOP TracerProvider implementation.
  */
-public interface EventListener<S, T extends Enum<T>> {
+public class NoopTracerProvider implements TracerProvider {
 
-  void onEvent(Event<S, T> event);
+  public static final CloseableTracer NOOP = new CloseableTracer(Tracer.NOOP) {
+    @Override public void close() {
+      // do nothing
+    }
+  };
+
+  @Override public CloseableTracer get() {
+    return NOOP;
+  }
 }

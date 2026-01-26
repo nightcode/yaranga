@@ -54,8 +54,8 @@ public final class EmptyIterator<E> extends ReadOnlyIterator<E> {
    * @param <E> an element's type
    * @return instance of empty iterator
    */
-  @SuppressWarnings("unchecked")
   public static <E> Iterator<E> instance() {
+    // noinspection unchecked
     return (Iterator<E>) INSTANCE;
   }
 }

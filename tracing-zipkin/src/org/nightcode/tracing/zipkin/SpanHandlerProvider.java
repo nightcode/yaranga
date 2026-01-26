@@ -12,15 +12,15 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.lang;
+package org.nightcode.tracing.zipkin;
+
+import java.util.function.Supplier;
+
+import brave.handler.SpanHandler;
 
 /**
- * An event listener.
- *
- * @param <S> the event's subject
- * @param <T> the event's type
+ * Base interface for SpanHandler supplier.
  */
-public interface EventListener<S, T extends Enum<T>> {
+public interface SpanHandlerProvider extends Supplier<SpanHandler> {
 
-  void onEvent(Event<S, T> event);
 }

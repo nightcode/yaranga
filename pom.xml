@@ -25,15 +25,23 @@
 
   <modules>
     <module>core</module>
+    <module>tracing-zipkin</module>
   </modules>
 
   <properties>
     <java.version>21</java.version>
 
-    <jetbrains_annotations.version>17.0.0</jetbrains_annotations.version>
+    <jetbrains_annotations.version>26.0.2-1</jetbrains_annotations.version>
     <log4j-api.version>2.22.1</log4j-api.version>
+    <micrometer.version>1.6.2</micrometer.version>
+    <netty.bom.version>4.2.9.Final</netty.bom.version>
+    <protobuf.version>4.33.4</protobuf.version>
+    <bouncycastle.version>1.83</bouncycastle.version>
 
-    <junit.version>4.13.1</junit.version>
+    <brave.version>6.3.0</brave.version>
+    <zipkin.version>3.5.1</zipkin.version>
+
+    <junit.version>4.13.2</junit.version>
     <easymock.version>3.6</easymock.version>
   </properties>
 
@@ -148,6 +156,12 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>org.nightcode.yaranga</groupId>
+        <artifactId>core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
         <groupId>org.jetbrains</groupId>
         <artifactId>annotations</artifactId>
         <version>${jetbrains_annotations.version}</version>
@@ -157,6 +171,55 @@
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-api</artifactId>
         <version>${log4j-api.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.micrometer</groupId>
+        <artifactId>micrometer-tracing-bom</artifactId>
+        <version>${micrometer.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-bom</artifactId>
+        <version>${netty.bom.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>
+        <version>${protobuf.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk18on</artifactId>
+        <version>${bouncycastle.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcpkix-jdk18on</artifactId>
+        <version>${bouncycastle.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.zipkin.brave</groupId>
+        <artifactId>brave-context-log4j2</artifactId>
+        <version>${brave.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.zipkin.reporter2</groupId>
+        <artifactId>zipkin-sender-urlconnection</artifactId>
+        <version>${zipkin.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.zipkin.reporter2</groupId>
+        <artifactId>zipkin-reporter-brave</artifactId>
+        <version>${zipkin.version}</version>
       </dependency>
 
       <dependency>
