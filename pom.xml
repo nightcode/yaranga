@@ -25,6 +25,7 @@
 
   <modules>
     <module>core</module>
+    <module>net</module>
     <module>tracing-zipkin</module>
   </modules>
 
@@ -152,15 +153,25 @@
       <email>dmitry@nightcode.org</email>
     </developer>
   </developers>
-  
+
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>org.nightcode.yaranga</groupId>
-        <artifactId>core</artifactId>
+        <artifactId>yaranga</artifactId>
         <version>${project.version}</version>
       </dependency>
-      
+      <dependency>
+        <groupId>org.nightcode.yaranga</groupId>
+        <artifactId>yaranga-net</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.nightcode.yaranga</groupId>
+        <artifactId>yaranga-tracing-zipkin</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>org.jetbrains</groupId>
         <artifactId>annotations</artifactId>

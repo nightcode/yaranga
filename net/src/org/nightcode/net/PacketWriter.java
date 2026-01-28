@@ -12,8 +12,19 @@
  * limitations under the License.
  */
 
-/**
- * Classes and interfaces for net.retry.
- */
+package org.nightcode.net;
 
-package org.nightcode.common.net.retry;
+import java.io.IOException;
+import java.io.OutputStream;
+
+/**
+ * Packet writer.
+ *
+ * @param <P> the packet
+ */
+public interface PacketWriter<P> {
+
+  int size(P packet);
+
+  void write(OutputStream out, P packet) throws IOException;
+}

@@ -12,28 +12,24 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.net.retry;
-
-import org.nightcode.common.net.GeneralNetworkException;
-
-import java.io.IOException;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
+package org.nightcode.common.pool.retry;
 
 /**
  * The default implementation of a retry policy.
  */
-public class DefaultRetryPolicy implements RetryPolicy {
+public enum DefaultRetryPolicy implements RetryPolicy {
 
-  @Override public Decision onException(Throwable cause) {
-    if ((cause instanceof ExecutionException) || (cause instanceof CompletionException)) {
-      if (cause.getCause() != null) {
-        cause = cause.getCause();
-      }
-    }
-    if (cause instanceof IOException || cause instanceof GeneralNetworkException) {
-      return Decision.RETRY;
-    }
+  INSTANCE;
+
+  @Override public Decision onRequestError(Throwable cause) {
+    return Decision.TRY_NEXT;
+  }
+
+  @Override public Decision onResponseError(Throwable cause) {
     return Decision.RETHROW;
+  }
+
+  @Override public Decision onUnavailable() {
+    return Decision.TRY_NEXT;
   }
 }

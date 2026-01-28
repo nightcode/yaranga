@@ -12,8 +12,27 @@
  * limitations under the License.
  */
 
-/**
- * Classes and interfaces for net.lb.
- */
+package org.nightcode.net.impl;
 
-package org.nightcode.common.net.lb;
+import com.google.protobuf.Message;
+
+import java.io.IOException;
+import java.io.OutputStream;
+
+import org.nightcode.net.PacketWriter;
+
+/**
+ * Protobuf packet writer.
+ *
+ * @param <P> the packet
+ */
+public class ProtobufPacketWriter<P extends Message> implements PacketWriter<P> {
+
+  @Override public int size(P packet) {
+    return packet.getSerializedSize();
+  }
+
+  @Override public void write(OutputStream out, P packet) throws IOException {
+    packet.writeTo(out);
+  }
+}
