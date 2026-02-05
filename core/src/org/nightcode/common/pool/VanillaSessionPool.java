@@ -28,12 +28,11 @@ import java.util.stream.Stream;
 import org.nightcode.common.base.AbstractIterator;
 import org.nightcode.common.lang.Event;
 import org.nightcode.common.lang.Timer;
+import org.nightcode.common.logging.Log;
 import org.nightcode.common.pool.lb.LoadBalancingPolicy;
 import org.nightcode.common.pool.metadata.Endpoint;
 import org.nightcode.common.util.Clock;
 import org.nightcode.common.util.Closeables;
-import org.nightcode.common.logging.Log;
-import org.nightcode.common.props.Properties;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -61,9 +60,6 @@ public class VanillaSessionPool<A, S extends Session<A>> implements SessionPool<
       return state;
     }
   }
-
-  private static final long QUEUE_TIMEOUT_MS   = 15_000;
-  private static final long EXECUTE_TIMEOUT_MS = 10_000;
 
   private final String                      name;
   private final SessionFactory<A, S>        factory;
@@ -98,8 +94,8 @@ public class VanillaSessionPool<A, S extends Session<A>> implements SessionPool<
     rebuildTimeoutMs    = builder.rebuildTimeoutMs;
     endpoints           = new ArrayList<>(builder.endpoints);
 
-    long queueTimeoutMs   = Properties.instance().getLong(name + ".queueTimeoutMs", QUEUE_TIMEOUT_MS);
-    long executeTimeoutMs = Properties.instance().getLong(name + ".executeTimeoutMs", EXECUTE_TIMEOUT_MS);
+    long queueTimeoutMs   = builder.queueTimeoutMs;
+    long executeTimeoutMs = builder.executeTimeoutMs;
 
     queueTimeoutNs   = MILLISECONDS.toNanos(queueTimeoutMs);
     executeTimeoutNs = MILLISECONDS.toNanos(executeTimeoutMs);

@@ -114,6 +114,20 @@ public class SplitterTest {
     assertEquals(4, actual.size());
   }
 
+  @Test public void splitStringWithTrim() {
+    Splitter splitter = Splitter.on("&").withKeyValueSeparator("=").trim('[');
+
+    final String              str    = "[a=b&[c[=[d&e=[f[&d[=&=e";
+    Map<String, List<String>> actual = splitter.split(str);
+
+    assertEquals("b", actual.get("a").getFirst());
+    assertEquals("d", actual.get("c").getFirst());
+    assertEquals("f", actual.get("e").getFirst());
+    assertEquals("", actual.get("d").getFirst());
+    assertNull(actual.get(""));
+    assertEquals(4, actual.size());
+  }
+
   @Test public void splitStringWithComplexTrim() {
     Splitter splitter = Splitter.on("&").withKeyValueSeparator("=").trim(new char[]{'[', ']'});
 
@@ -197,5 +211,14 @@ public class SplitterTest {
       return;
     }
     fail();
+  }
+
+  @Test public void splitStringWithDecoder() {
+    Splitter splitter = Splitter.on("&").withKeyValueSeparator("=").withDecoder();
+
+    final String              str    = "%26%3D=%3A%2B";
+    Map<String, List<String>> actual = splitter.split(str);
+
+    assertEquals(":+", actual.get("&=").getFirst());
   }
 }

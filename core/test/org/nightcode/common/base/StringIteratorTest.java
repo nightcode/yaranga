@@ -20,6 +20,7 @@ import java.util.NoSuchElementException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 /**
@@ -87,12 +88,21 @@ public class StringIteratorTest {
     while (i.hasNext()) {
       i.next();
     }
-    assertEquals(false, i.hasNext());
+    assertFalse(i.hasNext());
     try {
       i.next();
     } catch (NoSuchElementException ex) {
       return;
     }
     fail();
+  }
+
+  @Test public void stringIteratorPeek() {
+    StringIterator i = new StringIterator("a,b,c,d", ",");
+    assertEquals("a", i.peek());
+    assertEquals("a", i.peek());
+    assertEquals("a", i.next());
+    assertEquals("b", i.peek());
+    assertEquals("b", i.next());
   }
 }

@@ -26,19 +26,24 @@
   <modules>
     <module>core</module>
     <module>net</module>
+    <module>api</module>
     <module>tracing-zipkin</module>
   </modules>
 
   <properties>
     <java.version>21</java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <jetbrains_annotations.version>26.0.2-1</jetbrains_annotations.version>
-    <log4j-api.version>2.22.1</log4j-api.version>
-    <micrometer.version>1.6.2</micrometer.version>
-    <netty.bom.version>4.2.9.Final</netty.bom.version>
+    <log4j-bom.version>2.25.3</log4j-bom.version>
+    <micrometer-bom.version>1.6.2</micrometer-bom.version>
+    <netty-bom.version>4.2.9.Final</netty-bom.version>
     <protobuf.version>4.33.4</protobuf.version>
     <bouncycastle.version>1.83</bouncycastle.version>
+    <freemarker.version>2.3.34</freemarker.version>
+    <snakeyaml.version>2.5</snakeyaml.version>
 
+    <prometheus-bom.version>1.4.3</prometheus-bom.version>
     <brave.version>6.3.0</brave.version>
     <zipkin.version>3.5.1</zipkin.version>
 
@@ -63,6 +68,15 @@
                 </goals>
               </execution>
             </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>3.4.0</version>
+            <configuration>
+              <encoding>${project.build.sourceEncoding}</encoding>
+              <outputDirectory />
+            </configuration>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -168,6 +182,11 @@
       </dependency>
       <dependency>
         <groupId>org.nightcode.yaranga</groupId>
+        <artifactId>yaranga-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.nightcode.yaranga</groupId>
         <artifactId>yaranga-tracing-zipkin</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -180,14 +199,16 @@
 
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-api</artifactId>
-        <version>${log4j-api.version}</version>
+        <artifactId>log4j-bom</artifactId>
+        <version>${log4j-bom.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
 
       <dependency>
         <groupId>io.micrometer</groupId>
         <artifactId>micrometer-tracing-bom</artifactId>
-        <version>${micrometer.version}</version>
+        <version>${micrometer-bom.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -195,7 +216,7 @@
       <dependency>
         <groupId>io.netty</groupId>
         <artifactId>netty-bom</artifactId>
-        <version>${netty.bom.version}</version>
+        <version>${netty-bom.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -215,6 +236,26 @@
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpkix-jdk18on</artifactId>
         <version>${bouncycastle.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.freemarker</groupId>
+        <artifactId>freemarker</artifactId>
+        <version>${freemarker.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.yaml</groupId>
+        <artifactId>snakeyaml</artifactId>
+        <version>${snakeyaml.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>io.prometheus</groupId>
+        <artifactId>prometheus-metrics-bom</artifactId>
+        <version>${prometheus-bom.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
 
       <dependency>
@@ -252,7 +293,7 @@
     <resources>
       <resource>
         <filtering>false</filtering>
-        <directory>${project.basedir}/src</directory>
+        <directory>${project.basedir}/resources</directory>
         <excludes>
           <exclude>**/*.java</exclude>
         </excludes>
@@ -262,7 +303,7 @@
     <testResources>
       <testResource>
         <filtering>false</filtering>
-        <directory>${project.basedir}/test</directory>
+        <directory>${project.basedir}/test-resources</directory>
         <excludes>
           <exclude>**/*.java</exclude>
         </excludes>
@@ -273,7 +314,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.12.1</version>
+        <version>3.14.1</version>
         <configuration>
           <source>${java.version}</source>
           <target>${java.version}</target>
@@ -284,7 +325,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.2.5</version>
+        <version>3.5.4</version>
         <configuration>
           <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
         </configuration>
@@ -292,7 +333,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.5.0</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

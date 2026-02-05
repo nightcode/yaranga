@@ -24,7 +24,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.UnsupportedMessageTypeException;
-import org.nightcode.common.net.ConnectionTimeoutException;
 import org.nightcode.common.logging.Log;
 
 import static java.lang.String.format;

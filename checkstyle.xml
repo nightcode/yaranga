@@ -96,4 +96,8 @@
     <module name="WhitespaceAfter" />
     <module name="WhitespaceAround" />
   </module>
+
+  <module name="SuppressionFilter">
+    <property name="file" value="checkstyle-suppressions.xml" />
+  </module>
 </module>

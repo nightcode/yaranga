@@ -19,13 +19,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.nightcode.common.props.Properties;
-import org.nightcode.common.props.PropertiesMapStorage;
-import org.nightcode.common.props.SystemPropertiesStorage;
-
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * Unit test for {@link PropertiesTest}.
+ */
 public class PropertiesTest {
 
   @Test public void testReadProperty() {

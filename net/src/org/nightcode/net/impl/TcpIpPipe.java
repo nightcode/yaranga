@@ -45,7 +45,7 @@ import io.netty.handler.ssl.SslContext;
 import org.nightcode.net.CompletablePacketContext;
 import org.nightcode.net.Pipe;
 import org.nightcode.net.PipeContext;
-import org.nightcode.common.net.ConnectionTimeoutException;
+import org.nightcode.net.ConnectionTimeoutException;
 import org.nightcode.net.PacketFuture;
 import org.nightcode.net.PacketRxHandler;
 import org.nightcode.net.PacketTxHandler;
@@ -227,7 +227,7 @@ public class TcpIpPipe<Q, R> extends AbstractSession<InetSocketAddress>
 
   @Override public CompletableFuture<R> sendReceiveAsync(Q packet) {
     requestsCount.incrementAndGet();
-    CompletablePacketContext<Q> packetContext = packetContext(packet);
+    CompletablePacketContext<Q> packetContext  = packetContext(packet);
     CompletableFuture<R>        responseFuture = new PacketFuture<>(packetContext.packetId(), (id, cause) -> cfs.remove(id));
 
     cfs.put(packetContext.packetId(), responseFuture);

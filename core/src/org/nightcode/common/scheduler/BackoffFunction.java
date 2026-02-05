@@ -23,22 +23,22 @@ public enum BackoffFunction {
 
   LINEAR {
     public RetrySchedule newSchedule(RetryConfig config) {
-      return new LinearSchedule(config.getMinDelayMs());
+      return new LinearSchedule(config.minDelayMs());
     }
   },
   ARITHMETIC {
     @Override public RetrySchedule newSchedule(RetryConfig config) {
-      return new ArithmeticSchedule(config.getMinDelayMs(), config.getMaxDelayMs());
+      return new ArithmeticSchedule(config.minDelayMs(), config.maxDelayMs());
     }
   },
   GEOMETRIC {
     @Override public RetrySchedule newSchedule(RetryConfig config) {
-      return new GeometricSchedule(config.getMinDelayMs(), config.getMaxDelayMs());
+      return new GeometricSchedule(config.minDelayMs(), config.maxDelayMs());
     }
   },
   EXPONENTIAL {
     @Override public RetrySchedule newSchedule(RetryConfig config) {
-      return new ExponentialSchedule(config.getMinDelayMs(), config.getMaxDelayMs());
+      return new ExponentialSchedule(config.minDelayMs(), config.maxDelayMs());
     }
   };
 

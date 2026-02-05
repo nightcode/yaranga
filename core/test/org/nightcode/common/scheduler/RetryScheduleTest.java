@@ -1,0 +1,36 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.nightcode.common.scheduler;
+
+import java.time.LocalDateTime;
+
+import org.nightcode.common.scheduler.impl.LinearSchedule;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+/**
+ * Unit tests for {@link RetrySchedule}.
+ */
+public class RetryScheduleTest {
+
+  @Test public void nextExecutionTime() {
+    RetrySchedule schedule = new LinearSchedule(5_000);
+    LocalDateTime next     = schedule.nextExecutionTime(0);
+
+    Assert.assertTrue(next.isAfter(LocalDateTime.now().plusSeconds(4)));
+    Assert.assertTrue(next.isBefore(LocalDateTime.now().plusSeconds(6)));
+  }
+}

@@ -20,7 +20,12 @@ import org.junit.Test;
 public class ContentTypeParserTest {
 
   @Test public void testParseContentType() {
-    ContentType target = ContentTypeParser.parse("text/plain; charset=us-ascii");
+    ContentType target = ContentTypeParser.parse("text/plain");
+    Assert.assertEquals("text", target.mediaType());
+    Assert.assertEquals("plain", target.subType());
+    Assert.assertTrue(target.parameters().isEmpty());
+
+    target = ContentTypeParser.parse("text/plain; charset=us-ascii");
     Assert.assertEquals("text", target.mediaType());
     Assert.assertEquals("plain", target.subType());
     Assert.assertEquals("us-ascii", target.parameters().get("charset"));

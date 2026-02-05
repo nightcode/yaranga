@@ -27,7 +27,7 @@ import org.nightcode.common.pool.metadata.Endpoint;
 import org.nightcode.common.util.Clock;
 
 /**
- * todo.
+ * Session pool builder.
  *
  * @param <A> the session address
  * @param <S> the session
@@ -44,11 +44,13 @@ public final class SessionPoolBuilder<A, S extends Session<A>> {
   Timer                timer;
 
   SessionPoolOperations<A, S> operations          = SessionPoolOperations.def();
-  LoadBalancingPolicy loadBalancingPolicy = LoadBalancingPolicy.def();
-  Clock               clock               = Clock.sys();
+  LoadBalancingPolicy         loadBalancingPolicy = LoadBalancingPolicy.def();
+  Clock                       clock               = Clock.sys();
 
-  long createTimeoutMs  = 1_000L; // 1 sec.
-  long rebuildTimeoutMs = 1_000L; // 1 sec.
+  long createTimeoutMs  = 1_000L;  // 1 sec.
+  long rebuildTimeoutMs = 1_000L;  // 1 sec.
+  long queueTimeoutMs   = 15_000L; // 15 sec.
+  long executeTimeoutMs = 10_000L; // 10 sec.
 
   final List<Endpoint<A>> endpoints = new ArrayList<>();
 
@@ -87,9 +89,19 @@ public final class SessionPoolBuilder<A, S extends Session<A>> {
     return this;
   }
 
+  public SessionPoolBuilder<A, S> executeTimeout(long val, TimeUnit unit) {
+    executeTimeoutMs = unit.toMillis(val);
+    return this;
+  }
+
   public SessionPoolBuilder<A, S> loadBalancingPolicy(LoadBalancingPolicy val) {
     Objects.requireNonNull(val, "load balancing policy");
     loadBalancingPolicy = val;
+    return this;
+  }
+
+  public SessionPoolBuilder<A, S> queueTimeout(long val, TimeUnit unit) {
+    queueTimeoutMs = unit.toMillis(val);
     return this;
   }
 

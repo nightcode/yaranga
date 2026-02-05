@@ -62,8 +62,8 @@ public class SimpleMessageQueue<T> implements MessageQueue<T> {
   @Override public void tryInterrupt() {
     State s = state.get();
     switch (s) {
-      case IDLE, INTERRUPT -> { }
-      case FLUSH, REFLUSH -> state.compareAndSet(s, State.INTERRUPT);
+      case INTERRUPT -> { }
+      case IDLE, FLUSH, REFLUSH -> state.compareAndSet(s, State.INTERRUPT);
       default -> throw new IllegalStateException("should not happen");
     }
   }

@@ -72,7 +72,7 @@ public enum ExecutorUtils {
   private static volatile Function<ThreadPoolExecutor, ThreadPoolExecutor> executorInterceptor = t -> t;
   private static volatile Consumer<ExecutorService>                        cleaner             = t -> { };
 
-  static void initialize(Function<ThreadPoolExecutor, ThreadPoolExecutor> executorInterceptor, Consumer<ExecutorService> cleaner) {
+  public static void initialize(Function<ThreadPoolExecutor, ThreadPoolExecutor> executorInterceptor, Consumer<ExecutorService> cleaner) {
     if (INITIALIZED.compareAndSet(false, true)) {
       ExecutorUtils.executorInterceptor = executorInterceptor;
       ExecutorUtils.cleaner             = cleaner;

@@ -1,0 +1,44 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.nightcode.api.tcp;
+
+import java.util.function.Consumer;
+
+import io.netty.channel.ChannelPipeline;
+import org.nightcode.api.AbstractApiGw;
+import org.nightcode.api.ApiGwBuilder;
+import org.nightcode.net.PacketRxHandler;
+import org.nightcode.net.PacketTxHandler;
+
+/**
+ * TCP/IP API gateway.
+ */
+public final class TcpIpApiGw extends AbstractApiGw {
+
+  public static TcpIpApiGw build(ApiGwBuilder builder) {
+    return new TcpIpApiGw(builder);
+  }
+
+  private TcpIpApiGw(ApiGwBuilder builder) {
+    super(builder);
+  }
+
+  @Override protected Consumer<ChannelPipeline> pipelineConsumer() {
+    return p -> {
+      p.addLast("tx", new PacketTxHandler<>());
+      p.addLast("rx", new PacketRxHandler<>(packetReader, TcpIpApiGw.this::consume));
+    };
+  }
+}

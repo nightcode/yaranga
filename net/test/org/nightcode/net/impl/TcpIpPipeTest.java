@@ -80,18 +80,21 @@ import org.nightcode.common.pool.metadata.Endpoint;
 import org.nightcode.common.pool.metadata.InetSocketAddressEndpoint;
 import org.nightcode.common.util.Clock;
 import org.nightcode.net.BootstrapFactory;
-import org.nightcode.net.PipeContext;
 import org.nightcode.net.PacketContext;
+import org.nightcode.net.PacketReader;
 import org.nightcode.net.PacketRxHandler;
 import org.nightcode.net.PacketTxHandler;
-import org.nightcode.net.PacketReader;
 import org.nightcode.net.PacketWriter;
+import org.nightcode.net.PipeContext;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+/**
+ * Unit test for {@link TcpIpPipe}.
+ */
 public class TcpIpPipeTest {
 
   public static class TestInitializer extends ChannelInitializer<SocketChannel> {

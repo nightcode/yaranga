@@ -78,13 +78,13 @@ public final class TcpIpPipeFactory<Q, R, C extends Pipe<InetSocketAddress, Q, R
       return this;
     }
 
-    public Builder messageReader(PacketReader<?> val) {
+    public Builder packetReader(PacketReader<?> val) {
       Objects.requireNonNull(val, "packet reader");
       packetReader = val;
       return this;
     }
 
-    public Builder messageWriter(PacketWriter<?> val) {
+    public Builder packetWriter(PacketWriter<?> val) {
       Objects.requireNonNull(val, "packet writer");
       packetWriter = val;
       return this;

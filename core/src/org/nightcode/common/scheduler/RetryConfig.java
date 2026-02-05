@@ -14,51 +14,18 @@
 
 package org.nightcode.common.scheduler;
 
-public class RetryConfig {
-
-  private BackoffFunction backoffFunction;
-  private long            minDelayMs;
-  private long            maxDelayMs;
-  private long            maxAttempts;
-
-  public BackoffFunction getBackoffFunction() {
-    return backoffFunction;
-  }
-
-  public long getMaxAttempts() {
-    return maxAttempts;
-  }
-
-  public long getMaxDelayMs() {
-    return maxDelayMs;
-  }
-
-  public long getMinDelayMs() {
-    return minDelayMs;
-  }
-
-  public void setMaxAttempts(long maxAttempts) {
-    this.maxAttempts = maxAttempts;
-  }
-
-  public void setBackoffFunction(BackoffFunction backoffFunction) {
-    this.backoffFunction = backoffFunction;
-  }
-
-  public void setMaxDelayMs(long maxDelayMs) {
-    this.maxDelayMs = maxDelayMs;
-  }
-
-  public void setMinDelayMs(long minDelayMs) {
-    this.minDelayMs = minDelayMs;
-  }
+/**
+ * Retry configuration.
+ *
+ * @param minDelayMs min delay ms.
+ * @param maxDelayMs max delay ms.
+ */
+public record RetryConfig(long minDelayMs, long maxDelayMs) {
 
   @Override public String toString() {
     return "RetryConfig{"
-        + "backoffFunction=" + backoffFunction
-        + ", minDelayMs=" + minDelayMs
+        + "minDelayMs=" + minDelayMs
         + ", maxDelayMs=" + maxDelayMs
-        + ", maxAttempts=" + maxAttempts
         + '}';
   }
 }

@@ -23,6 +23,9 @@ import org.nightcode.common.pool.metadata.NamedEndpoint;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * Unit test for {@link RoundRobinPolicyTest}.
+ */
 public class RoundRobinPolicyTest {
 
   private static final Endpoint<String> ENDPOINT = new NamedEndpoint("");

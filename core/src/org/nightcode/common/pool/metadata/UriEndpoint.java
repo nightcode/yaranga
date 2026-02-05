@@ -39,6 +39,16 @@ public class UriEndpoint implements Endpoint<URI> {
   private final String id;
   private final URI    uri;
 
+  public UriEndpoint(String uri) {
+    Objects.requireNonNull(uri, "uri");
+    try {
+      this.uri = new URI(uri);
+    } catch (URISyntaxException ex) {
+      throw Throwables.rethrow(ex);
+    }
+    this.id  = format("%04d", getIdGenerator(this.uri).incrementAndGet());
+  }
+
   public UriEndpoint(URI uri) {
     Objects.requireNonNull(uri, "uri");
     this.uri = uri;
