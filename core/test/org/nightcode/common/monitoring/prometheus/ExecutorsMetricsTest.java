@@ -16,7 +16,8 @@ package org.nightcode.common.monitoring.prometheus;
 
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import io.prometheus.metrics.model.registry.PrometheusRegistry;
 import io.prometheus.metrics.model.snapshots.CounterSnapshot;
@@ -36,10 +37,19 @@ public class ExecutorsMetricsTest {
     ExecutorsMetrics.register();
     ExecutorUtils.initialize(ExecutorsMetrics::addExecutor, ExecutorsMetrics::removeExecutor);
     
-    try (ExecutorService executorService = ExecutorUtils.singleThreadExecutor("test")) {
+    try (ThreadPoolExecutor executorService = (ThreadPoolExecutor) ExecutorUtils.singleThreadExecutor("test")) {
       CountDownLatch countDownLatch = new CountDownLatch(1);
       executorService.submit(countDownLatch::countDown);
-      
+ 
+      int attempts = 5;
+      while (attempts > 0) {
+        ExecutorUtils.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
+        if (executorService.getCompletedTaskCount() == 1) {
+          break;
+        }
+        attempts--;
+      }
+
       MetricSnapshots snapshots = PrometheusRegistry.defaultRegistry.scrape("executor_completed_task_count"::equals);
       Optional<MetricSnapshot> optional = snapshots.stream().findFirst();
       Assert.assertTrue(optional.isPresent());
