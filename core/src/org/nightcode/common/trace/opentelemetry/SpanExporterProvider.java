@@ -12,22 +12,14 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.tracing;
+package org.nightcode.common.trace.opentelemetry;
 
-import io.micrometer.tracing.Tracer;
+import java.util.function.Supplier;
+
+import io.opentelemetry.sdk.trace.export.SpanExporter;
 
 /**
- * NOOP TracerProvider implementation.
+ * SpanExporter provider.
  */
-public class NoopTracerProvider implements TracerProvider {
-
-  public static final CloseableTracer NOOP = new CloseableTracer(Tracer.NOOP) {
-    @Override public void close() {
-      // do nothing
-    }
-  };
-
-  @Override public CloseableTracer get() {
-    return NOOP;
-  }
+public interface SpanExporterProvider extends Supplier<SpanExporter> {
 }

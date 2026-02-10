@@ -25,6 +25,8 @@ import org.nightcode.common.logging.LoggingHandler;
 import org.nightcode.common.monitoring.prometheus.AppInfoMetrics;
 import org.nightcode.common.monitoring.prometheus.ExecutorsMetrics;
 import org.nightcode.common.monitoring.prometheus.SessionPoolsMetrics;
+import org.nightcode.common.trace.opentelemetry.TracerProvider;
+import org.nightcode.common.trace.opentelemetry.TracerProviderBuilder;
 import org.nightcode.common.util.ExecutorUtils;
 import org.nightcode.common.util.PomUtils;
 import org.nightcode.common.util.SysUtils;
@@ -90,6 +92,7 @@ public class ServiceBootstrap<C extends ServiceConfig> {
   public void start() {
     try {
       String appVersion = PomUtils.version(groupId, artefactId);
+      TracerProvider.init(TracerProviderBuilder.builder().resource(config.appName(), appVersion).build());
       AppInfoMetrics.builder().appName(config.appName()).appVersion(appVersion).register();
       ExecutorsMetrics.register();
       SessionPoolsMetrics.register();

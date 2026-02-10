@@ -67,9 +67,9 @@ class TcpIpServerFactory implements BootstrapServerFactory {
         .channel(channelClass);
 
 
-    String prefix = "org.nightcode." + name + '.';
+    String prefix = "org.nightcode.net.tcp." + name + '.';
 
-    sb.option(ChannelOption.SO_BACKLOG, Properties.instance().getInt(prefix + "backlog", 2048));
+    sb.option(ChannelOption.SO_BACKLOG, Properties.instance().getInt(prefix + "backlog", 1024));
     sb.option(ChannelOption.SO_REUSEADDR, Properties.instance().getBoolean(prefix + "reuseAddress", true));
 
     sb.childOption(ChannelOption.SO_KEEPALIVE, Properties.instance().getBoolean(prefix + "keepAlive", true));

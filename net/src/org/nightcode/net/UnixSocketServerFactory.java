@@ -63,9 +63,9 @@ class UnixSocketServerFactory implements BootstrapServerFactory {
             , new MultiThreadIoEventLoopGroup(nThreads, workerTf, factorySupplier.get()))
         .channel(channelClass);
 
-    String prefix = "org.nightcode." + name + '.';
+    String prefix = "org.nightcode.net.unix." + name + '.';
 
-    sb.option(ChannelOption.SO_BACKLOG, Properties.instance().getInt(prefix + "backlog", 2048));
+    sb.option(ChannelOption.SO_BACKLOG, Properties.instance().getInt(prefix + "backlog", 1024));
 
     sb.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 

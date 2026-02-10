@@ -12,15 +12,13 @@
  * limitations under the License.
  */
 
-package org.nightcode.tracing.zipkin;
-
-import java.util.function.Supplier;
-
-import brave.handler.SpanHandler;
+package org.nightcode.common.scheduler;
 
 /**
- * Base interface for SpanHandler supplier.
+ * Retry context.
+ *
+ * @param function the Backoff function
+ * @param config the retry config
  */
-public interface SpanHandlerProvider extends Supplier<SpanHandler> {
-
+public record RetryContext(BackoffFunction function, RetryConfig config) {
 }

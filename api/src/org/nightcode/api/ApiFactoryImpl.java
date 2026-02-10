@@ -66,7 +66,7 @@ class ApiFactoryImpl<A> implements ApiFactory {
     }
   }
 
-  protected static final int MAX_ATTEMPTS = Properties.instance().getInt("org.nightcode.api.MaxAttempts", 3);
+  protected static final int MAX_ATTEMPTS = Properties.instance().getInt("org.nightcode.api.maxAttempts", 3);
 
   public static <T> ApiConfig config(Class<T> apiInterface) {
     return ApiConfig.builder(apiInterface).build();

@@ -18,7 +18,7 @@
   <groupId>org.nightcode.yaranga</groupId>
   <artifactId>yaranga-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.12</version>
+  <version>0.12.1-SNAPSHOT</version>
   <name>Yaranga (Parent) ${project.version}</name>
   <description>Useful stuff for Java 21+.</description>
   <url>http://github.com/nightcode/yaranga/</url>
@@ -34,7 +34,6 @@
     <module>core</module>
     <module>net</module>
     <module>api</module>
-    <module>tracing-zipkin</module>
   </modules>
 
   <properties>
@@ -49,10 +48,8 @@
     <snakeyaml.version>2.5</snakeyaml.version>
 
     <log4j-bom.version>2.25.3</log4j-bom.version>
-    <micrometer-bom.version>1.6.2</micrometer-bom.version>
     <prometheus-bom.version>1.4.3</prometheus-bom.version>
-    <brave.version>6.3.0</brave.version>
-    <zipkin-bom.version>3.5.1</zipkin-bom.version>
+    <opentelemetry-bom.version>1.59.0</opentelemetry-bom.version>
 
     <junit.version>4.13.2</junit.version>
     <easymock.version>3.6</easymock.version>
@@ -133,14 +130,6 @@
       </dependency>
 
       <dependency>
-        <groupId>io.micrometer</groupId>
-        <artifactId>micrometer-tracing-bom</artifactId>
-        <version>${micrometer-bom.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
-      <dependency>
         <groupId>io.prometheus</groupId>
         <artifactId>prometheus-metrics-bom</artifactId>
         <version>${prometheus-bom.version}</version>
@@ -149,14 +138,9 @@
       </dependency>
 
       <dependency>
-        <groupId>io.zipkin.brave</groupId>
-        <artifactId>brave-context-log4j2</artifactId>
-        <version>${brave.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.zipkin.reporter2</groupId>
-        <artifactId>zipkin-reporter-bom</artifactId>
-        <version>${zipkin-bom.version}</version>
+        <groupId>io.opentelemetry</groupId>
+        <artifactId>opentelemetry-bom</artifactId>
+        <version>${opentelemetry-bom.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

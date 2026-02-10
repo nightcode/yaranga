@@ -92,14 +92,14 @@ public final class ApiGwConfig {
     return new Builder();
   }
 
-  private final String  name;
-  private final String  address;
-  private final int     poolSize;
-  private final boolean useSsl;
-  private final String  keystorePath;
-  private final String  keystorePassword;
-  private final String  truststorePath;
-  private final String  truststorePassword;
+  private String  name;
+  private String  address;
+  private int     poolSize;
+  private boolean useSsl;
+  private String  keystorePath;
+  private String  keystorePassword;
+  private String  truststorePath;
+  private String  truststorePassword;
 
   private List<ApiGwInterceptor> interceptors;
 
@@ -158,5 +158,41 @@ public final class ApiGwConfig {
   public ApiGwConfig interceptor(ApiGwInterceptor... val) {
     interceptors = Arrays.asList(val);
     return this;
+  }
+
+  public void setAddress(String address) {
+    this.address = address;
+  }
+
+  public void setInterceptors(List<ApiGwInterceptor> interceptors) {
+    this.interceptors = interceptors;
+  }
+
+  public void setKeystorePassword(String keystorePassword) {
+    this.keystorePassword = keystorePassword;
+  }
+
+  public void setKeystorePath(String keystorePath) {
+    this.keystorePath = keystorePath;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setPoolSize(int poolSize) {
+    this.poolSize = poolSize;
+  }
+
+  public void setTruststorePassword(String truststorePassword) {
+    this.truststorePassword = truststorePassword;
+  }
+
+  public void setTruststorePath(String truststorePath) {
+    this.truststorePath = truststorePath;
+  }
+
+  public void setUseSsl(boolean useSsl) {
+    this.useSsl = useSsl;
   }
 }

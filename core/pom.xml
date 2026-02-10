@@ -18,7 +18,7 @@
   <parent>
     <groupId>org.nightcode.yaranga</groupId>
     <artifactId>yaranga-parent</artifactId>
-    <version>0.12</version>
+    <version>0.12.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>yaranga</artifactId>
@@ -38,12 +38,6 @@
     </dependency>
 
     <dependency>
-      <groupId>io.micrometer</groupId>
-      <artifactId>micrometer-tracing</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
       <groupId>io.prometheus</groupId>
       <artifactId>prometheus-metrics-core</artifactId>
       <scope>provided</scope>
@@ -51,6 +45,17 @@
     <dependency>
       <groupId>io.prometheus</groupId>
       <artifactId>prometheus-metrics-instrumentation-jvm</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-sdk</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-exporter-otlp</artifactId>
       <scope>provided</scope>
     </dependency>
 

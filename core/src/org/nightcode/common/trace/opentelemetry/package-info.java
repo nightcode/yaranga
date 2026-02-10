@@ -13,7 +13,7 @@
  */
 
 /**
- * Classes and interfaces for zipkin.
+ * Classes and interfaces for trace.opentelemetry.
  */
 
-package org.nightcode.tracing.zipkin;
+package org.nightcode.common.trace.opentelemetry;

@@ -18,8 +18,11 @@ import com.google.protobuf.Message;
 
 import java.util.concurrent.CompletableFuture;
 
-import io.micrometer.tracing.Span;
-import io.micrometer.tracing.Tracer;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Scope;
 import org.nightcode.api.ApiCall;
 import org.nightcode.api.ApiContext;
 import org.nightcode.api.ApiInterceptor;
@@ -43,21 +46,22 @@ public class TracingApiInterceptor implements ApiInterceptor {
                                                                                      Class<R> responseClass) {
     return new SimpleApiCall<>(clientApiContext.newApiCall(requestClass, responseClass)) {
       @Override public CompletableFuture<R> executeAsync(Q message, Metadata metadata) {
-        Span rpcSpan = tracer.nextSpan().name(message.getDescriptorForType().getFullName());
-        if (!Boolean.TRUE.equals(rpcSpan.context().sampled())) {
+        Span rpcSpan = tracer.spanBuilder(message.getDescriptorForType().getFullName()).setSpanKind(SpanKind.CLIENT).startSpan();
+        if (!rpcSpan.getSpanContext().isSampled()) {
           return super.executeAsync(message, metadata);
         }
 
-        try (Tracer.SpanInScope scope = tracer.withSpan(rpcSpan.start())) {
+        try (Scope unused = rpcSpan.makeCurrent()) {
           metadata = metadata.toBuilder()
               .setTrace(Trace.newBuilder()
-                  .setTraceId(rpcSpan.context().traceId())
-                  .setSpanId(rpcSpan.context().spanId()))
+                  .setTraceId(rpcSpan.getSpanContext().getTraceId())
+                  .setSpanId(rpcSpan.getSpanContext().getSpanId()))
               .build();
           CompletableFuture<R> cf = super.executeAsync(message, metadata);
           cf.whenComplete((r, t) -> {
             if (t != null) {
-              rpcSpan.error(t);
+              rpcSpan.recordException(t);
+              rpcSpan.setStatus(StatusCode.ERROR, t.getClass().getSimpleName());
             }
             rpcSpan.end();
           });

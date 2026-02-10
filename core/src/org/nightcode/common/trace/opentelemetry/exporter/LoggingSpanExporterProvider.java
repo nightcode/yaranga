@@ -12,8 +12,17 @@
  * limitations under the License.
  */
 
-/**
- * Classes and interfaces for zipkin.handler.
- */
+package org.nightcode.common.trace.opentelemetry.exporter;
 
-package org.nightcode.tracing.zipkin.handler;
+import io.opentelemetry.sdk.trace.export.SpanExporter;
+import org.nightcode.common.trace.opentelemetry.SpanExporterProvider;
+
+/**
+ * Logging SpanExporter provider.
+ */
+public class LoggingSpanExporterProvider implements SpanExporterProvider {
+
+  @Override public SpanExporter get() {
+    return new LoggingSpanExporter();
+  }
+}

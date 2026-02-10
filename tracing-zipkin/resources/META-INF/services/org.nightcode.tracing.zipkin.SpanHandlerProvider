@@ -1,2 +1,0 @@
-org.nightcode.tracing.zipkin.handler.LoggingSpanHandlerProvider
-org.nightcode.tracing.zipkin.handler.ZipkinSpanHandlerProvider

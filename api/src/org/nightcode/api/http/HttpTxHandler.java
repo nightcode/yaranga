@@ -45,7 +45,7 @@ import static java.lang.String.format;
  */
 public class HttpTxHandler extends ChannelDuplexHandler {
 
-  private static final String USER_AGENT = Properties.instance().getString("org.nightcode.api.http.UserAgent", "nightcode-api/0.1");
+  private static final String USER_AGENT = Properties.instance().getString("org.nightcode.api.http.userAgent", "nightcode-api/0.1");
 
   private final Endpoint<URI> endpoint;
 

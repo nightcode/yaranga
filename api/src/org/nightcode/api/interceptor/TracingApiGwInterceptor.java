@@ -18,8 +18,16 @@ import com.google.protobuf.Message;
 
 import java.util.concurrent.CompletableFuture;
 
-import io.micrometer.tracing.Span;
-import io.micrometer.tracing.Tracer;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanBuilder;
+import io.opentelemetry.api.trace.SpanContext;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.api.trace.TraceFlags;
+import io.opentelemetry.api.trace.TraceState;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 import org.nightcode.api.ApiGwCall;
 import org.nightcode.api.ApiGwContext;
 import org.nightcode.api.ApiGwInterceptor;
@@ -43,26 +51,25 @@ public class TracingApiGwInterceptor implements ApiGwInterceptor {
     return new SimpleApiGwCall<>(context.newApiCall()) {
       @Override public CompletableFuture<R> executeAsync(String serviceName, MethodHandler<Q, R> methodHandler, Q message,
                                                          Metadata metadata) {
-        Span apiCallSpan;
+        SpanBuilder builder = tracer.spanBuilder(message.getDescriptorForType().getFullName())
+            .setSpanKind(SpanKind.SERVER);
+
         if (metadata.hasTrace()) {
-          io.micrometer.tracing.TraceContext tc = tracer.traceContextBuilder()
-              .traceId(metadata.getTrace().getTraceId())
-              .spanId(metadata.getTrace().getSpanId())
-              .sampled(Boolean.TRUE)
-              .build();
-          apiCallSpan = tracer.spanBuilder().setParent(tc).name(message.getDescriptorForType().getFullName()).start();
-        } else {
-          apiCallSpan = tracer.nextSpan().name(message.getDescriptorForType().getFullName()).start();
+          SpanContext parentContext = SpanContext.createFromRemoteParent(metadata.getTrace().getTraceId()
+              , metadata.getTrace().getSpanId(), TraceFlags.getSampled(), TraceState.getDefault());
+          Span parentSpan = Span.wrap(parentContext);
+          builder.setParent(Context.current().with(parentSpan));
         }
 
-        try (Tracer.SpanInScope scope = tracer.withSpan(apiCallSpan)) {
-          io.micrometer.tracing.TraceContext tc = apiCallSpan.context();
+        Span apiCallSpan = builder.startSpan();
+        try (Scope unused = apiCallSpan.makeCurrent()) {
+          SpanContext spanContext = apiCallSpan.getSpanContext();
 
           Trace.Builder tcBuilder = Trace.newBuilder()
-              .setTraceId(tc.traceId())
-              .setSpanId(tc.spanId());
-          if (tc.parentId() != null) {
-            tcBuilder.setParentId(tc.parentId());
+              .setTraceId(spanContext.getTraceId())
+              .setSpanId(spanContext.getSpanId());
+          if (metadata.hasTrace()) {
+            tcBuilder.setParentId(metadata.getTrace().getSpanId());
           }
 
           metadata = metadata.toBuilder().setTrace(tcBuilder).build();
@@ -70,7 +77,8 @@ public class TracingApiGwInterceptor implements ApiGwInterceptor {
           CompletableFuture<R> cf = super.executeAsync(serviceName, methodHandler, message, metadata);
           cf.whenComplete((r, t) -> {
             if (t != null) {
-              apiCallSpan.error(t);
+              apiCallSpan.recordException(t);
+              apiCallSpan.setStatus(StatusCode.ERROR, t.getClass().getSimpleName());
             }
             apiCallSpan.end();
           });
