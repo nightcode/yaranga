@@ -24,7 +24,7 @@ Useful stuff for Java 21+.
 | org.nightcode.trace.exporter.LoggingSpanExporter.level  | TRACE, DEBUG, INFO, WARN, ERROR | INFO                                                                          |
 | org.nightcode.trace.exporter.OtlpSpanExporter.timeoutMs | [0, Long.MAX_VALUE]             | 10000                                                                         |
 | org.nightcode.trace.exporter.OtlpSpanExporter.protocol  | HTTP, GRPC                      | HTTP                                                                          |
-| org.nightcode.trace.exporter.OtlpSpanExporter.endpoint  | [0, Long.MAX_VALUE]             | http://127.0.0.1:4318/v1/traces                                               |
+| org.nightcode.trace.exporter.OtlpSpanExporter.endpoint  | string                          | http://127.0.0.1:4318/v1/traces                                               |
 | org.nightcode.net.tcp.{name}.backlog                    | system-dependent                | 1024                                                                          |
 | org.nightcode.net.tcp.{name}.reuseAddress               | true, false                     | true                                                                          |
 | org.nightcode.net.tcp.{name}.keepAlive                  | true, false                     | true                                                                          |
@@ -43,7 +43,7 @@ Download [the latest jar][1] via Maven:
 <dependency>
   <groupId>org.nightcode.yaranga</groupId>
   <artifactId>yaranga</artifactId>
-  <version>0.12</version>
+  <version>0.12.1</version>
 </dependency>
 ```
 
