@@ -37,7 +37,7 @@ public class CommandInvoker {
   static CommandInvoker createInvoker(Object proxy, Method method) {
     Cmd annotation = (Cmd) ANNOTATION_FUNCTION.apply(method);
     if (annotation == null) {
-      throw new IllegalArgumentException("Method <" + method + "> should have @Cmd annotation.");
+      throw new IllegalArgumentException("method <" + method + "> should have @Cmd annotation.");
     }
 
     StringBuilder logMsg = new StringBuilder();
@@ -76,9 +76,9 @@ public class CommandInvoker {
 
     for (Argument argument : command.arguments()) {
       Arg arg = argument.annotation();
-      sb.append("\n    -").append(arg.alias()).append(", --").append(arg.name());
+      sb.append("\n     -").append(arg.alias()).append(", --").append(arg.name());
       if (!arg.help().isEmpty()) {
-        sb.append("            ").append(arg.help());
+        sb.append("\n           ").append(arg.help());
       }
       map.put("--" + argument.annotation().name(), argument);
       map.put("-" + argument.annotation().alias(), argument);

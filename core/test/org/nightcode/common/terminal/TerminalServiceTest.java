@@ -14,6 +14,7 @@
 
 package org.nightcode.common.terminal;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -34,11 +35,12 @@ public class TerminalServiceTest {
 
   interface ApiCommands {
     @Cmd(name = "echo", help = "echo command")
-    String echo(@Arg(name = "src", alias = "s", help = "Echo message.", required = true) String src);
+    String echo(@Arg(name = "src", alias = "s", help = "Echo message.", required = true) String src,
+                @Arg(name = "dst", alias = "d", help = "Destination.", required = false) String dst);
   }
 
   static final class ApiCommandsImpl implements ApiCommands {
-    @Override public String echo(String src) {
+    @Override public String echo(String src, String dst) {
       Terminal.get().printf(src);
       return src;
     }
@@ -47,12 +49,18 @@ public class TerminalServiceTest {
   @Test public void execute() throws ExecutionException, InterruptedException, TimeoutException {
     Properties.instance().setPropertiesStorage(SystemPropertiesStorage.INSTANCE);
     System.setProperty("org.nightcode.terminal.SIGTERM", "false");
-    AtomicBoolean executed = new AtomicBoolean(false);
-    AtomicBoolean read     = new AtomicBoolean(false);
+    CompletableFuture<Boolean> result   = new CompletableFuture<>();
+    AtomicBoolean              executed = new AtomicBoolean(false);
+    AtomicBoolean              read     = new AtomicBoolean(false);
     Terminal terminal = new Terminal() {
       @Override public void printf(String format, Object... args) {
         if (read.compareAndSet(false, true)) {
-          Assert.assertEquals("test", format);
+          try {
+            Assert.assertEquals("test", format);
+            result.complete(Boolean.TRUE);
+          } catch (Exception ex) {
+            result.completeExceptionally(ex);
+          }
         }
       }
 
@@ -67,20 +75,30 @@ public class TerminalServiceTest {
     service.startAsync().get(1, TimeUnit.SECONDS);
     ExecutorUtils.sleepUninterruptibly(1, TimeUnit.SECONDS);
     Assert.assertEquals(Service.State.TERMINATED, service.state());
+    result.get(1, TimeUnit.SECONDS);
   }
 
   @Test public void help() throws ExecutionException, InterruptedException, TimeoutException {
     Properties.instance().setPropertiesStorage(SystemPropertiesStorage.INSTANCE);
     System.setProperty("org.nightcode.terminal.SIGTERM", "false");
+    CompletableFuture<Boolean> result   = new CompletableFuture<>();
     AtomicBoolean executed = new AtomicBoolean(false);
     AtomicBoolean read     = new AtomicBoolean(false);
     Terminal terminal = new Terminal() {
       @Override public void printf(String format, Object... args) {
         if (read.compareAndSet(false, true)) {
           String expected = """
-                               echo - echo command
-                                   -s, --src            Echo message.""";
-          Assert.assertEquals(expected, args.length > 0 ? args[0] : "");
+              echo - echo command
+                   -s, --src
+                         Echo message.
+                   -d, --dst
+                         Destination.""";
+          try {
+            Assert.assertEquals(expected, args[0]);
+            result.complete(Boolean.TRUE);
+          } catch (Exception ex) {
+            result.completeExceptionally(ex);
+          }
         }
       }
 
@@ -96,5 +114,6 @@ public class TerminalServiceTest {
     service.startAsync().get(1, TimeUnit.SECONDS);
     ExecutorUtils.sleepUninterruptibly(1, TimeUnit.SECONDS);
     Assert.assertEquals(Service.State.TERMINATED, service.state());
+    result.get(1, TimeUnit.SECONDS);
   }
 }
