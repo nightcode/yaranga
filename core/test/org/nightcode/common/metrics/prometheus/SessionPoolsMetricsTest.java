@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.monitoring.prometheus;
+package org.nightcode.common.metrics.prometheus;
 
 import java.util.Optional;
 
@@ -53,12 +53,12 @@ public class SessionPoolsMetricsTest {
 
       SessionPoolsMetrics.addPool(pool);
 
-      MetricSnapshots          snapshots = PrometheusRegistry.defaultRegistry.scrape("session_pool_targets_size"::equals);
+      MetricSnapshots          snapshots = PrometheusRegistry.defaultRegistry.scrape("nc_session_pool_targets_size"::equals);
       Optional<MetricSnapshot> optional  = snapshots.stream().findFirst();
       Assert.assertTrue(optional.isPresent());
 
       MetricSnapshot snapshot = optional.get();
-      Assert.assertEquals("session_pool_targets_size", snapshot.getMetadata().getName());
+      Assert.assertEquals("nc_session_pool_targets_size", snapshot.getMetadata().getName());
 
       CounterSnapshot.CounterDataPointSnapshot dataPoint = (CounterSnapshot.CounterDataPointSnapshot) snapshot.getDataPoints().getFirst();
       Assert.assertEquals(1.0, dataPoint.getValue(), 0.0);

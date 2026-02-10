@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.monitoring.prometheus;
+package org.nightcode.common.metrics.prometheus;
 
 import java.util.Collections;
 import java.util.List;
@@ -146,15 +146,15 @@ public enum ExecutorsMetrics implements MultiCollector {
     };
   }
 
-  private static final String MN_EXECUTOR_ACTIVE_COUNT             = "executor_active_count";
-  private static final String MN_EXECUTOR_COMPLETED_TASK_COUNT     = "executor_completed_task_count";
-  private static final String MN_EXECUTOR_CORE_POOL_SIZE           = "executor_core_pool_size";
-  private static final String MN_EXECUTOR_LARGEST_POOL_SIZE        = "executor_largest_pool_size";
-  private static final String MN_EXECUTOR_MAXIMUM_POOL_SIZE        = "executor_maximum_pool_size";
-  private static final String MN_EXECUTOR_POOL_SIZE                = "executor_pool_size";
-  private static final String MN_EXECUTOR_TASK_COUNT               = "executor_task_count";
-  private static final String MN_EXECUTOR_QUEUE_SIZE               = "executor_queue_size";
-  private static final String MN_EXECUTOR_QUEUE_REMAINING_CAPACITY = "executor_queue_remaining_capacity";
+  private static final String MN_EXECUTOR_ACTIVE_COUNT             = "nc_executor_active_count";
+  private static final String MN_EXECUTOR_COMPLETED_TASK_COUNT     = "nc_executor_completed_task_count";
+  private static final String MN_EXECUTOR_CORE_POOL_SIZE           = "nc_executor_core_pool_size";
+  private static final String MN_EXECUTOR_LARGEST_POOL_SIZE        = "nc_executor_largest_pool_size";
+  private static final String MN_EXECUTOR_MAXIMUM_POOL_SIZE        = "nc_executor_maximum_pool_size";
+  private static final String MN_EXECUTOR_POOL_SIZE                = "nc_executor_pool_size";
+  private static final String MN_EXECUTOR_TASK_COUNT               = "nc_executor_task_count";
+  private static final String MN_EXECUTOR_QUEUE_SIZE               = "nc_executor_queue_size";
+  private static final String MN_EXECUTOR_QUEUE_REMAINING_CAPACITY = "nc_executor_queue_remaining_capacity";
 
   private static final List<String> METRIC_NAMES = asList(
       MN_EXECUTOR_ACTIVE_COUNT

@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.monitoring.prometheus;
+package org.nightcode.common.metrics.prometheus;
 
 import java.util.Collections;
 import java.util.Date;

@@ -13,7 +13,7 @@
  */
 
 /**
- * This package contains classes and interfaces for monitoring.prometheus.
+ * This package contains classes and interfaces for metrics.prometheus.
  */
 
-package org.nightcode.common.monitoring.prometheus;
+package org.nightcode.common.metrics.prometheus;

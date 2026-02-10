@@ -32,7 +32,7 @@ public enum MetricsApiInterceptor implements ApiInterceptor {
   INSTANCE;
 
   private static final Summary TIMER = Summary.builder()
-      .name("api_requests")
+      .name("nc_api_requests")
       .help("api method invocation")
       .labelNames("service", "generation", "method")
       .register();

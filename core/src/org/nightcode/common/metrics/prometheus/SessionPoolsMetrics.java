@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.monitoring.prometheus;
+package org.nightcode.common.metrics.prometheus;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,8 +34,8 @@ import static java.util.Arrays.asList;
 public enum SessionPoolsMetrics implements MultiCollector {
   INSTANCE;
 
-  private static final String MN_SESSION_POOL_SIZE    = "session_pool_targets_size";
-  private static final String MN_SESSION_POOL_HEALTHY = "session_pool_targets_healthy";
+  private static final String MN_SESSION_POOL_SIZE    = "nc_session_pool_targets_size";
+  private static final String MN_SESSION_POOL_HEALTHY = "nc_session_pool_targets_healthy";
 
   private static final List<String> METRIC_NAMES = asList(MN_SESSION_POOL_SIZE, MN_SESSION_POOL_HEALTHY);
 

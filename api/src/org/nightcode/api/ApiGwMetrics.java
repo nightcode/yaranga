@@ -37,11 +37,11 @@ import static java.util.Arrays.asList;
 public enum ApiGwMetrics implements MultiCollector {
   INSTANCE;
 
-  private static final String MN_API_GW_REQUESTS                = "api_gw_requests";
-  private static final String MN_API_GW_ACCEPTOR_EXECUTOR_COUNT = "api_gw_acceptor_executor_count";
-  private static final String MN_API_GW_ACCEPTOR_PENDING_TASKS  = "api_gw_acceptor_pending_tasks";
-  private static final String MN_API_GW_WORKER_EXECUTOR_COUNT   = "api_gw_worker_executor_count";
-  private static final String MN_API_GW_WORKER_PENDING_TASKS    = "api_gw_worker_pending_tasks";
+  private static final String MN_API_GW_REQUESTS                = "nc_api_gw_requests";
+  private static final String MN_API_GW_ACCEPTOR_EXECUTOR_COUNT = "nc_api_gw_acceptor_executor_count";
+  private static final String MN_API_GW_ACCEPTOR_PENDING_TASKS  = "nc_api_gw_acceptor_pending_tasks";
+  private static final String MN_API_GW_WORKER_EXECUTOR_COUNT   = "nc_api_gw_worker_executor_count";
+  private static final String MN_API_GW_WORKER_PENDING_TASKS    = "nc_api_gw_worker_pending_tasks";
 
   private static final List<String> METRIC_NAMES = asList(
       MN_API_GW_REQUESTS

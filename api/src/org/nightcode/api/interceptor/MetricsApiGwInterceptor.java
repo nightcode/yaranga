@@ -36,7 +36,7 @@ public class MetricsApiGwInterceptor implements ApiGwInterceptor {
   }
 
   private static final Summary REQUEST_TIMER = Summary.builder()
-      .name("api_gateway_requests")
+      .name("nc_api_gateway_requests")
       .help("api gateway method invocation")
       .labelNames("transport", "service", "generation", "method")
       .register();

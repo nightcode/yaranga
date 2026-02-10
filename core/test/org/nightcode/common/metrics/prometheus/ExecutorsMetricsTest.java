@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.monitoring.prometheus;
+package org.nightcode.common.metrics.prometheus;
 
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
@@ -50,12 +50,12 @@ public class ExecutorsMetricsTest {
         attempts--;
       }
 
-      MetricSnapshots snapshots = PrometheusRegistry.defaultRegistry.scrape("executor_completed_task_count"::equals);
+      MetricSnapshots snapshots = PrometheusRegistry.defaultRegistry.scrape("nc_executor_completed_task_count"::equals);
       Optional<MetricSnapshot> optional = snapshots.stream().findFirst();
       Assert.assertTrue(optional.isPresent());
       
       MetricSnapshot snapshot = optional.get();
-      Assert.assertEquals("executor_completed_task_count", snapshot.getMetadata().getName());
+      Assert.assertEquals("nc_executor_completed_task_count", snapshot.getMetadata().getName());
 
       CounterSnapshot.CounterDataPointSnapshot dataPoint = (CounterSnapshot.CounterDataPointSnapshot) snapshot.getDataPoints().getFirst();
       Assert.assertEquals(1.0, dataPoint.getValue(), 0.0);
