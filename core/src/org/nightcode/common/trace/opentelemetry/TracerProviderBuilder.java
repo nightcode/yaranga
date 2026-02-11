@@ -15,8 +15,8 @@
 package org.nightcode.common.trace.opentelemetry;
 
 import java.util.Objects;
-import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
@@ -30,7 +30,6 @@ import io.opentelemetry.sdk.trace.export.SpanExporter;
 import io.opentelemetry.sdk.trace.samplers.Sampler;
 import org.jetbrains.annotations.NotNull;
 import org.nightcode.common.base.Jvm;
-import org.nightcode.common.logging.Log;
 import org.nightcode.common.props.Properties;
 import org.nightcode.common.trace.opentelemetry.exporter.LoggingSpanExporterProvider;
 import org.nightcode.common.util.Closeables;
@@ -45,15 +44,31 @@ public final class TracerProviderBuilder {
   private static final AttributeKey<String> SERVICE_NAME    = AttributeKey.stringKey("service.name");
   private static final AttributeKey<String> SERVICE_VERSION = AttributeKey.stringKey("service.version");
 
-  private final ServiceLoader<SpanExporterProvider> serviceLoader = ServiceLoader.load(SpanExporterProvider.class);
-
   public static TracerProviderBuilder builder() {
     return new TracerProviderBuilder();
   }
 
-  private Resource     resource     = defResource();
-  private Sampler      sampler      = defSampler();
-  private SpanExporter spanExporter = defSpanExporter();
+  private static Resource defResource() {
+    String serviceName    = Properties.instance().getString("org.nightcode.trace.service.name", "pid:" + Jvm.pid());
+    String serviceVersion = Properties.instance().getString("org.nightcode.trace.service.version", "unknown");
+    Attributes attributes = Attributes.of(stringKey("service.name"), serviceName, stringKey("service.version"), serviceVersion);
+    return Resource.getDefault().merge(Resource.create(attributes));
+  }
+
+  private static Sampler defSampler() {
+    float probability = Float.parseFloat(Properties.instance().getString("org.nightcode.trace.sampling.ratio", "0.01f"));
+    return Sampler.parentBased(Sampler.traceIdRatioBased(probability));
+  }
+
+  private static SpanExporter defSpanExporter() {
+    String spanExporterClassName = Properties.instance().getString("org.nightcode.trace.SpanExporterProvider"
+        , LoggingSpanExporterProvider.class.getName());
+    return SpanExporterProvider.spanExporter(spanExporterClassName);
+  }
+
+  private Resource     resource;
+  private Sampler      sampler;
+  private SpanExporter spanExporter;
 
   private TracerProviderBuilder() {
     // do nothing
@@ -78,10 +93,18 @@ public final class TracerProviderBuilder {
     return this;
   }
 
+  public TracerProviderBuilder resource(Supplier<Resource> supplier) {
+    return resource(supplier.get());
+  }
+
   public TracerProviderBuilder sampler(@NotNull Sampler val) {
     Objects.requireNonNull(val, "sampler");
     sampler = val;
     return this;
+  }
+
+  public TracerProviderBuilder sampler(Supplier<Sampler> supplier) {
+    return sampler(supplier.get());
   }
 
   public TracerProviderBuilder spanExporter(@NotNull SpanExporter val) {
@@ -90,24 +113,8 @@ public final class TracerProviderBuilder {
     return this;
   }
 
-  private Resource defResource() {
-    String serviceName    = Properties.instance().getString("org.nightcode.trace.service.name", "pid:" + Jvm.pid());
-    String serviceVersion = Properties.instance().getString("org.nightcode.trace.service.version", "unknown");
-
-    Attributes attributes = Attributes.of(stringKey("service.name"), serviceName, stringKey("service.version"), serviceVersion);
-    return Resource.getDefault().merge(Resource.create(attributes));
-  }
-
-  private Sampler defSampler() {
-    float probability = Float.parseFloat(Properties.instance().getString("org.nightcode.trace.sampling.ratio", "0.01f"));
-
-    return Sampler.parentBased(Sampler.traceIdRatioBased(probability));
-  }
-
-  private SpanExporter defSpanExporter() {
-    String spanExporterClassName = Properties.instance().getString("org.nightcode.trace.SpanExporterProvider"
-        , LoggingSpanExporterProvider.class.getName());
-    return spanExporter(spanExporterClassName);
+  public TracerProviderBuilder spanExporter(Supplier<SpanExporter> supplier) {
+    return spanExporter(supplier.get());
   }
 
   public TracerProvider build() {
@@ -119,6 +126,21 @@ public final class TracerProviderBuilder {
     int  maxExportBatchSize = Properties.instance().getInt("org.nightcode.trace.batch.maxExportBatchSize", 512);
     long scheduleDelayMs    = Properties.instance().getLong("org.nightcode.trace.batch.scheduleDelayMs", 5_000);
     long exporterTimeoutMs  = Properties.instance().getLong("org.nightcode.trace.batch.exporterTimeoutMs", 30_000);
+
+    Resource resource = this.resource;
+    if (resource == null) {
+      resource = defResource();
+    }
+
+    Sampler sampler = this.sampler;
+    if (sampler == null) {
+      sampler = defSampler();
+    }
+
+    SpanExporter spanExporter = this.spanExporter;
+    if (spanExporter == null) {
+      spanExporter = defSpanExporter();
+    }
 
     SpanProcessor spanProcessor = BatchSpanProcessor.builder(spanExporter)
         .setMaxQueueSize(maxQueueSize)
@@ -140,16 +162,9 @@ public final class TracerProviderBuilder {
     return sdkTracerProvider;
   }
 
-  private SpanExporter spanExporter(String providerClass) {
-    Objects.requireNonNull(providerClass, "SpanExporterProvider class name must not be null");
-    for (SpanExporterProvider provider : serviceLoader) {
-      if (providerClass.equals(provider.getClass().getName())) {
-        SpanExporter spanExporter = provider.get();
-        Log.info().log(getClass(), "Initialized SpanExporter: {}", spanExporter.getClass().getName());
-        return spanExporter;
-      }
-    }
-    Log.warn().log(getClass(), "unable to find SpanExporterProvider {}, fallback to SpanExporter.NOOP", providerClass);
-    return SpanExporter.composite();
+  public TracerProvider register() {
+    TracerProvider tracerProvider = build();
+    org.nightcode.common.trace.opentelemetry.TracerProvider.init(tracerProvider);
+    return tracerProvider;
   }
 }

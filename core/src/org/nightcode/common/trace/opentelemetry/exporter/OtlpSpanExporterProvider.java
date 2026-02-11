@@ -14,7 +14,10 @@
 
 package org.nightcode.common.trace.opentelemetry.exporter;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import io.opentelemetry.exporter.otlp.http.trace.OtlpHttpSpanExporter;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
@@ -27,24 +30,36 @@ import org.nightcode.common.trace.opentelemetry.SpanExporterProvider;
  */
 public class OtlpSpanExporterProvider implements SpanExporterProvider {
 
+  private static final String DEF_PROTOCOL   = "HTTP";
+  private static final String DEF_ENDPOINT   = "http://127.0.0.1:4318/v1/traces";
+  private static final String HEADER_API_KEY = "api-key";
+
   private final long   timeoutMs = Properties.instance().getLong("org.nightcode.trace.exporter.OtlpSpanExporter.timeoutMs", 10_000);
-  private final String protocol  = Properties.instance().getString("org.nightcode.trace.exporter.OtlpSpanExporter.protocol", "HTTP");
-  private final String endpoint  = Properties.instance().getString("org.nightcode.trace.exporter.OtlpSpanExporter.endpoint"
-      , "http://127.0.0.1:4318/v1/traces");
+  private final String protocol  = Properties.instance().getString("org.nightcode.trace.exporter.OtlpSpanExporter.protocol", DEF_PROTOCOL);
+  private final String endpoint  = Properties.instance().getString("org.nightcode.trace.exporter.OtlpSpanExporter.endpoint", DEF_ENDPOINT);
+  private final String apiKey    = Properties.instance().getString("org.nightcode.trace.exporter.OtlpSpanExporter.staticApiKey", null);
 
   @Override public SpanExporter get() {
     return switch (protocol) {
       case "GRPC" -> OtlpGrpcSpanExporter.builder()
           .setEndpoint(endpoint)
-          .addHeader("api-key", "value")
+          .setHeaders(headersSupplier())
           .setTimeout(timeoutMs, TimeUnit.MILLISECONDS)
           .build();
       case "HTTP" -> OtlpHttpSpanExporter.builder()
           .setEndpoint(endpoint)
-          .addHeader("api-key", "value")
+          .setHeaders(headersSupplier())
           .setTimeout(timeoutMs, TimeUnit.MILLISECONDS)
           .build();
       default -> throw new IllegalStateException("Unexpected PROTOCOL value: " + protocol);
+    };
+  }
+  private Supplier<Map<String, String>> headersSupplier() {
+    return () -> {
+      if (apiKey == null || apiKey.isEmpty()) {
+        return Collections.emptyMap();
+      }
+      return Map.of(HEADER_API_KEY, apiKey);
     };
   }
 }

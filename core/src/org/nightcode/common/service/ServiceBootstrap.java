@@ -16,6 +16,7 @@ package org.nightcode.common.service;
 
 import java.util.function.Supplier;
 
+import io.opentelemetry.sdk.trace.export.SpanExporter;
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics;
 import org.nightcode.common.base.Jvm;
 import org.nightcode.common.lang.ThrowingBiConsumer;
@@ -25,7 +26,6 @@ import org.nightcode.common.logging.LoggingHandler;
 import org.nightcode.common.metrics.prometheus.AppInfoMetrics;
 import org.nightcode.common.metrics.prometheus.ExecutorsMetrics;
 import org.nightcode.common.metrics.prometheus.SessionPoolsMetrics;
-import org.nightcode.common.trace.opentelemetry.TracerProvider;
 import org.nightcode.common.trace.opentelemetry.TracerProviderBuilder;
 import org.nightcode.common.util.ExecutorUtils;
 import org.nightcode.common.util.PomUtils;
@@ -56,7 +56,8 @@ public class ServiceBootstrap<C extends ServiceConfig> {
   private final String groupId;
   private final String artefactId;
 
-  private volatile C config;
+  private volatile C            config;
+  private volatile SpanExporter spanExporter;
 
   private volatile ThrowingBiConsumer<C, ServiceContext, Exception> serviceInitializer = (config, context) -> { };
 
@@ -89,10 +90,21 @@ public class ServiceBootstrap<C extends ServiceConfig> {
     return this;
   }
 
+  public ServiceBootstrap<C> spanExporter(SpanExporter val) {
+    spanExporter = val;
+    return this;
+  }
+
   public void start() {
     try {
       String appVersion = PomUtils.version(groupId, artefactId);
-      TracerProvider.init(TracerProviderBuilder.builder().resource(config.appName(), appVersion).build());
+
+      TracerProviderBuilder tracerProviderBuilder = TracerProviderBuilder.builder().resource(config.appName(), appVersion);
+      if (spanExporter != null) {
+        tracerProviderBuilder.spanExporter(spanExporter);
+      }
+      tracerProviderBuilder.register();
+
       AppInfoMetrics.builder().appName(config.appName()).appVersion(appVersion).register();
       ExecutorsMetrics.register();
       SessionPoolsMetrics.register();
