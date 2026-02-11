@@ -18,7 +18,7 @@
   <groupId>org.nightcode.yaranga</groupId>
   <artifactId>yaranga-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.12.1</version>
+  <version>0.12.2-SNAPSHOT</version>
   <name>Yaranga (Parent) ${project.version}</name>
   <description>Useful stuff for Java 21+.</description>
   <url>http://github.com/nightcode/yaranga/</url>
@@ -70,11 +70,6 @@
       <dependency>
         <groupId>org.nightcode.yaranga</groupId>
         <artifactId>yaranga-api</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.nightcode.yaranga</groupId>
-        <artifactId>yaranga-tracing-zipkin</artifactId>
         <version>${project.version}</version>
       </dependency>
 

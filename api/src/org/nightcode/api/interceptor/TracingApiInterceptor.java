@@ -48,7 +48,11 @@ public class TracingApiInterceptor implements ApiInterceptor {
       @Override public CompletableFuture<R> executeAsync(Q message, Metadata metadata) {
         Span rpcSpan = tracer.spanBuilder(message.getDescriptorForType().getFullName()).setSpanKind(SpanKind.CLIENT).startSpan();
         if (!rpcSpan.getSpanContext().isSampled()) {
-          return super.executeAsync(message, metadata);
+          try {
+            return super.executeAsync(message, metadata);
+          } finally {
+            rpcSpan.end();
+          }
         }
 
         try (Scope unused = rpcSpan.makeCurrent()) {
