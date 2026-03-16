@@ -29,6 +29,7 @@ import org.nightcode.api.ApiInterceptor;
 import org.nightcode.api.SimpleApiCall;
 import org.nightcode.api.message.Metadata;
 import org.nightcode.api.message.Trace;
+import org.nightcode.common.trace.opentelemetry.TracerProvider;
 
 /**
  * Tracing API interceptor.
@@ -36,6 +37,10 @@ import org.nightcode.api.message.Trace;
 public class TracingApiInterceptor implements ApiInterceptor {
 
   private final Tracer tracer;
+
+  public TracingApiInterceptor() {
+    this(TracerProvider.get(TracingApiInterceptor.class));
+  }
 
   public TracingApiInterceptor(Tracer tracer) {
     this.tracer = tracer;

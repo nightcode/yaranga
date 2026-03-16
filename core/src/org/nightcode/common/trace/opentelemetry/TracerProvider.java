@@ -14,6 +14,7 @@
 
 package org.nightcode.common.trace.opentelemetry;
 
+import io.opentelemetry.api.trace.Tracer;
 import org.nightcode.common.props.Properties;
 
 /**
@@ -39,6 +40,10 @@ public enum TracerProvider {
       tracerProvider = provider;
       lastCaller = new Throwable();
     }
+  }
+
+  public static Tracer get(Class<?> clazz) {
+    return instance().get(clazz.getName());
   }
 
   public static io.opentelemetry.api.trace.TracerProvider instance() {
