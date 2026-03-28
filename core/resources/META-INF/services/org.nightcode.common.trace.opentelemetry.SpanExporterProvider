@@ -1,2 +1,0 @@
-org.nightcode.common.trace.opentelemetry.exporter.LoggingSpanExporterProvider
-org.nightcode.common.trace.opentelemetry.exporter.OtlpSpanExporterProvider

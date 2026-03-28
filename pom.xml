@@ -18,7 +18,7 @@
   <groupId>org.nightcode.yaranga</groupId>
   <artifactId>yaranga-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.12.3</version>
+  <version>0.12.4-SNAPSHOT</version>
   <name>Yaranga (Parent) ${project.version}</name>
   <description>Useful stuff for Java 21+.</description>
   <url>http://github.com/nightcode/yaranga/</url>
@@ -49,7 +49,8 @@
 
     <log4j-bom.version>2.25.3</log4j-bom.version>
     <prometheus-bom.version>1.4.3</prometheus-bom.version>
-    <opentelemetry-bom.version>1.59.0</opentelemetry-bom.version>
+    <opentelemetry-bom.version>1.60.1</opentelemetry-bom.version>
+    <opentelemetry-instrumentation-bom.version>2.26.0</opentelemetry-instrumentation-bom.version>
 
     <junit.version>4.13.2</junit.version>
     <easymock.version>3.6</easymock.version>
@@ -136,6 +137,13 @@
         <groupId>io.opentelemetry</groupId>
         <artifactId>opentelemetry-bom</artifactId>
         <version>${opentelemetry-bom.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.opentelemetry.instrumentation</groupId>
+        <artifactId>opentelemetry-instrumentation-bom</artifactId>
+        <version>${opentelemetry-instrumentation-bom.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

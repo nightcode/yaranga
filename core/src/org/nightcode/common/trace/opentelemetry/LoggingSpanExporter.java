@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.trace.opentelemetry.exporter;
+package org.nightcode.common.trace.opentelemetry;
 
 import java.util.Collection;
 import java.util.Locale;

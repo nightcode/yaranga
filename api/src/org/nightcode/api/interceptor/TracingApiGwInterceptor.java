@@ -35,7 +35,7 @@ import org.nightcode.api.MethodHandler;
 import org.nightcode.api.SimpleApiGwCall;
 import org.nightcode.api.message.Metadata;
 import org.nightcode.api.message.Trace;
-import org.nightcode.common.trace.opentelemetry.TracerProvider;
+import org.nightcode.common.trace.opentelemetry.OtelTracerProvider;
 
 /**
  * Tracing API gateway interceptor.
@@ -45,7 +45,7 @@ public class TracingApiGwInterceptor implements ApiGwInterceptor {
   private final Tracer tracer;
 
   public TracingApiGwInterceptor() {
-    this(TracerProvider.get(TracingApiGwInterceptor.class));
+    this(OtelTracerProvider.get(TracingApiGwInterceptor.class));
   }
 
   public TracingApiGwInterceptor(Tracer tracer) {

@@ -15,27 +15,30 @@
 package org.nightcode.common.trace.opentelemetry;
 
 import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.api.trace.TracerProvider;
+import io.opentelemetry.sdk.trace.SdkTracerProvider;
+import org.jetbrains.annotations.Nullable;
 import org.nightcode.common.props.Properties;
 
 /**
  * TracerProvider holder.
  */
-public enum TracerProvider {
+public enum OtelTracerProvider {
   ;
 
-  private static volatile io.opentelemetry.api.trace.TracerProvider tracerProvider;
+  private static volatile TracerProvider tracerProvider;
 
   private static Throwable lastCaller;
 
   private static final Object MUTEX = new Object();
 
-  public static void init(io.opentelemetry.api.trace.TracerProvider provider) {
+  public static void init(TracerProvider provider) {
     synchronized (MUTEX) {
       if (tracerProvider != null) {
         throw new IllegalStateException("TracerProvider has already been initialized.", lastCaller);
       }
-      if (Properties.instance().getBoolean("org.nightcode.trace.disable", false)) {
-        provider = io.opentelemetry.api.trace.TracerProvider.noop();
+      if (Properties.instance().getBoolean("org.nightcode.trace.opentelemetry.disable", false)) {
+        provider = TracerProvider.noop();
       }
       tracerProvider = provider;
       lastCaller = new Throwable();
@@ -46,13 +49,13 @@ public enum TracerProvider {
     return instance().get(clazz.getName());
   }
 
-  public static io.opentelemetry.api.trace.TracerProvider instance() {
-    io.opentelemetry.api.trace.TracerProvider provider = tracerProvider;
+  public static TracerProvider instance() {
+    TracerProvider provider = tracerProvider;
     if (provider == null) {
       synchronized (MUTEX) {
         provider = tracerProvider;
         if (provider == null) {
-          init(io.opentelemetry.api.trace.TracerProvider.noop());
+          init(TracerProvider.noop());
           provider = tracerProvider;
         }
       }
@@ -60,7 +63,14 @@ public enum TracerProvider {
     return provider;
   }
 
+  public static @Nullable SdkTracerProvider sdkInstance() {
+    if (instance() instanceof SdkTracerProvider sdkTracerProvider) {
+      return sdkTracerProvider;
+    }
+    return null;
+  }
+
   public static boolean isNoop() {
-    return instance() == io.opentelemetry.api.trace.TracerProvider.noop();
+    return instance() == TracerProvider.noop();
   }
 }

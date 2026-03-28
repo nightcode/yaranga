@@ -16,6 +16,9 @@ package org.nightcode.common.service;
 
 import java.util.function.Supplier;
 
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.logs.export.LogRecordExporter;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics;
 import org.nightcode.common.base.Jvm;
@@ -23,10 +26,15 @@ import org.nightcode.common.lang.ThrowingBiConsumer;
 import org.nightcode.common.logging.Log;
 import org.nightcode.common.logging.Log4jLoggingHandler;
 import org.nightcode.common.logging.LoggingHandler;
+import org.nightcode.common.logging.opentelemetry.OtelLoggerProvider;
+import org.nightcode.common.logging.opentelemetry.OtelLoggerProviderBuilder;
+import org.nightcode.common.logging.opentelemetry.appender.OpenTelemetryAppender;
 import org.nightcode.common.metrics.prometheus.AppInfoMetrics;
 import org.nightcode.common.metrics.prometheus.ExecutorsMetrics;
 import org.nightcode.common.metrics.prometheus.SessionPoolsMetrics;
-import org.nightcode.common.trace.opentelemetry.TracerProviderBuilder;
+import org.nightcode.common.trace.opentelemetry.OtelTracerProvider;
+import org.nightcode.common.trace.opentelemetry.OtelTracerProviderBuilder;
+import org.nightcode.common.util.Closeables;
 import org.nightcode.common.util.ExecutorUtils;
 import org.nightcode.common.util.PomUtils;
 import org.nightcode.common.util.SysUtils;
@@ -56,8 +64,9 @@ public class ServiceBootstrap<C extends ServiceConfig> {
   private final String groupId;
   private final String artefactId;
 
-  private volatile C            config;
-  private volatile SpanExporter spanExporter;
+  private volatile C                 config;
+  private volatile LogRecordExporter logReportExporter;
+  private volatile SpanExporter      spanExporter;
 
   private volatile ThrowingBiConsumer<C, ServiceContext, Exception> serviceInitializer = (config, context) -> { };
 
@@ -90,6 +99,11 @@ public class ServiceBootstrap<C extends ServiceConfig> {
     return this;
   }
 
+  public ServiceBootstrap<C> logRecordExporter(LogRecordExporter val) {
+    logReportExporter = val;
+    return this;
+  }
+
   public ServiceBootstrap<C> spanExporter(SpanExporter val) {
     spanExporter = val;
     return this;
@@ -99,11 +113,24 @@ public class ServiceBootstrap<C extends ServiceConfig> {
     try {
       String appVersion = PomUtils.version(groupId, artefactId);
 
-      TracerProviderBuilder tracerProviderBuilder = TracerProviderBuilder.builder().resource(config.appName(), appVersion);
+      OtelTracerProviderBuilder tracerProviderBuilder = OtelTracerProviderBuilder.builder().resource(config.appName(), appVersion);
       if (spanExporter != null) {
         tracerProviderBuilder.spanExporter(spanExporter);
       }
       tracerProviderBuilder.register();
+
+      OtelLoggerProviderBuilder loggerProviderBuilder = OtelLoggerProviderBuilder.builder().resource(config.appName(), appVersion);
+      if (logReportExporter != null) {
+        loggerProviderBuilder.logRecordExporter(logReportExporter);
+      }
+      loggerProviderBuilder.register();
+
+      final OpenTelemetrySdk sdk = OpenTelemetrySdk.builder()
+          .setTracerProvider(OtelTracerProvider.sdkInstance())
+          .setLoggerProvider(OtelLoggerProvider.sdkInstance())
+          .buildAndRegisterGlobal();
+
+      OpenTelemetryAppender.install(GlobalOpenTelemetry.get());
 
       AppInfoMetrics.builder().appName(config.appName()).appVersion(appVersion).register();
       ExecutorsMetrics.register();
@@ -116,7 +143,8 @@ public class ServiceBootstrap<C extends ServiceConfig> {
 
       Runtime.getRuntime().addShutdownHook(new Thread(() -> {
         try {
-          context.close();
+          Closeables.close(context);
+          Closeables.close(sdk);
         } catch (Exception ex) {
           throw new RuntimeException(ex);
         }

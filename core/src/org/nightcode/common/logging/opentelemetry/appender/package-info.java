@@ -12,17 +12,8 @@
  * limitations under the License.
  */
 
-package org.nightcode.common.trace.opentelemetry.exporter;
-
-import io.opentelemetry.sdk.trace.export.SpanExporter;
-import org.nightcode.common.trace.opentelemetry.SpanExporterProvider;
-
 /**
- * Logging SpanExporter provider.
+ * Classes and interfaces for logging.opentelemetry.appender.
  */
-public class LoggingSpanExporterProvider implements SpanExporterProvider {
 
-  @Override public SpanExporter get() {
-    return new LoggingSpanExporter();
-  }
-}
+package org.nightcode.common.logging.opentelemetry.appender;

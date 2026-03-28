@@ -13,7 +13,7 @@
  */
 
 /**
- * Classes and interfaces for trace.opentelemetry.exporter.
+ * Classes and interfaces for logging.opentelemetry.
  */
 
-package org.nightcode.common.trace.opentelemetry.exporter;
+package org.nightcode.common.logging.opentelemetry;
