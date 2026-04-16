@@ -17,6 +17,8 @@ package org.nightcode.common.service;
 import java.util.function.Supplier;
 
 import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
+import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.logs.export.LogRecordExporter;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
@@ -64,9 +66,10 @@ public class ServiceBootstrap<C extends ServiceConfig> {
   private final String groupId;
   private final String artefactId;
 
-  private volatile C                 config;
-  private volatile LogRecordExporter logReportExporter;
-  private volatile SpanExporter      spanExporter;
+  private volatile C                  config;
+  private volatile LogRecordExporter  logReportExporter;
+  private volatile SpanExporter       spanExporter;
+  private volatile ContextPropagators contextPropagators;
 
   private volatile ThrowingBiConsumer<C, ServiceContext, Exception> serviceInitializer = (config, context) -> { };
 
@@ -86,6 +89,11 @@ public class ServiceBootstrap<C extends ServiceConfig> {
 
   public ServiceBootstrap<C> initializer(ThrowingBiConsumer<C, ServiceContext, Exception> val) {
     serviceInitializer = val;
+    return this;
+  }
+
+  public ServiceBootstrap<C> contextPropagators(ContextPropagators val) {
+    contextPropagators = val;
     return this;
   }
 
@@ -125,9 +133,14 @@ public class ServiceBootstrap<C extends ServiceConfig> {
       }
       loggerProviderBuilder.register();
 
+      if (contextPropagators == null) {
+        contextPropagators = ContextPropagators.create(W3CTraceContextPropagator.getInstance());
+      }
+
       final OpenTelemetrySdk sdk = OpenTelemetrySdk.builder()
           .setTracerProvider(OtelTracerProvider.sdkInstance())
           .setLoggerProvider(OtelLoggerProvider.sdkInstance())
+          .setPropagators(contextPropagators)
           .buildAndRegisterGlobal();
 
       OpenTelemetryAppender.install(GlobalOpenTelemetry.get());
