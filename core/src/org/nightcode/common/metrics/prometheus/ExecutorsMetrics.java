@@ -17,7 +17,7 @@ package org.nightcode.common.metrics.prometheus;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -37,9 +37,9 @@ public enum ExecutorsMetrics implements MultiCollector {
   INSTANCE;
 
   private static class MetricsExecutor {
-    private final ExecutorService delegate;
+    private final Executor delegate;
 
-    MetricsExecutor(ExecutorService delegate) {
+    MetricsExecutor(Executor delegate) {
       this.delegate = delegate;
     }
 
@@ -98,52 +98,51 @@ public enum ExecutorsMetrics implements MultiCollector {
     }
   }
 
-  private static MetricsExecutor of(ExecutorService delegate) {
+  private static MetricsExecutor of(Executor delegate) {
+    if (delegate instanceof ThreadPoolExecutor threadPoolExecutor) {
+      return new MetricsExecutor(threadPoolExecutor) {
+        @Override public int activeCount() {
+          return threadPoolExecutor.getActiveCount();
+        }
+
+        @Override public long completedTaskCount() {
+          return threadPoolExecutor.getCompletedTaskCount();
+        }
+
+        @Override public int corePoolSize() {
+          return threadPoolExecutor.getCorePoolSize();
+        }
+
+        @Override public int largestPoolSize() {
+          return threadPoolExecutor.getLargestPoolSize();
+        }
+
+        @Override public int maximumPoolSize() {
+          return threadPoolExecutor.getMaximumPoolSize();
+        }
+
+        @Override public int poolSize() {
+          return threadPoolExecutor.getPoolSize();
+        }
+
+        @Override public long taskCount() {
+          return threadPoolExecutor.getTaskCount();
+        }
+
+        @Override public ThreadFactory threadFactory() {
+          return threadPoolExecutor.getThreadFactory();
+        }
+
+        @Override public int queueSize() {
+          return threadPoolExecutor.getQueue().size();
+        }
+
+        @Override public int queueRemainingCapacity() {
+          return threadPoolExecutor.getQueue().remainingCapacity();
+        }
+      };
+    }
     return new MetricsExecutor(delegate);
-  }
-
-  private static MetricsExecutor of(ThreadPoolExecutor delegate) {
-    return new MetricsExecutor(delegate) {
-      @Override public int activeCount() {
-        return delegate.getActiveCount();
-      }
-
-      @Override public long completedTaskCount() {
-        return delegate.getCompletedTaskCount();
-      }
-
-      @Override public int corePoolSize() {
-        return delegate.getCorePoolSize();
-      }
-
-      @Override public int largestPoolSize() {
-        return delegate.getLargestPoolSize();
-      }
-
-      @Override public int maximumPoolSize() {
-        return delegate.getMaximumPoolSize();
-      }
-
-      @Override public int poolSize() {
-        return delegate.getPoolSize();
-      }
-
-      @Override public long taskCount() {
-        return delegate.getTaskCount();
-      }
-
-      @Override public ThreadFactory threadFactory() {
-        return delegate.getThreadFactory();
-      }
-
-      @Override public int queueSize() {
-        return delegate.getQueue().size();
-      }
-
-      @Override public int queueRemainingCapacity() {
-        return delegate.getQueue().remainingCapacity();
-      }
-    };
   }
 
   private static final String MN_EXECUTOR_ACTIVE_COUNT             = "nc_executor_active_count";
@@ -167,13 +166,13 @@ public enum ExecutorsMetrics implements MultiCollector {
       , MN_EXECUTOR_QUEUE_SIZE
       , MN_EXECUTOR_QUEUE_REMAINING_CAPACITY);
 
-  public static <T extends ThreadPoolExecutor> T addExecutor(T executorService) {
-    INSTANCE.target.add(of(executorService));
-    return executorService;
+  public static <T extends ThreadPoolExecutor> T addExecutor(T executor) {
+    INSTANCE.target.add(of(executor));
+    return executor;
   }
 
-  public static void removeExecutor(ExecutorService executorService) {
-    INSTANCE.target.remove(of(executorService));
+  public static void removeExecutor(Executor executor) {
+    INSTANCE.target.remove(of(executor));
   }
 
   public static void register() {

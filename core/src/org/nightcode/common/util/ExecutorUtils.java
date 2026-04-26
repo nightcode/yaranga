@@ -15,6 +15,7 @@
 package org.nightcode.common.util;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -70,9 +71,9 @@ public enum ExecutorUtils {
   private static final AtomicBoolean INITIALIZED = new AtomicBoolean(false);
 
   private static volatile Function<ThreadPoolExecutor, ThreadPoolExecutor> executorInterceptor = t -> t;
-  private static volatile Consumer<ExecutorService>                        cleaner             = t -> { };
+  private static volatile Consumer<Executor>                               cleaner             = t -> { };
 
-  public static void initialize(Function<ThreadPoolExecutor, ThreadPoolExecutor> executorInterceptor, Consumer<ExecutorService> cleaner) {
+  public static void initialize(Function<ThreadPoolExecutor, ThreadPoolExecutor> executorInterceptor, Consumer<Executor> cleaner) {
     if (INITIALIZED.compareAndSet(false, true)) {
       ExecutorUtils.executorInterceptor = executorInterceptor;
       ExecutorUtils.cleaner             = cleaner;
@@ -159,40 +160,43 @@ public enum ExecutorUtils {
     });
   }
 
-  public static boolean shutdown(ExecutorService executor) {
+  public static boolean shutdown(Executor executor) {
     return shutdownGracefully(executor, 60, TimeUnit.SECONDS);
   }
 
-  public static boolean shutdownGracefully(ExecutorService executor, long duration, TimeUnit unit) {
-    try {
-      executor.shutdown();
-      long    timeoutNanos  = TimeUnit.SECONDS.toNanos(10);
-      long    durationNanos = unit.toNanos(duration);
-      long    iterations    = durationNanos / timeoutNanos;
-      boolean terminated    = false;
-      for (int i = 0; i < iterations && !terminated; i++) {
-        terminated = executor.awaitTermination(timeoutNanos, TimeUnit.NANOSECONDS);
-        if (!terminated) {
-          Log.info().log(ExecutorUtils.class, "{} the timeout elapsed before termination, iteration {} of {}", executor, i + 1, iterations);
+  public static boolean shutdownGracefully(Executor executor, long duration, TimeUnit unit) {
+    if (executor instanceof ExecutorService es) {
+      try {
+        es.shutdown();
+        long    timeoutNanos  = TimeUnit.SECONDS.toNanos(10);
+        long    durationNanos = unit.toNanos(duration);
+        long    iterations    = durationNanos / timeoutNanos;
+        boolean terminated    = false;
+        for (int i = 0; i < iterations && !terminated; i++) {
+          terminated = es.awaitTermination(timeoutNanos, TimeUnit.NANOSECONDS);
+          if (!terminated) {
+            Log.info().log(ExecutorUtils.class, "{} the timeout elapsed before termination, iteration {} of {}", es, i + 1, iterations);
+          }
         }
-      }
-      if (!executor.isTerminated()) {
-        List<Runnable> neverCommencedExecution = executor.shutdownNow();
+        if (!es.isTerminated()) {
+          List<Runnable> neverCommencedExecution = es.shutdownNow();
+          for (Runnable r : neverCommencedExecution) {
+            Log.warn().log(ExecutorUtils.class, "{}: shutdown now {}", es, r);
+          }
+        }
+      } catch (InterruptedException ex) {
+        List<Runnable> neverCommencedExecution = es.shutdownNow();
         for (Runnable r : neverCommencedExecution) {
-          Log.warn().log(ExecutorUtils.class, "{}: shutdown now {}", executor, r);
+          Log.warn().log(ExecutorUtils.class, "{}: shutdown now {}", es, r);
         }
+        Thread.currentThread().interrupt();
+      } finally {
+        cleaner.accept(es);
       }
-    } catch (InterruptedException ex) {
-      List<Runnable> neverCommencedExecution = executor.shutdownNow();
-      for (Runnable r : neverCommencedExecution) {
-        Log.warn().log(ExecutorUtils.class, "{}: shutdown now {}", executor, r);
-      }
-      Thread.currentThread().interrupt();
-    } finally {
-      cleaner.accept(executor);
+      Log.info().log(ExecutorUtils.class, "{}: terminated", es);
+      return es.isTerminated();
     }
-    Log.info().log(ExecutorUtils.class, "{}: terminated", executor);
-    return executor.isTerminated();
+    return true;
   }
 
   public static void sleepUninterruptibly(long delay, TimeUnit unit) {

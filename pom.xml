@@ -18,7 +18,7 @@
   <groupId>org.nightcode.yaranga</groupId>
   <artifactId>yaranga-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.12.5</version>
+  <version>0.12.6-SNAPSHOT</version>
   <name>Yaranga (Parent) ${project.version}</name>
   <description>Useful stuff for Java 21+.</description>
   <url>http://github.com/nightcode/yaranga/</url>
@@ -46,6 +46,8 @@
     <bouncycastle.version>1.84</bouncycastle.version>
     <freemarker.version>2.3.34</freemarker.version>
     <snakeyaml.version>2.6</snakeyaml.version>
+
+    <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
 
     <log4j-bom.version>2.25.4</log4j-bom.version>
     <prometheus-metrics-bom.version>1.5.1</prometheus-metrics-bom.version>
@@ -78,6 +80,12 @@
         <groupId>org.jetbrains</groupId>
         <artifactId>annotations</artifactId>
         <version>${jetbrains_annotations.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>jakarta.servlet</groupId>
+        <artifactId>jakarta.servlet-api</artifactId>
+        <version>${jakarta.servlet-api.version}</version>
       </dependency>
 
       <dependency>
