@@ -19,8 +19,9 @@ import java.util.concurrent.TimeUnit;
 import org.nightcode.common.pool.metadata.Endpoint;
 import org.nightcode.common.pool.metadata.NamedEndpoint;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit test for {@link SessionContext}.
@@ -38,13 +39,13 @@ public class SessionContextTest {
     Endpoint<String>                        endpoint = new NamedEndpoint("testEndpoint");
     SessionContext<String, Session<String>> context  = new SessionContextImpl<>("testSession", endpoint, pool);
 
-    Assert.assertEquals(TimeUnit.SECONDS.toMillis(10), context.createTimeoutMs());
-    Assert.assertEquals(TimeUnit.SECONDS.toNanos(15), context.executeTimeoutNs());
-    Assert.assertEquals(TimeUnit.SECONDS.toNanos(20), context.queueTimeoutNs());
-    Assert.assertEquals(TimeUnit.SECONDS.toMillis(25), context.rebuildTimeoutMs());
-    Assert.assertEquals(endpoint, context.endpoint());
-    Assert.assertEquals(pool, context.pool());
-    Assert.assertEquals("testPool", context.poolName());
-    Assert.assertEquals("testSession", context.sessionName());
+    assertEquals(TimeUnit.SECONDS.toMillis(10), context.createTimeoutMs());
+    assertEquals(TimeUnit.SECONDS.toNanos(15), context.executeTimeoutNs());
+    assertEquals(TimeUnit.SECONDS.toNanos(20), context.queueTimeoutNs());
+    assertEquals(TimeUnit.SECONDS.toMillis(25), context.rebuildTimeoutMs());
+    assertEquals(endpoint, context.endpoint());
+    assertEquals(pool, context.pool());
+    assertEquals("testPool", context.poolName());
+    assertEquals("testSession", context.sessionName());
   }
 }

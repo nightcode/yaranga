@@ -20,8 +20,9 @@ import com.google.protobuf.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit test for {@link ProtoFormatterTest}.
@@ -55,6 +56,6 @@ public class ProtoFormatterTest {
 
     StringBuilder sb = new StringBuilder();
     ProtoFormatter.formatAsTable(list, line -> sb.append(line).append(System.lineSeparator()));
-    Assert.assertEquals(target, sb.toString());
+    assertEquals(target, sb.toString());
   }
 }

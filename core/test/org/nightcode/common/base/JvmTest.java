@@ -14,8 +14,11 @@
 
 package org.nightcode.common.base;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link Jvm}.
@@ -24,31 +27,31 @@ public class JvmTest {
 
   @Test public void pid() {
     int pid = Jvm.pid();
-    Assert.assertTrue(pid > 0);
+    assertTrue(pid > 0);
   }
 
   @Test public void classPath() {
     String classPath = Jvm.classPath();
-    Assert.assertEquals(System.getProperty("java.class.path"), classPath);
+    assertEquals(System.getProperty("java.class.path"), classPath);
   }
 
   @Test public void libraryPath() {
     String libraryPath = Jvm.libraryPath();
-    Assert.assertEquals(System.getProperty("java.library.path"), libraryPath);
+    assertEquals(System.getProperty("java.library.path"), libraryPath);
   }
 
   @Test public void uptime() {
     String uptime = Jvm.uptime();
-    Assert.assertNotNull(uptime);
+    assertNotNull(uptime);
   }
 
   @Test public void uptimeMs() {
     long uptime = Jvm.uptimeMs();
-    Assert.assertTrue(uptime > 0);
+    assertTrue(uptime > 0);
   }
 
   @Test public void vmArguments() {
     String vmArguments = Jvm.vmArguments();
-    Assert.assertNotNull(vmArguments);
+    assertNotNull(vmArguments);
   }
 }

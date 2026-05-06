@@ -22,8 +22,11 @@ import java.util.concurrent.TimeoutException;
 import org.nightcode.common.lang.Timer;
 import org.nightcode.common.lang.TimerTask;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link NettyTimer}.
@@ -34,10 +37,10 @@ public class NettyTimerTest {
     CompletableFuture<Boolean> future = new CompletableFuture<>();
     try (Timer timer = new NettyTimer("test")) {
       TimerTask task = timer.schedule(() -> future.complete(Boolean.TRUE), 1, TimeUnit.SECONDS);
-      Assert.assertTrue(future.get(2, TimeUnit.SECONDS));
-      Assert.assertFalse(task.isCancelled());
-      Assert.assertTrue(task.isExpired());
-      Assert.assertEquals(timer, task.timer());
+      assertTrue(future.get(2, TimeUnit.SECONDS));
+      assertFalse(task.isCancelled());
+      assertTrue(task.isExpired());
+      assertEquals(timer, task.timer());
     }
   }
 
@@ -46,8 +49,8 @@ public class NettyTimerTest {
     try (Timer timer = new NettyTimer("test")) {
       TimerTask task = timer.schedule(() -> future.complete(Boolean.TRUE), 5, TimeUnit.SECONDS);
       task.cancel();
-      Assert.assertTrue(task.isCancelled());
-      Assert.assertFalse(task.isExpired());
+      assertTrue(task.isCancelled());
+      assertFalse(task.isExpired());
     }
   }
 }

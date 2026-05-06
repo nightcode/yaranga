@@ -16,8 +16,9 @@ package org.nightcode.common.lang;
 
 import java.util.function.Supplier;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link ThrowingSupplier}.
@@ -26,6 +27,6 @@ public class ThrowingSupplierTest {
 
   @Test public void toSupplier() {
     Supplier<Boolean> actual = ThrowingSupplier.toSupplier((ThrowingSupplier<Boolean, Throwable>) () -> Boolean.TRUE);
-    Assert.assertTrue(actual.get());
+    assertTrue(actual.get());
   }
 }

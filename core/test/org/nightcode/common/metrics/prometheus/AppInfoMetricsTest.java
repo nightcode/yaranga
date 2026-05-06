@@ -22,8 +22,11 @@ import io.prometheus.metrics.model.snapshots.MetricSnapshot;
 import io.prometheus.metrics.model.snapshots.MetricSnapshots;
 import io.prometheus.metrics.model.snapshots.Unit;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit tests for {@link AppInfoMetrics}.
@@ -35,38 +38,38 @@ public class AppInfoMetricsTest {
 
     MetricSnapshots snapshots = PrometheusRegistry.defaultRegistry.scrape(AppInfoMetrics.FULL_NAME::equals);
     Optional<MetricSnapshot> optional = snapshots.stream().findFirst();
-    Assert.assertTrue(optional.isPresent());
+    assertTrue(optional.isPresent());
 
     MetricSnapshot    snapshot  = optional.get();
     DataPointSnapshot dataPoint = snapshot.getDataPoints().getFirst();
-    Assert.assertEquals("testName", dataPoint.getLabels().get("name"));
-    Assert.assertEquals("testVersion", dataPoint.getLabels().get("version"));
+    assertEquals("testName", dataPoint.getLabels().get("name"));
+    assertEquals("testVersion", dataPoint.getLabels().get("version"));
   }
 
   @Test public void unit() {
     try {
       AppInfoMetrics.builder().unit(Unit.SECONDS);
-      Assert.fail("should throw UnsupportedOperationException");
+      fail("should throw UnsupportedOperationException");
     } catch (UnsupportedOperationException ex) {
-      Assert.assertEquals("AppInfoMetrics metrics cannot have a unit.", ex.getMessage());
+      assertEquals("AppInfoMetrics metrics cannot have a unit.", ex.getMessage());
     }
   }
 
   @Test public void buildWithoutName() {
     try {
       AppInfoMetrics.builder().appVersion("testVersion").register();
-      Assert.fail("should throw IllegalArgumentException");
+      fail("should throw IllegalArgumentException");
     } catch (IllegalArgumentException ex) {
-      Assert.assertEquals("appName and appVersion must not be null", ex.getMessage());
+      assertEquals("appName and appVersion must not be null", ex.getMessage());
     }
   }
 
   @Test public void buildWithoutVersion() {
     try {
       AppInfoMetrics.builder().appName("testName").register();
-      Assert.fail("should throw IllegalArgumentException");
+      fail("should throw IllegalArgumentException");
     } catch (IllegalArgumentException ex) {
-      Assert.assertEquals("appName and appVersion must not be null", ex.getMessage());
+      assertEquals("appName and appVersion must not be null", ex.getMessage());
     }
   }
 }

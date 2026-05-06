@@ -18,13 +18,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.Test;
 import org.easymock.EasyMock;
-import org.junit.Assert;
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit test for {@link ServiceManager}.
@@ -101,7 +100,7 @@ public class ServiceManagerTest {
     serviceManager.addShutdownHook(serviceMock);
     serviceManager.shutdownAll();
 
-    Assert.assertEquals(Service.State.TERMINATED, stateFuture.get().state());
+    assertEquals(Service.State.TERMINATED, stateFuture.get().state());
   }
 
   @Test public void shutdownAllWithTimeout() throws ExecutionException, InterruptedException {
@@ -130,6 +129,6 @@ public class ServiceManagerTest {
     serviceManager.addShutdownHook(serviceMock);
     serviceManager.shutdownAll(10 * 1000, TimeUnit.MILLISECONDS);
 
-    Assert.assertEquals(Service.State.TERMINATED, stateFuture.get().state());
+    assertEquals(Service.State.TERMINATED, stateFuture.get().state());
   }
 }

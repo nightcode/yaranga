@@ -14,8 +14,9 @@
 
 package org.nightcode.common.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests for {@link PomUtils}.
@@ -24,6 +25,6 @@ public class PomUtilsTest {
 
   @Test public void version() {
     String version = PomUtils.version("com.example", "test");
-    Assert.assertEquals("unknown", version);
+    assertEquals("unknown", version);
   }
 }

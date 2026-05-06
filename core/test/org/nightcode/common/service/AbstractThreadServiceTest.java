@@ -24,11 +24,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.nightcode.common.service.Service.State;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.nightcode.common.service.Service.State.FAILED;
 import static org.nightcode.common.service.Service.State.NEW;
 import static org.nightcode.common.service.Service.State.RUNNING;

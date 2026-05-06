@@ -19,8 +19,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit test for {@link PropertiesTest}.
@@ -32,39 +36,39 @@ public class PropertiesTest {
     properties.setPropertiesStorage(SystemPropertiesStorage.INSTANCE);
 
     String key = UUID.randomUUID().toString();
-    Assert.assertNull(System.getProperty(key));
-    Assert.assertNull(System.getenv(key));
+    assertNull(System.getProperty(key));
+    assertNull(System.getenv(key));
 
     try {
       properties.getString(key);
-      Assert.fail("MUST throw PropertyException");
+      fail("MUST throw PropertyException");
     } catch (IllegalStateException ex) {
-      Assert.assertEquals("org.nightcode.common.props.PropertyNotFoundException: unable to read property '"
+      assertEquals("org.nightcode.common.props.PropertyNotFoundException: unable to read property '"
           + key + "' of type STRING", ex.getMessage());
     }
 
     String targetString = properties.getString(key + "def", "DEFAULT");
-    Assert.assertEquals("DEFAULT", targetString);
+    assertEquals("DEFAULT", targetString);
 
     System.setProperty(key, "bla-bla");
     targetString = properties.getString(key);
-    Assert.assertEquals("bla-bla", targetString);
+    assertEquals("bla-bla", targetString);
 
     String path = System.getenv("PATH");
     targetString = properties.getString("PATH");
-    Assert.assertEquals(path, targetString);
+    assertEquals(path, targetString);
 
     System.setProperty(key + "-boolean", "true");
-    Assert.assertEquals(true, properties.getBoolean(key + "-boolean"));
+    assertTrue(properties.getBoolean(key + "-boolean"));
 
     System.setProperty(key + "-byte", "7");
-    Assert.assertEquals((byte) 7, properties.getByte(key + "-byte"));
+    assertEquals((byte) 7, properties.getByte(key + "-byte"));
 
     System.setProperty(key + "-int", "65536");
-    Assert.assertEquals(65536, properties.getInt(key + "-int"));
+    assertEquals(65536, properties.getInt(key + "-int"));
 
     System.setProperty(key + "-long", "6553600000");
-    Assert.assertEquals(6553600000L, properties.getLong(key + "-long"));
+    assertEquals(6553600000L, properties.getLong(key + "-long"));
   }
 
   @Test public void testMapStorage() {
@@ -79,11 +83,11 @@ public class PropertiesTest {
     Properties properties = Properties.instance();
     properties.setPropertiesStorage(new PropertiesMapStorage(map));
 
-    Assert.assertEquals(Boolean.TRUE, properties.getBoolean("boolean"));
-    Assert.assertEquals(Byte.MAX_VALUE, properties.getByte("byte"));
-    Assert.assertEquals(Integer.MAX_VALUE, properties.getInt("int"));
-    Assert.assertEquals(Long.MAX_VALUE, properties.getLong("long"));
-    Assert.assertEquals("STRING", properties.getString("string"));
-    Assert.assertEquals(Collections.singleton("COLLECTION"), properties.getCollection("collection", String.class));
+    assertEquals(Boolean.TRUE, properties.getBoolean("boolean"));
+    assertEquals(Byte.MAX_VALUE, properties.getByte("byte"));
+    assertEquals(Integer.MAX_VALUE, properties.getInt("int"));
+    assertEquals(Long.MAX_VALUE, properties.getLong("long"));
+    assertEquals("STRING", properties.getString("string"));
+    assertEquals(Collections.singleton("COLLECTION"), properties.getCollection("collection", String.class));
   }
 }

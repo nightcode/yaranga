@@ -16,8 +16,8 @@ package org.nightcode.common.lang;
 
 import java.util.function.Consumer;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link ThrowingConsumer}.
@@ -25,7 +25,7 @@ import org.junit.Test;
 public class ThrowingConsumerTest {
 
   @Test public void toConsumer() {
-    Consumer<Boolean> actual = ThrowingConsumer.toConsumer((ThrowingConsumer<Boolean, Throwable>) Assert::assertTrue);
+    Consumer<Boolean> actual = ThrowingConsumer.toConsumer((ThrowingConsumer<Boolean, Throwable>) Assertions::assertTrue);
     actual.accept(Boolean.TRUE);
   }
 }

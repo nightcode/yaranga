@@ -19,8 +19,10 @@ import java.util.concurrent.TimeUnit;
 import org.nightcode.common.pool.metadata.NamedEndpoint;
 import org.nightcode.common.util.ExecutorUtils;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit test for {@link VanillaSessionPoolTest}.
@@ -45,9 +47,9 @@ public class VanillaSessionPoolTest {
         pool.close();
       }).start();
       pool.init().get(10, TimeUnit.SECONDS);
-      Assert.fail("should throw ExecutionException");
+      fail("should throw ExecutionException");
     } catch (Exception ex) {
-      Assert.assertEquals("java.lang.IllegalStateException: pool has been shut down", ex.getMessage());
+      assertEquals("java.lang.IllegalStateException: pool has been shut down", ex.getMessage());
     }
   }
 }

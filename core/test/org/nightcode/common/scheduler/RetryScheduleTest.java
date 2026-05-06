@@ -18,8 +18,9 @@ import java.time.LocalDateTime;
 
 import org.nightcode.common.scheduler.impl.LinearSchedule;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link RetrySchedule}.
@@ -30,7 +31,7 @@ public class RetryScheduleTest {
     RetrySchedule schedule = new LinearSchedule(5_000);
     LocalDateTime next     = schedule.nextExecutionTime(0);
 
-    Assert.assertTrue(next.isAfter(LocalDateTime.now().plusSeconds(4)));
-    Assert.assertTrue(next.isBefore(LocalDateTime.now().plusSeconds(6)));
+    assertTrue(next.isAfter(LocalDateTime.now().plusSeconds(4)));
+    assertTrue(next.isBefore(LocalDateTime.now().plusSeconds(6)));
   }
 }

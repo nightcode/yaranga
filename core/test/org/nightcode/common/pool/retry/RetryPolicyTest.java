@@ -14,8 +14,9 @@
 
 package org.nightcode.common.pool.retry;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests for {@link RetryPolicy}.
@@ -24,15 +25,15 @@ public class RetryPolicyTest {
 
   @Test public void retryPolicyDef() {
     RetryPolicy policy = RetryPolicy.def();
-    Assert.assertEquals(RetryPolicy.Decision.TRY_NEXT, policy.onRequestError(new RuntimeException()));
-    Assert.assertEquals(RetryPolicy.Decision.RETHROW, policy.onResponseError(new RuntimeException()));
-    Assert.assertEquals(RetryPolicy.Decision.TRY_NEXT, policy.onUnavailable());
+    assertEquals(RetryPolicy.Decision.TRY_NEXT, policy.onRequestError(new RuntimeException()));
+    assertEquals(RetryPolicy.Decision.RETHROW, policy.onResponseError(new RuntimeException()));
+    assertEquals(RetryPolicy.Decision.TRY_NEXT, policy.onUnavailable());
   }
 
   @Test public void retryPolicyRethrow() {
     RetryPolicy policy = RetryPolicy.rethrowPolicy();
-    Assert.assertEquals(RetryPolicy.Decision.RETHROW, policy.onRequestError(new RuntimeException()));
-    Assert.assertEquals(RetryPolicy.Decision.RETHROW, policy.onResponseError(new RuntimeException()));
-    Assert.assertEquals(RetryPolicy.Decision.RETHROW, policy.onUnavailable());
+    assertEquals(RetryPolicy.Decision.RETHROW, policy.onRequestError(new RuntimeException()));
+    assertEquals(RetryPolicy.Decision.RETHROW, policy.onResponseError(new RuntimeException()));
+    assertEquals(RetryPolicy.Decision.RETHROW, policy.onUnavailable());
   }
 }

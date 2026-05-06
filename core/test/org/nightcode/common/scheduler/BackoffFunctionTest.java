@@ -14,8 +14,9 @@
 
 package org.nightcode.common.scheduler;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests for {@link BackoffFunction}.
@@ -25,48 +26,48 @@ public class BackoffFunctionTest {
   @Test public void linearSchedule() {
     RetrySchedule schedule = BackoffFunction.LINEAR.newSchedule(new RetryConfig(10, 0));
 
-    Assert.assertEquals(10, schedule.nextDelayMs(0));
-    Assert.assertEquals(10, schedule.nextDelayMs(1));
-    Assert.assertEquals(10, schedule.nextDelayMs(2));
-    Assert.assertEquals(10, schedule.nextDelayMs(3));
-    Assert.assertEquals(10, schedule.nextDelayMs(4));
+    assertEquals(10, schedule.nextDelayMs(0));
+    assertEquals(10, schedule.nextDelayMs(1));
+    assertEquals(10, schedule.nextDelayMs(2));
+    assertEquals(10, schedule.nextDelayMs(3));
+    assertEquals(10, schedule.nextDelayMs(4));
   }
 
   @Test public void arithmeticSchedule() {
     RetrySchedule schedule = BackoffFunction.ARITHMETIC.newSchedule(new RetryConfig(1, 4));
 
-    Assert.assertEquals(1, schedule.nextDelayMs(0));
-    Assert.assertEquals(2, schedule.nextDelayMs(1));
-    Assert.assertEquals(3, schedule.nextDelayMs(2));
-    Assert.assertEquals(4, schedule.nextDelayMs(3));
-    Assert.assertEquals(4, schedule.nextDelayMs(4));
-    Assert.assertEquals(4, schedule.nextDelayMs(5));
+    assertEquals(1, schedule.nextDelayMs(0));
+    assertEquals(2, schedule.nextDelayMs(1));
+    assertEquals(3, schedule.nextDelayMs(2));
+    assertEquals(4, schedule.nextDelayMs(3));
+    assertEquals(4, schedule.nextDelayMs(4));
+    assertEquals(4, schedule.nextDelayMs(5));
   }
 
   @Test public void geometricSchedule() {
     RetrySchedule schedule = BackoffFunction.GEOMETRIC.newSchedule(new RetryConfig(1, 20));
 
-    Assert.assertEquals(1, schedule.nextDelayMs(0));
-    Assert.assertEquals(2, schedule.nextDelayMs(1));
-    Assert.assertEquals(4, schedule.nextDelayMs(2));
-    Assert.assertEquals(8, schedule.nextDelayMs(3));
-    Assert.assertEquals(16, schedule.nextDelayMs(4));
-    Assert.assertEquals(20, schedule.nextDelayMs(5));
-    Assert.assertEquals(20, schedule.nextDelayMs(6));
+    assertEquals(1, schedule.nextDelayMs(0));
+    assertEquals(2, schedule.nextDelayMs(1));
+    assertEquals(4, schedule.nextDelayMs(2));
+    assertEquals(8, schedule.nextDelayMs(3));
+    assertEquals(16, schedule.nextDelayMs(4));
+    assertEquals(20, schedule.nextDelayMs(5));
+    assertEquals(20, schedule.nextDelayMs(6));
   }
 
   @Test public void exponentialSchedule() {
     RetrySchedule schedule = BackoffFunction.EXPONENTIAL.newSchedule(new RetryConfig(1, 50));
 
-    Assert.assertEquals(1, schedule.nextDelayMs(0));
-    Assert.assertEquals(1, schedule.nextDelayMs(1));
-    Assert.assertEquals(2, schedule.nextDelayMs(2));
-    Assert.assertEquals(4, schedule.nextDelayMs(3));
-    Assert.assertEquals(7, schedule.nextDelayMs(4));
-    Assert.assertEquals(12, schedule.nextDelayMs(5));
-    Assert.assertEquals(20, schedule.nextDelayMs(6));
-    Assert.assertEquals(33, schedule.nextDelayMs(7));
-    Assert.assertEquals(50, schedule.nextDelayMs(8));
-    Assert.assertEquals(50, schedule.nextDelayMs(9));
+    assertEquals(1, schedule.nextDelayMs(0));
+    assertEquals(1, schedule.nextDelayMs(1));
+    assertEquals(2, schedule.nextDelayMs(2));
+    assertEquals(4, schedule.nextDelayMs(3));
+    assertEquals(7, schedule.nextDelayMs(4));
+    assertEquals(12, schedule.nextDelayMs(5));
+    assertEquals(20, schedule.nextDelayMs(6));
+    assertEquals(33, schedule.nextDelayMs(7));
+    assertEquals(50, schedule.nextDelayMs(8));
+    assertEquals(50, schedule.nextDelayMs(9));
   }
 }

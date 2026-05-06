@@ -25,8 +25,10 @@ import io.prometheus.metrics.model.snapshots.MetricSnapshot;
 import io.prometheus.metrics.model.snapshots.MetricSnapshots;
 import org.nightcode.common.util.ExecutorUtils;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link ExecutorsMetrics}.
@@ -52,14 +54,14 @@ public class ExecutorsMetricsTest {
 
       MetricSnapshots snapshots = PrometheusRegistry.defaultRegistry.scrape("nc_executor_completed_task_count"::equals);
       Optional<MetricSnapshot> optional = snapshots.stream().findFirst();
-      Assert.assertTrue(optional.isPresent());
+      assertTrue(optional.isPresent());
       
       MetricSnapshot snapshot = optional.get();
-      Assert.assertEquals("nc_executor_completed_task_count", snapshot.getMetadata().getName());
+      assertEquals("nc_executor_completed_task_count", snapshot.getMetadata().getName());
 
       CounterSnapshot.CounterDataPointSnapshot dataPoint = (CounterSnapshot.CounterDataPointSnapshot) snapshot.getDataPoints().getFirst();
-      Assert.assertEquals(1.0, dataPoint.getValue(), 0.0);
-      Assert.assertEquals("test-executor", dataPoint.getLabels().get("executor"));
+      assertEquals(1.0, dataPoint.getValue(), 0.0);
+      assertEquals("test-executor", dataPoint.getLabels().get("executor"));
     }
   }
 }

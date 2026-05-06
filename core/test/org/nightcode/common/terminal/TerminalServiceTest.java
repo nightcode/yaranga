@@ -25,8 +25,9 @@ import org.nightcode.common.props.SystemPropertiesStorage;
 import org.nightcode.common.service.Service;
 import org.nightcode.common.util.ExecutorUtils;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests for {@link TerminalService}.
@@ -56,7 +57,7 @@ public class TerminalServiceTest {
       @Override public void printf(String format, Object... args) {
         if (read.compareAndSet(false, true)) {
           try {
-            Assert.assertEquals("test", format);
+            assertEquals("test", format);
             result.complete(Boolean.TRUE);
           } catch (Exception ex) {
             result.completeExceptionally(ex);
@@ -74,7 +75,7 @@ public class TerminalServiceTest {
     TerminalService service = new TerminalService(terminal, new ApiCommandsImpl());
     service.startAsync().get(1, TimeUnit.SECONDS);
     ExecutorUtils.sleepUninterruptibly(1, TimeUnit.SECONDS);
-    Assert.assertEquals(Service.State.TERMINATED, service.state());
+    assertEquals(Service.State.TERMINATED, service.state());
     result.get(1, TimeUnit.SECONDS);
   }
 
@@ -94,7 +95,7 @@ public class TerminalServiceTest {
                    -d, --dst
                          Destination.""";
           try {
-            Assert.assertEquals(expected, args[0]);
+            assertEquals(expected, args[0]);
             result.complete(Boolean.TRUE);
           } catch (Exception ex) {
             result.completeExceptionally(ex);
@@ -113,7 +114,7 @@ public class TerminalServiceTest {
     TerminalService service = new TerminalService(terminal, new ApiCommandsImpl());
     service.startAsync().get(1, TimeUnit.SECONDS);
     ExecutorUtils.sleepUninterruptibly(1, TimeUnit.SECONDS);
-    Assert.assertEquals(Service.State.TERMINATED, service.state());
+    assertEquals(Service.State.TERMINATED, service.state());
     result.get(1, TimeUnit.SECONDS);
   }
 }

@@ -16,10 +16,10 @@ package org.nightcode.common.base;
 
 import java.util.Iterator;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit test for {@link ReadOnlyIterator}.  
@@ -40,7 +40,7 @@ public class ReadOnlyIteratorTest {
     try {
       readOnlyIterator.remove();
     } catch (Exception ex) {
-      assertTrue(ex instanceof UnsupportedOperationException);
+      assertInstanceOf(UnsupportedOperationException.class, ex);
       return;
     }
     fail();

@@ -14,8 +14,10 @@
 
 package org.nightcode.common.terminal;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit tests for {@link NoopTerminal}.
@@ -28,9 +30,9 @@ public class NoopTerminalTest {
 
     try {
       terminal.readLine("read");
-      Assert.fail("should throw UnsupportedOperationException");
+      fail("should throw UnsupportedOperationException");
     } catch (UnsupportedOperationException ex) {
-      Assert.assertEquals("NoopTerminal implementation", ex.getMessage());
+      assertEquals("NoopTerminal implementation", ex.getMessage());
     }
   }
 }

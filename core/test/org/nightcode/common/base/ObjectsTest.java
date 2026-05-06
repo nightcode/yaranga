@@ -14,9 +14,9 @@
 
 package org.nightcode.common.base;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit test for {@link Objects}.
@@ -28,7 +28,7 @@ public class ObjectsTest {
     try {
       Objects.validArgument(false, message);
     } catch (IllegalArgumentException ex) {
-      assertEquals(ex.getMessage(), message);
+      assertEquals(message, ex.getMessage());
     }
     
     Objects.validArgument(true, message);
@@ -40,7 +40,7 @@ public class ObjectsTest {
     try {
       Objects.validArgument(false, message, argument);
     } catch (IllegalArgumentException ex) {
-      assertEquals(ex.getMessage(), "error message");
+      assertEquals("error message", ex.getMessage());
     }
 
     Objects.validArgument(true, message, argument);
@@ -51,7 +51,7 @@ public class ObjectsTest {
     try {
       Objects.validState(false, message);
     } catch (IllegalStateException ex) {
-      assertEquals(ex.getMessage(), message);
+      assertEquals(message, ex.getMessage());
     }
 
     Objects.validState(true, message);
@@ -63,7 +63,7 @@ public class ObjectsTest {
     try {
       Objects.validState(false, message, argument);
     } catch (IllegalStateException ex) {
-      assertEquals(ex.getMessage(), "error message");
+      assertEquals("error message", ex.getMessage());
     }
 
     Objects.validState(true, message, argument);

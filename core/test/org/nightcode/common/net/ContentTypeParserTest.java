@@ -14,33 +14,35 @@
 
 package org.nightcode.common.net;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ContentTypeParserTest {
 
   @Test public void testParseContentType() {
     ContentType target = ContentTypeParser.parse("text/plain");
-    Assert.assertEquals("text", target.mediaType());
-    Assert.assertEquals("plain", target.subType());
-    Assert.assertTrue(target.parameters().isEmpty());
+    assertEquals("text", target.mediaType());
+    assertEquals("plain", target.subType());
+    assertTrue(target.parameters().isEmpty());
 
     target = ContentTypeParser.parse("text/plain; charset=us-ascii");
-    Assert.assertEquals("text", target.mediaType());
-    Assert.assertEquals("plain", target.subType());
-    Assert.assertEquals("us-ascii", target.parameters().get("charset"));
+    assertEquals("text", target.mediaType());
+    assertEquals("plain", target.subType());
+    assertEquals("us-ascii", target.parameters().get("charset"));
 
     target = ContentTypeParser.parse(" 1adfasdfa1/X-a ; a=b; c = \"d\\\"E f\\\\\" ; charSet=\"us-ascii\"");
-    Assert.assertEquals("1adfasdfa1", target.mediaType());
-    Assert.assertEquals("x-a", target.subType());
-    Assert.assertEquals("b", target.parameters().get("a"));
-    Assert.assertEquals("d\"E f\\", target.parameters().get("c"));
-    Assert.assertEquals("us-ascii", target.parameters().get("charset"));
+    assertEquals("1adfasdfa1", target.mediaType());
+    assertEquals("x-a", target.subType());
+    assertEquals("b", target.parameters().get("a"));
+    assertEquals("d\"E f\\", target.parameters().get("c"));
+    assertEquals("us-ascii", target.parameters().get("charset"));
 
     target = ContentTypeParser.parse("multipart/report; report-type=delivery-status;\n\tboundary=\"cd173210-7e04-4b49-bb0a-6bee344ca3a5\"");
-    Assert.assertEquals("multipart", target.mediaType());
-    Assert.assertEquals("report", target.subType());
-    Assert.assertEquals("delivery-status", target.parameters().get("report-type"));
-    Assert.assertEquals("cd173210-7e04-4b49-bb0a-6bee344ca3a5", target.parameters().get("boundary"));
+    assertEquals("multipart", target.mediaType());
+    assertEquals("report", target.subType());
+    assertEquals("delivery-status", target.parameters().get("report-type"));
+    assertEquals("cd173210-7e04-4b49-bb0a-6bee344ca3a5", target.parameters().get("boundary"));
   }
 }

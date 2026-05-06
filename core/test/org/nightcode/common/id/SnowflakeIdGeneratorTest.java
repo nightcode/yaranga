@@ -14,8 +14,12 @@
 
 package org.nightcode.common.id;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit tests for {@link SnowflakeIdGenerator}.
@@ -28,16 +32,16 @@ public class SnowflakeIdGeneratorTest {
     long id1 = generator.nextId();
     long id2 = generator.nextId();
 
-    Assert.assertNotEquals(id1, id2);
+    assertNotEquals(id1, id2);
   }
 
   @Test public void wrongShardId() {
     try {
       new SnowflakeIdGenerator(Long.MAX_VALUE);
-      Assert.fail("should throw IllegalArgumentException");
+      fail("should throw IllegalArgumentException");
     } catch (Exception ex) {
-      Assert.assertTrue(ex instanceof IllegalArgumentException);
-      Assert.assertEquals("illegal shardId value: " + Long.MAX_VALUE + ", should be less than 10bits number", ex.getMessage());
+      assertInstanceOf(IllegalArgumentException.class, ex);
+      assertEquals("illegal shardId value: " + Long.MAX_VALUE + ", should be less than 10bits number", ex.getMessage());
     }
   }
 }

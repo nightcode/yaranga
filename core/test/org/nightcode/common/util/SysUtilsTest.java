@@ -16,8 +16,9 @@ package org.nightcode.common.util;
 
 import java.util.UUID;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests for {@link SysUtils}.
@@ -30,9 +31,9 @@ public class SysUtilsTest {
     String value2 = "test2" + UUID.randomUUID();
 
     SysUtils.setPropertyIfAbsent(name, value1);
-    Assert.assertEquals(value1, System.getProperty(name));
+    assertEquals(value1, System.getProperty(name));
 
     SysUtils.setPropertyIfAbsent(name, value2);
-    Assert.assertEquals(value1, System.getProperty(name));
+    assertEquals(value1, System.getProperty(name));
   }
 }

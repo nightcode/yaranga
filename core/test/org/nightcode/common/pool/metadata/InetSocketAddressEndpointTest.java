@@ -16,8 +16,11 @@ package org.nightcode.common.pool.metadata;
 
 import java.net.InetSocketAddress;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Unit tests for {@link InetSocketAddressEndpoint}.
@@ -27,15 +30,15 @@ public class InetSocketAddressEndpointTest  {
   @Test public void testInstantiate() {
     Endpoint<InetSocketAddress> endpoint = new InetSocketAddressEndpoint("127.0.0.1:443");
     InetSocketAddress address = endpoint.resolve();
-    Assert.assertEquals("127.0.0.1", address.getHostString());
-    Assert.assertEquals(443, address.getPort());
-    Assert.assertNotNull(endpoint.id());
+    assertEquals("127.0.0.1", address.getHostString());
+    assertEquals(443, address.getPort());
+    assertNotNull(endpoint.id());
 
     endpoint = new InetSocketAddressEndpoint(address);
     address = endpoint.resolve();
-    Assert.assertEquals("127.0.0.1", address.getHostString());
-    Assert.assertEquals(443, address.getPort());
-    Assert.assertNotNull(endpoint.id());
+    assertEquals("127.0.0.1", address.getHostString());
+    assertEquals(443, address.getPort());
+    assertNotNull(endpoint.id());
   }
 
   @Test public void testId() {
@@ -45,8 +48,8 @@ public class InetSocketAddressEndpointTest  {
     Endpoint<InetSocketAddress> endpoint2 = new InetSocketAddressEndpoint("127.0.0.1:443");
     InetSocketAddress address2 = endpoint2.resolve();
     
-    Assert.assertNotEquals(endpoint1, endpoint2);
-    Assert.assertEquals(address1, address2);
+    assertNotEquals(endpoint1, endpoint2);
+    assertEquals(address1, address2);
   }
 
   @Test public void testEquals() {
@@ -56,8 +59,8 @@ public class InetSocketAddressEndpointTest  {
     Endpoint<InetSocketAddress> endpoint2 = new InetSocketAddressEndpoint("127.0.0.1:443", endpoint1.id());
     InetSocketAddress address2 = endpoint2.resolve();
 
-    Assert.assertEquals(endpoint1, endpoint2);
-    Assert.assertEquals(address1, address2);
+    assertEquals(endpoint1, endpoint2);
+    assertEquals(address1, address2);
 
 
     endpoint1 = new InetSocketAddressEndpoint(address1);
@@ -66,13 +69,13 @@ public class InetSocketAddressEndpointTest  {
     endpoint2 = new InetSocketAddressEndpoint(address1, endpoint1.id());
     address2 = endpoint2.resolve();
 
-    Assert.assertEquals(endpoint1, endpoint2);
-    Assert.assertEquals(address1, address2);
+    assertEquals(endpoint1, endpoint2);
+    assertEquals(address1, address2);
   }
 
   @Test public void testToString() {
     Endpoint<InetSocketAddress> endpoint = new InetSocketAddressEndpoint("127.0.0.1:443");
     String id = endpoint.id();
-    Assert.assertEquals("/127.0.0.1:443-" + id, endpoint.toString());
+    assertEquals("/127.0.0.1:443-" + id, endpoint.toString());
   }
 }

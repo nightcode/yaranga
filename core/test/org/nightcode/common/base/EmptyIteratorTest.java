@@ -17,11 +17,11 @@ package org.nightcode.common.base;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit test for {@link EmptyIterator}.   
@@ -38,7 +38,7 @@ public class EmptyIteratorTest {
     try {
       emptyIterator.next();
     } catch (Exception ex) {
-      assertTrue(ex instanceof NoSuchElementException);
+      assertInstanceOf(NoSuchElementException.class, ex);
       return;
     }
     fail();
@@ -49,7 +49,7 @@ public class EmptyIteratorTest {
     try {
       emptyIterator.remove();
     } catch (Exception ex) {
-      assertTrue(ex instanceof UnsupportedOperationException);
+      assertInstanceOf(UnsupportedOperationException.class, ex);
       return;
     }
     fail();

@@ -39,8 +39,9 @@ import org.nightcode.common.pool.retry.RetryPolicy;
 import org.nightcode.net.impl.ProtobufPacketReader;
 import org.nightcode.net.impl.ProtobufPacketWriter;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit test for {@link HttpApiGw}.
@@ -110,7 +111,7 @@ public class HttpApiGwTest {
         ApiCallHandler<URI> rh      = new ApiCallHandler<>(request, RetryPolicy.def(), context);
         Response            r       = rh.sendReceiveAsync().get(5, TimeUnit.SECONDS);
 
-        Assert.assertEquals(payload, r.getContent());
+        assertEquals(payload, r.getContent());
       }
     }
   }
@@ -132,8 +133,8 @@ public class HttpApiGwTest {
 
       @Override public <Q extends Message, R extends Message> MethodHandler<Q, R> handlerFor(String typeUrl) {
         return request -> {
-          Assert.assertEquals(Request.getDefaultInstance().getDescriptorForType(), request.getDescriptorForType());
-          Assert.assertEquals("test-service-request", ((Request) request).getService());
+          assertEquals(Request.getDefaultInstance().getDescriptorForType(), request.getDescriptorForType());
+          assertEquals("test-service-request", ((Request) request).getService());
           // noinspection unchecked
           return CompletableFuture.completedFuture((R) Response.newBuilder().setService("test-service-response").build());
         };
@@ -165,7 +166,7 @@ public class HttpApiGwTest {
             .build();
 
         Response response = api.execute(request);
-        Assert.assertEquals("test-service-response", response.getService());
+        assertEquals("test-service-response", response.getService());
       }
     }
   }
@@ -187,8 +188,8 @@ public class HttpApiGwTest {
 
       @Override public <Q extends Message, R extends Message> MethodHandler<Q, R> handlerFor(String typeUrl) {
         return request -> {
-          Assert.assertEquals(Request.getDefaultInstance().getDescriptorForType(), request.getDescriptorForType());
-          Assert.assertEquals("test-service-request", ((Request) request).getService());
+          assertEquals(Request.getDefaultInstance().getDescriptorForType(), request.getDescriptorForType());
+          assertEquals("test-service-request", ((Request) request).getService());
           // noinspection unchecked
           return CompletableFuture.completedFuture((R) Response.newBuilder().setService("test-service-response").build());
         };
@@ -222,7 +223,7 @@ public class HttpApiGwTest {
             .build();
 
         Response response = api.executeAsync(request).get();
-        Assert.assertEquals("test-service-response", response.getService());
+        assertEquals("test-service-response", response.getService());
       }
     }
   }
@@ -244,8 +245,8 @@ public class HttpApiGwTest {
 
       @Override public <Q extends Message, R extends Message> MethodHandler<Q, R> handlerFor(String typeUrl) {
         return request -> {
-          Assert.assertEquals(Request.getDefaultInstance().getDescriptorForType(), request.getDescriptorForType());
-          Assert.assertEquals("test-service-request", ((Request) request).getService());
+          assertEquals(Request.getDefaultInstance().getDescriptorForType(), request.getDescriptorForType());
+          assertEquals("test-service-request", ((Request) request).getService());
           // noinspection unchecked
           return CompletableFuture.completedFuture((R) Response.newBuilder().setService("test-service-response").build());
         };
@@ -279,7 +280,7 @@ public class HttpApiGwTest {
             .build();
 
         Response response = api.executeAsync(request).get();
-        Assert.assertEquals("test-service-response", response.getService());
+        assertEquals("test-service-response", response.getService());
       }
     }
   }

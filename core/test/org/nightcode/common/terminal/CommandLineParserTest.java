@@ -16,8 +16,9 @@ package org.nightcode.common.terminal;
 
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests for {@link CommandLineParser}.
@@ -28,11 +29,11 @@ public class CommandLineParserTest {
     String str = "arg1 arg2  arg\\ 3 \"arg 4\"  arg\\\\5";
     
     List<String> result = CommandLineParser.parse(str);
-    Assert.assertEquals(5, result.size());
-    Assert.assertEquals("arg1", result.get(0));
-    Assert.assertEquals("arg2", result.get(1));
-    Assert.assertEquals("arg 3", result.get(2));
-    Assert.assertEquals("arg 4", result.get(3));
-    Assert.assertEquals("arg\\5", result.get(4));
+    assertEquals(5, result.size());
+    assertEquals("arg1", result.get(0));
+    assertEquals("arg2", result.get(1));
+    assertEquals("arg 3", result.get(2));
+    assertEquals("arg 4", result.get(3));
+    assertEquals("arg\\5", result.get(4));
   }
 }

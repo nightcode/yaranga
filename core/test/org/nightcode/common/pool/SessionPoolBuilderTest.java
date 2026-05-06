@@ -23,8 +23,9 @@ import org.nightcode.common.pool.lb.LoadBalancingPolicy;
 import org.nightcode.common.pool.metadata.Endpoint;
 import org.nightcode.common.util.Clock;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests for {@link SessionPoolBuilder}.
@@ -90,14 +91,14 @@ public class SessionPoolBuilderTest {
         .timer(timer)
         .build();
 
-    Assert.assertEquals(TimeUnit.SECONDS.toMillis(10), pool.createTimeoutMs());
-    Assert.assertEquals(TimeUnit.SECONDS.toNanos(15), pool.executeTimeoutNs());
-    Assert.assertEquals(TimeUnit.SECONDS.toNanos(20), pool.queueTimeoutNs());
-    Assert.assertEquals(TimeUnit.SECONDS.toMillis(25), pool.rebuildTimeoutMs());
-    Assert.assertEquals(clock, pool.clock());
-    Assert.assertEquals(timer, pool.timer());
-    Assert.assertEquals(operations, pool.operations());
-    Assert.assertEquals(factory, pool.factory());
-    Assert.assertEquals(loadBalancingPolicy.healthyCount(), pool.sessionsHealthy());
+    assertEquals(TimeUnit.SECONDS.toMillis(10), pool.createTimeoutMs());
+    assertEquals(TimeUnit.SECONDS.toNanos(15), pool.executeTimeoutNs());
+    assertEquals(TimeUnit.SECONDS.toNanos(20), pool.queueTimeoutNs());
+    assertEquals(TimeUnit.SECONDS.toMillis(25), pool.rebuildTimeoutMs());
+    assertEquals(clock, pool.clock());
+    assertEquals(timer, pool.timer());
+    assertEquals(operations, pool.operations());
+    assertEquals(factory, pool.factory());
+    assertEquals(loadBalancingPolicy.healthyCount(), pool.sessionsHealthy());
   }
 }

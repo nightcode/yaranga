@@ -24,9 +24,10 @@ import org.nightcode.common.lang.ThrowingSupplier;
 import org.nightcode.common.props.Properties;
 import org.nightcode.common.props.SystemPropertiesStorage;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.nightcode.common.config.ConfigLoader.CONFIG_USE_ENV;
 
 /**
@@ -45,12 +46,12 @@ public class YamlConfigLoaderTest {
 
     System.setProperty(CONFIG_USE_ENV, "true");
     config = YamlConfigLoader.INSTANCE.loadConfig(TestConfig.class, JSON);
-    Assert.assertNotEquals("[=PATH!\"empty\"]", config.variable);
+    assertNotEquals("[=PATH!\"empty\"]", config.variable);
 
     Properties.instance().setPropertiesStorage(SystemPropertiesStorage.INSTANCE);
     System.setProperty(CONFIG_USE_ENV, "false");
     config = YamlConfigLoader.INSTANCE.loadConfig(TestConfig.class, JSON);
-    Assert.assertEquals("[=PATH!\"empty\"]", config.variable);
+    assertEquals("[=PATH!\"empty\"]", config.variable);
   }
 
   @Test public void testLoadConfigInputStream() {
@@ -60,7 +61,7 @@ public class YamlConfigLoaderTest {
     Properties.instance().setPropertiesStorage(SystemPropertiesStorage.INSTANCE);
     System.setProperty(CONFIG_USE_ENV, "false");
     config = ConfigLoader.yaml().loadConfig(TestConfig.class, src);
-    Assert.assertEquals("[=PATH!\"empty\"]", config.variable);
+    assertEquals("[=PATH!\"empty\"]", config.variable);
   }
 
   @Test public void testLoadConfigReader() {
@@ -70,7 +71,7 @@ public class YamlConfigLoaderTest {
     Properties.instance().setPropertiesStorage(SystemPropertiesStorage.INSTANCE);
     System.setProperty(CONFIG_USE_ENV, "false");
     config = ConfigLoader.yaml().loadConfig(TestConfig.class, src);
-    Assert.assertEquals("[=PATH!\"empty\"]", config.variable);
+    assertEquals("[=PATH!\"empty\"]", config.variable);
   }
 
   @Test public void testLoadConfigReaderSupplier() {
@@ -80,6 +81,6 @@ public class YamlConfigLoaderTest {
     Properties.instance().setPropertiesStorage(SystemPropertiesStorage.INSTANCE);
     System.setProperty(CONFIG_USE_ENV, "false");
     config = ConfigLoader.yaml().loadConfig(TestConfig.class, supplier);
-    Assert.assertEquals("[=PATH!\"empty\"]", config.variable);
+    assertEquals("[=PATH!\"empty\"]", config.variable);
   }
 }

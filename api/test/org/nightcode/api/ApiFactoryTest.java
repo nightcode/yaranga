@@ -28,7 +28,7 @@ import org.nightcode.net.impl.ProtobufPacketReader;
 import org.nightcode.net.impl.ProtobufPacketWriter;
 import org.nightcode.net.impl.TcpIpPipeFactory;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for {@link ApiFactory}.

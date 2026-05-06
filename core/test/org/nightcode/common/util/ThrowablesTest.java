@@ -19,10 +19,10 @@ package org.nightcode.common.util;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit test for {@link Throwables}.
@@ -57,9 +57,9 @@ public class ThrowablesTest {
       causeField.setAccessible(true);
       causeField.set(root, chain);
       Throwables.getRootCause(chain);
-      Assert.fail("must throw IllegalStateException");
+      fail("must throw IllegalStateException");
     } catch (IllegalStateException ex) {
-      Assert.assertEquals("loop in casual chain", ex.getMessage());
+      assertEquals("loop in casual chain", ex.getMessage());
     } finally {
       causeField.setAccessible(false);
     }
@@ -68,6 +68,6 @@ public class ThrowablesTest {
   @Test public void testGetStackTrace() {
     Exception exception = new TestException("message");
     String stackTrace = Throwables.getStackTrace(exception);
-    Assert.assertEquals("org.nightcode.common.util.ThrowablesTest$TestException: message\n", stackTrace);
+    assertEquals("org.nightcode.common.util.ThrowablesTest$TestException: message\n", stackTrace);
   }
 }

@@ -21,8 +21,11 @@ import java.util.concurrent.CompletableFuture;
 
 import org.nightcode.common.scheduler.RetryConfig;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link ReflectUtils}.
@@ -37,21 +40,21 @@ public class ReflectUtilsTest {
 
   @Test public void isClassPresent() {
     ClassLoader cl = Thread.currentThread().getContextClassLoader();
-    Assert.assertTrue(ReflectUtils.isClassPresent(ReflectUtils.class.getName(), cl));
-    Assert.assertFalse(ReflectUtils.isClassPresent("com.example.Test", cl));
+    assertTrue(ReflectUtils.isClassPresent(ReflectUtils.class.getName(), cl));
+    assertFalse(ReflectUtils.isClassPresent("com.example.Test", cl));
   }
 
   @Test public void findMethod() {
     Method method = ReflectUtils.findMethod(RetryConfig.class, "toString");
     String result = (String) ReflectUtils.invokeMethod(method, new RetryConfig(10, 10));
-    Assert.assertEquals("RetryConfig{minDelayMs=10, maxDelayMs=10}", result);
+    assertEquals("RetryConfig{minDelayMs=10, maxDelayMs=10}", result);
   }
 
   @Test public void resolveType() {
     Method method = ReflectUtils.findMethod(TestClass.class, "test");
     
     Type type = ReflectUtils.resolveType(method.getGenericReturnType());
-    Assert.assertTrue(type instanceof ParameterizedType parameterized && parameterized.getRawType().equals(CompletableFuture.class));
-    Assert.assertEquals(Boolean.class, ((ParameterizedType) type).getActualTypeArguments()[0]);
+    assertTrue(type instanceof ParameterizedType parameterized && parameterized.getRawType().equals(CompletableFuture.class));
+    assertEquals(Boolean.class, ((ParameterizedType) type).getActualTypeArguments()[0]);
   }
 }

@@ -16,8 +16,9 @@ package org.nightcode.common.lang;
 
 import java.util.function.Function;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link ThrowingFunction}.
@@ -26,6 +27,6 @@ public class ThrowingFunctionTest {
 
   @Test public void toFunction() {
     Function<Boolean, Boolean> actual = ThrowingFunction.toFunction((ThrowingFunction<Boolean, Boolean, Throwable>) b -> Boolean.TRUE);
-    Assert.assertTrue(actual.apply(false));
+    assertTrue(actual.apply(false));
   }
 }

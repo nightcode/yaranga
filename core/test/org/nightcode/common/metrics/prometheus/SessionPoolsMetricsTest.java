@@ -26,8 +26,10 @@ import org.nightcode.common.pool.SessionPool;
 import org.nightcode.common.pool.SessionPoolBuilder;
 import org.nightcode.common.pool.metadata.NamedEndpoint;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link SessionPoolsMetrics}.
@@ -55,14 +57,14 @@ public class SessionPoolsMetricsTest {
 
       MetricSnapshots          snapshots = PrometheusRegistry.defaultRegistry.scrape("nc_session_pool_targets_size"::equals);
       Optional<MetricSnapshot> optional  = snapshots.stream().findFirst();
-      Assert.assertTrue(optional.isPresent());
+      assertTrue(optional.isPresent());
 
       MetricSnapshot snapshot = optional.get();
-      Assert.assertEquals("nc_session_pool_targets_size", snapshot.getMetadata().getName());
+      assertEquals("nc_session_pool_targets_size", snapshot.getMetadata().getName());
 
       CounterSnapshot.CounterDataPointSnapshot dataPoint = (CounterSnapshot.CounterDataPointSnapshot) snapshot.getDataPoints().getFirst();
-      Assert.assertEquals(1.0, dataPoint.getValue(), 0.0);
-      Assert.assertEquals("testPool", dataPoint.getLabels().get("session_pool"));
+      assertEquals(1.0, dataPoint.getValue(), 0.0);
+      assertEquals("testPool", dataPoint.getLabels().get("session_pool"));
 
       SessionPoolsMetrics.removePool(pool);
     }

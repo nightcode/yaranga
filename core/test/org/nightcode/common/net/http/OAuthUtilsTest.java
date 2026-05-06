@@ -17,8 +17,14 @@ package org.nightcode.common.net.http;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit test for {@link OAuthUtils}.
@@ -30,9 +36,9 @@ public class OAuthUtilsTest {
     String strEncoded = AuthUtils.percentEncode(str);
     String strDecoded = AuthUtils.percentDecode(strEncoded);
 
-    Assert.assertEquals("http%3A%2F%2Fexample.com%20%2Frequest%3Fb5%3D%253D%25253D%26a3%3Da%26c%2540"
+    assertEquals("http%3A%2F%2Fexample.com%20%2Frequest%3Fb5%3D%253D%25253D%26a3%3Da%26c%2540"
         + "%3D%26a2%3Dr%2520b%26c2%26a3%3D2%2Bq", strEncoded);
-    Assert.assertEquals(str, strDecoded);
+    assertEquals(str, strDecoded);
   }
 
   @Test public void testGetSignatureBaseString() throws AuthException {
@@ -53,15 +59,15 @@ public class OAuthUtilsTest {
         + "oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D137131201%26"
         + "oauth_token%3Dkkk9d7dh3k39sjv7";
 
-    Assert.assertEquals(expectedSignatureBaseString, signatureBaseString);
+    assertEquals(expectedSignatureBaseString, signatureBaseString);
   }
 
   @Test public void testGetNonce() {
-    Assert.assertNotSame(OAuthUtils.getNonce(), OAuthUtils.getNonce());
+    assertNotSame(OAuthUtils.getNonce(), OAuthUtils.getNonce());
   }
 
   @Test public void testGetTimestamp() {
-    Assert.assertNotNull(OAuthUtils.getTimestamp());
+    assertNotNull(OAuthUtils.getTimestamp());
   }
 
   @Test public void testNormalizeParameters() {
@@ -79,10 +85,9 @@ public class OAuthUtilsTest {
         + "&oauth_token=kkk9d7dh3k39sjv7";
 
     try {
-      Assert.assertEquals(expectedNormalizeParameters
-          , OAuthUtils.normalizeParameters(requestUrl, protocolParameters));
+      assertEquals(expectedNormalizeParameters, OAuthUtils.normalizeParameters(requestUrl, protocolParameters));
     } catch (AuthException ex) {
-      Assert.fail(ex.getMessage());
+      fail(ex.getMessage());
     }
   }
 
@@ -96,28 +101,28 @@ public class OAuthUtilsTest {
     String sourceUrl3 = "HTTPS://www.example.net:443";
     String expectedUrl3 = "https://www.example.net/";
 
-    Assert.assertEquals(expectedUrl1, OAuthUtils.normalizeUrl(sourceUrl1));
-    Assert.assertEquals(expectedUrl2, OAuthUtils.normalizeUrl(sourceUrl2));
-    Assert.assertEquals(expectedUrl3, OAuthUtils.normalizeUrl(sourceUrl3));
+    assertEquals(expectedUrl1, OAuthUtils.normalizeUrl(sourceUrl1));
+    assertEquals(expectedUrl2, OAuthUtils.normalizeUrl(sourceUrl2));
+    assertEquals(expectedUrl3, OAuthUtils.normalizeUrl(sourceUrl3));
   }
 
   @Test public void testNormalizeUrlURISyntax() {
     try {
       OAuthUtils.normalizeUrl("http://uri<>syntax");
     } catch (AuthException ex) {
-      Assert.assertFalse(ex.getMessage().contains("Invalid requestUrl"));
+      assertFalse(ex.getMessage().contains("Invalid requestUrl"));
       return;
     }
-    Assert.fail();
+    fail();
   }
 
   @Test public void testNormalizeInvalidUrl() {
     try {
       OAuthUtils.normalizeUrl("InvalidRequestUrl");
     } catch (AuthException ex) {
-      Assert.assertTrue(ex.getMessage().contains("Invalid requestUrl"));
+      assertTrue(ex.getMessage().contains("Invalid requestUrl"));
       return;
     }
-    Assert.fail();
+    fail();
   }
 }

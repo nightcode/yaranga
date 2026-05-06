@@ -21,8 +21,11 @@ import java.util.UUID;
 
 import org.nightcode.common.terminal.value.converter.ConverterException;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit tests for {@link ValueConverter}.
@@ -99,10 +102,10 @@ public class ValueConverterTest {
       constructor.setAccessible(true);
       Void value = constructor.newInstance();
 
-      Assert.assertNull(converter.toByteArray(value));
-      Assert.assertNull(converter.fromByteArray(new byte[] {}, StandardCharsets.UTF_8));
-      Assert.assertNull(converter.toString(value));
-      Assert.assertNull(converter.fromString("void"));
+      assertNull(converter.toByteArray(value));
+      assertNull(converter.fromByteArray(new byte[] {}, StandardCharsets.UTF_8));
+      assertNull(converter.toString(value));
+      assertNull(converter.fromString("void"));
     } finally {
       constructor.setAccessible(false);
     }
@@ -111,19 +114,19 @@ public class ValueConverterTest {
   @Test public void unsupportedType() {
     try {
       ValueConverterService.def().getConverter(Object.class);
-      Assert.fail("should throw an IllegalArgumentException");
+      fail("should throw an IllegalArgumentException");
     } catch (IllegalArgumentException ex) {
-      Assert.assertEquals("Unsupported ValueType <class java.lang.Object>", ex.getMessage());
+      assertEquals("Unsupported ValueType <class java.lang.Object>", ex.getMessage());
     }
   }
   
   private <T> void convert(T value, ValueConverter<T> converter) throws ConverterException {
     byte[] buf    = converter.toByteArray(value);
     T      actual = converter.fromByteArray(buf, StandardCharsets.UTF_8);
-    Assert.assertEquals(value, actual);
+    assertEquals(value, actual);
 
     String str = converter.toString(value);
     actual = converter.fromString(str);
-    Assert.assertEquals(value, actual);
+    assertEquals(value, actual);
   }
 }

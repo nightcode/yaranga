@@ -16,8 +16,10 @@ package org.nightcode.common.lang;
 
 import java.util.function.BiConsumer;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link ThrowingBiConsumer}.
@@ -26,8 +28,8 @@ public class ThrowingBiConsumerTest {
 
   @Test public void toBiConsumer() {
     BiConsumer<Boolean, Boolean> actual = ThrowingBiConsumer.toBiConsumer((ThrowingBiConsumer<Boolean, Boolean, Throwable>) (v1, v2) -> {
-      Assert.assertTrue(v1);
-      Assert.assertFalse(v2);
+      assertTrue(v1);
+      assertFalse(v2);
     });
     actual.accept(Boolean.TRUE, Boolean.FALSE);
   }

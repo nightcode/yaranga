@@ -14,8 +14,12 @@
 
 package org.nightcode.common.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit tests for {@link BitOperations}.
@@ -27,7 +31,7 @@ public class BitOperationsTest {
     byte[] right = new byte[]{0x01, 0x10, 0x01, 0x00, 0x11};
 
     byte[] result = BitOperations.and(left, right);
-    Assert.assertArrayEquals(new byte[]{0x00, 0x00, 0x00, 0x00, 0x11}, result);
+    assertArrayEquals(new byte[]{0x00, 0x00, 0x00, 0x00, 0x11}, result);
   }
 
   @Test public void or() {
@@ -35,7 +39,7 @@ public class BitOperationsTest {
     byte[] right = new byte[]{0x01, 0x10, 0x01, 0x00, 0x11};
 
     byte[] result = BitOperations.or(left, right);
-    Assert.assertArrayEquals(new byte[]{0x11, 0x11, 0x11, 0x00, 0x11}, result);
+    assertArrayEquals(new byte[]{0x11, 0x11, 0x11, 0x00, 0x11}, result);
   }
 
   @Test public void xor() {
@@ -43,7 +47,7 @@ public class BitOperationsTest {
     byte[] right = new byte[]{0x01, 0x10, 0x01, 0x00, 0x11};
 
     byte[] result = BitOperations.xor(left, right);
-    Assert.assertArrayEquals(new byte[]{0x11, 0x11, 0x11, 0x00, 0x00}, result);
+    assertArrayEquals(new byte[]{0x11, 0x11, 0x11, 0x00, 0x00}, result);
   }
 
   @Test public void xorWithOffset() {
@@ -51,39 +55,39 @@ public class BitOperationsTest {
     byte[] right = new byte[]{0x00, 0x01, 0x10, 0x01, 0x00, 0x11, 0x00};
 
     byte[] result = BitOperations.xor(left, right, 1, 5);
-    Assert.assertArrayEquals(new byte[]{0x11, 0x11, 0x11, 0x00, 0x00}, result);
+    assertArrayEquals(new byte[]{0x11, 0x11, 0x11, 0x00, 0x00}, result);
   }
 
   @Test public void leftShift() {
     byte[] src  = new byte[]{0x10, 0x01, 0x10, 0x00, 0x11};
 
     byte[] result = BitOperations.leftShift(src, 1);
-    Assert.assertArrayEquals(new byte[]{0x20, 0x02, 0x20, 0x00, 0x22}, result);
+    assertArrayEquals(new byte[]{0x20, 0x02, 0x20, 0x00, 0x22}, result);
   }
 
   @Test public void isSet() {
-    Assert.assertTrue(BitOperations.isSet((byte) 0x80, 7));
+    assertTrue(BitOperations.isSet((byte) 0x80, 7));
     try {
       BitOperations.isSet((byte) 0x80, 8);
-      Assert.fail("should throw IllegalArgumentException");
+      fail("should throw IllegalArgumentException");
     } catch (IllegalArgumentException ex) {
-      Assert.assertEquals("bitPosition should be grate than -1 and less than 8, current value: 8", ex.getMessage());
+      assertEquals("bitPosition should be grate than -1 and less than 8, current value: 8", ex.getMessage());
     }
 
-    Assert.assertTrue(BitOperations.isSet(0x80000000, 31));
+    assertTrue(BitOperations.isSet(0x80000000, 31));
     try {
       BitOperations.isSet(0x80000000, 32);
-      Assert.fail("should throw IllegalArgumentException");
+      fail("should throw IllegalArgumentException");
     } catch (IllegalArgumentException ex) {
-      Assert.assertEquals("bitPosition should be grate than -1 and less than 32, current value: 32", ex.getMessage());
+      assertEquals("bitPosition should be grate than -1 and less than 32, current value: 32", ex.getMessage());
     }
 
-    Assert.assertTrue(BitOperations.isSet(0x8000000000000000L, 63));
+    assertTrue(BitOperations.isSet(0x8000000000000000L, 63));
     try {
       BitOperations.isSet(0x8000000000000000L, 64);
-      Assert.fail("should throw IllegalArgumentException");
+      fail("should throw IllegalArgumentException");
     } catch (IllegalArgumentException ex) {
-      Assert.assertEquals("bitPosition should be grate than -1 and less than 64, current value: 64", ex.getMessage());
+      assertEquals("bitPosition should be grate than -1 and less than 64, current value: 64", ex.getMessage());
     }
   }
 }

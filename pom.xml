@@ -18,7 +18,7 @@
   <groupId>org.nightcode.yaranga</groupId>
   <artifactId>yaranga-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.12.6</version>
+  <version>0.12.7-SNAPSHOT</version>
   <name>Yaranga (Parent) ${project.version}</name>
   <description>Useful stuff for Java 21+.</description>
   <url>http://github.com/nightcode/yaranga/</url>
@@ -54,7 +54,7 @@
     <opentelemetry-bom.version>1.61.0</opentelemetry-bom.version>
     <opentelemetry-instrumentation-bom.version>2.26.1</opentelemetry-instrumentation-bom.version>
 
-    <junit.version>4.13.2</junit.version>
+    <junit.version>6.0.3</junit.version>
     <easymock.version>3.6</easymock.version>
   </properties>
 
@@ -157,8 +157,8 @@
       </dependency>
 
       <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
         <version>${junit.version}</version>
       </dependency>
       <dependency>

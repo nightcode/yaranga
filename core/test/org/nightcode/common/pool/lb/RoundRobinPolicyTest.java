@@ -20,8 +20,12 @@ import java.util.NoSuchElementException;
 import org.nightcode.common.pool.metadata.Endpoint;
 import org.nightcode.common.pool.metadata.NamedEndpoint;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit test for {@link RoundRobinPolicyTest}.
@@ -34,12 +38,12 @@ public class RoundRobinPolicyTest {
     LoadBalancingPolicy lbPolicy = new RoundRobinPolicy();
 
     Iterator<Endpoint<String>> iterator = lbPolicy.sessions();
-    Assert.assertFalse(iterator.hasNext());
+    assertFalse(iterator.hasNext());
 
     lbPolicy.onRegister(ENDPOINT);
     iterator = lbPolicy.sessions();
-    Assert.assertTrue(iterator.hasNext());
-    Assert.assertEquals(ENDPOINT, iterator.next());
+    assertTrue(iterator.hasNext());
+    assertEquals(ENDPOINT, iterator.next());
   }
 
   @Test public void testClose() {
@@ -47,12 +51,12 @@ public class RoundRobinPolicyTest {
 
     lbPolicy.onRegister(ENDPOINT);
     Iterator<Endpoint<String>> iterator = lbPolicy.sessions();
-    Assert.assertTrue(iterator.hasNext());
-    Assert.assertEquals(ENDPOINT, iterator.next());
+    assertTrue(iterator.hasNext());
+    assertEquals(ENDPOINT, iterator.next());
 
     lbPolicy.onDeregister(ENDPOINT);
     iterator = lbPolicy.sessions();
-    Assert.assertFalse(iterator.hasNext());
+    assertFalse(iterator.hasNext());
   }
 
   @Test public void testConnectionIterator() {
@@ -62,7 +66,7 @@ public class RoundRobinPolicyTest {
     Endpoint<String> endpoint2 = new NamedEndpoint("2");
 
     Iterator<Endpoint<String>> iterator = lbPolicy.sessions();
-    Assert.assertFalse(iterator.hasNext());
+    assertFalse(iterator.hasNext());
 
     lbPolicy.onRegister(endpoint1);
     lbPolicy.onRegister(endpoint2);
@@ -72,45 +76,45 @@ public class RoundRobinPolicyTest {
     Endpoint<String> target1 = iterator.next();
     Endpoint<String> target2 = iterator.next();
 
-    Assert.assertEquals(endpoint1, target2);
-    Assert.assertEquals(endpoint2, target1);
-    Assert.assertFalse(iterator.hasNext());
+    assertEquals(endpoint1, target2);
+    assertEquals(endpoint2, target1);
+    assertFalse(iterator.hasNext());
 
     iterator = lbPolicy.sessions();
 
     target1 = iterator.next();
     target2 = iterator.next();
 
-    Assert.assertEquals(endpoint1, target1);
-    Assert.assertEquals(endpoint2, target2);
-    Assert.assertFalse(iterator.hasNext());
+    assertEquals(endpoint1, target1);
+    assertEquals(endpoint2, target2);
+    assertFalse(iterator.hasNext());
   }
 
   @Test public void testSingleConnectionIterator() {
     LoadBalancingPolicy lbPolicy = new RoundRobinPolicy();
 
     Iterator<Endpoint<String>> sessions = lbPolicy.sessions();
-    Assert.assertFalse(sessions.hasNext());
+    assertFalse(sessions.hasNext());
 
     lbPolicy.onRegister(ENDPOINT);
 
     sessions = lbPolicy.sessions();
 
-    Assert.assertTrue(sessions.hasNext());
+    assertTrue(sessions.hasNext());
     Endpoint<String> target = sessions.next();
-    Assert.assertEquals(ENDPOINT, target);
-    Assert.assertFalse(sessions.hasNext());
+    assertEquals(ENDPOINT, target);
+    assertFalse(sessions.hasNext());
 
     sessions = lbPolicy.sessions();
 
-    Assert.assertTrue(sessions.hasNext());
+    assertTrue(sessions.hasNext());
     target = sessions.next();
-    Assert.assertEquals(ENDPOINT, target);
-    Assert.assertFalse(sessions.hasNext());
+    assertEquals(ENDPOINT, target);
+    assertFalse(sessions.hasNext());
 
     try {
       sessions.next();
-      Assert.fail("must throw NoSuchElementException");
+      fail("must throw NoSuchElementException");
     } catch (NoSuchElementException ex) {
       // do nothing
     }
@@ -120,12 +124,12 @@ public class RoundRobinPolicyTest {
     LoadBalancingPolicy lbPolicy = new RoundRobinPolicy();
 
     Iterator<Endpoint<String>> sessions = lbPolicy.sessions();
-    Assert.assertFalse(sessions.hasNext());
+    assertFalse(sessions.hasNext());
 
     lbPolicy.onRegister(ENDPOINT);
 
     sessions = lbPolicy.sessions();
-    Assert.assertTrue(sessions.hasNext());
+    assertTrue(sessions.hasNext());
   }
 
   @Test public void testOnDeregister() {
@@ -134,15 +138,15 @@ public class RoundRobinPolicyTest {
     lbPolicy.onRegister(ENDPOINT);
 
     Iterator<Endpoint<String>> sessions = lbPolicy.sessions();
-    Assert.assertTrue(sessions.hasNext());
+    assertTrue(sessions.hasNext());
 
     lbPolicy.onDeregister(ENDPOINT);
     sessions = lbPolicy.sessions();
-    Assert.assertFalse(sessions.hasNext());
+    assertFalse(sessions.hasNext());
   }
 
   @Test public void testDefaultLbPolicy() {
     LoadBalancingPolicy lbPolicy = LoadBalancingPolicy.def();
-    Assert.assertEquals(RoundRobinPolicy.class, lbPolicy.getClass());
+    assertEquals(RoundRobinPolicy.class, lbPolicy.getClass());
   }
 }

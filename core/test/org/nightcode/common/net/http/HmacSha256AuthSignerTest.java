@@ -14,13 +14,15 @@
 
 package org.nightcode.common.net.http;
 
-import org.nightcode.common.base.Hexs;
-
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.nightcode.common.base.Hexs;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HmacSha256AuthSignerTest {
 
@@ -29,13 +31,12 @@ public class HmacSha256AuthSignerTest {
     String signatureBaseString = "273156:di3hvdf8\nPOST\n/request\nexample.com\n80\nk9kbtCIy0CkI3/FEfpS/oIDjk6k=\n\n";
 
     byte[] buffer = signer.computeSignature(signatureBaseString.getBytes(StandardCharsets.UTF_8));
-    Assert.assertArrayEquals(Hexs.hex().toByteArray("A2E5D351094523EA49322DB39FAEDAEB39ACEEC2EED891143D4633BA712A28E7")
-        , buffer);
+    assertArrayEquals(Hexs.hex().toByteArray("A2E5D351094523EA49322DB39FAEDAEB39ACEEC2EED891143D4633BA712A28E7"), buffer);
     
     String actual = signer.computeSignatureBase64(signatureBaseString.getBytes(StandardCharsets.UTF_8));
-    Assert.assertEquals("ouXTUQlFI+pJMi2zn67a6zms7sLu2JEUPUYzunEqKOc=", actual);
+    assertEquals("ouXTUQlFI+pJMi2zn67a6zms7sLu2JEUPUYzunEqKOc=", actual);
 
     actual = signer.computeSignatureHex(signatureBaseString.getBytes(StandardCharsets.UTF_8));
-    Assert.assertEquals("A2E5D351094523EA49322DB39FAEDAEB39ACEEC2EED891143D4633BA712A28E7", actual);
+    assertEquals("A2E5D351094523EA49322DB39FAEDAEB39ACEEC2EED891143D4633BA712A28E7", actual);
   }
 }

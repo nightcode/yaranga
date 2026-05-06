@@ -14,22 +14,23 @@
 
 package org.nightcode.common.net.http;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MacAuthUtilsTest {
 
   @Test public void getSignatureBaseString() throws AuthException {
     String actual = MacAuthUtils.getSignatureBaseString("273156:di3hvdf8", "POST", "example.com"
         , "http://example.com/request", "k9kbtCIy0CkI3/FEfpS/oIDjk6k=", null);
-    Assert.assertEquals("273156:di3hvdf8\nPOST\n/request\nexample.com\n80\nk9kbtCIy0CkI3/FEfpS/oIDjk6k=\n\n", actual);
+    assertEquals("273156:di3hvdf8\nPOST\n/request\nexample.com\n80\nk9kbtCIy0CkI3/FEfpS/oIDjk6k=\n\n", actual);
 
     actual = MacAuthUtils.getSignatureBaseString("273156:di3hvdf8", "POST", "localhost:8080"
         , "http://localhost:8080/request", "k9kbtCIy0CkI3/FEfpS/oIDjk6k=", null);
-    Assert.assertEquals("273156:di3hvdf8\nPOST\n/request\nlocalhost\n8080\nk9kbtCIy0CkI3/FEfpS/oIDjk6k=\n\n", actual);
+    assertEquals("273156:di3hvdf8\nPOST\n/request\nlocalhost\n8080\nk9kbtCIy0CkI3/FEfpS/oIDjk6k=\n\n", actual);
 
     actual = MacAuthUtils.getSignatureBaseString("273156:di3hvdf8", "POST", "localhost"
         , "https://localhost:443/request", "k9kbtCIy0CkI3/FEfpS/oIDjk6k=", null);
-    Assert.assertEquals("273156:di3hvdf8\nPOST\n/request\nlocalhost\n443\nk9kbtCIy0CkI3/FEfpS/oIDjk6k=\n\n", actual);
+    assertEquals("273156:di3hvdf8\nPOST\n/request\nlocalhost\n443\nk9kbtCIy0CkI3/FEfpS/oIDjk6k=\n\n", actual);
   }
 }

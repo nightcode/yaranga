@@ -7,13 +7,14 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@Disabled
 public class DirectoryWatchServiceTest {
 
   public static final String TARGET = System.getProperty("project.build.directory", "target");
@@ -21,13 +22,13 @@ public class DirectoryWatchServiceTest {
   private final String base = TARGET + "/DirectoryWatchService";
   private final String base2 = TARGET + "/DirectoryWatchService2";
 
-  @Before public void setup() throws IOException {
+  @BeforeEach public void setup() throws IOException {
     tearDown();
     new File(base).mkdirs();
     new File(base2).mkdirs();
   }
 
-  @After public void tearDown() throws IOException {
+  @AfterEach public void tearDown() throws IOException {
     deleteDirs(base);
     deleteDirs(base2);
   }
@@ -56,7 +57,7 @@ public class DirectoryWatchServiceTest {
 
       new File(base2).renameTo(new File(base + "/dir05"));
     }
-    Assert.assertEquals(9, counter.get());
+    assertEquals(9, counter.get());
   }
 
   private void deleteDirs(String dirName) throws IOException {

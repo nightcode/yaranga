@@ -29,8 +29,9 @@ import org.nightcode.api.tcp.TcpIpApiGw;
 import org.nightcode.api.tcp.TcpIpApiPoolBuilder;
 import org.nightcode.common.pool.SessionPool;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit test for {@link ApiInterceptor}.
@@ -63,8 +64,8 @@ public class ApiInterceptorTest {
 
       @Override public <Q extends Message, R extends Message> MethodHandler<Q, R> handlerFor(String typeUrl) {
         return request -> {
-          Assert.assertEquals(Request.getDefaultInstance().getDescriptorForType(), request.getDescriptorForType());
-          Assert.assertEquals("test-service-request", ((Request) request).getService());
+          assertEquals(Request.getDefaultInstance().getDescriptorForType(), request.getDescriptorForType());
+          assertEquals("test-service-request", ((Request) request).getService());
           // noinspection unchecked
           return CompletableFuture.completedFuture((R) Response.newBuilder().setService("test-service-response").build());
         };
@@ -82,7 +83,7 @@ public class ApiInterceptorTest {
           @Override public <Q extends Message, R extends Message> ApiGwCall<Q, R> intercept(ApiGwContext context) {
             return new SimpleApiGwCall<>(context.newApiCall()) {
               @Override public CompletableFuture<R> executeAsync(String serviceName, MethodHandler<Q, R> methodHandler, Q message, Metadata metadata) {
-                Assert.assertEquals(requestGeneration, metadata.getGeneration());
+                assertEquals(requestGeneration, metadata.getGeneration());
                 return super.executeAsync(serviceName, methodHandler, message, metadata);
               }
             };
@@ -115,7 +116,7 @@ public class ApiInterceptorTest {
             .build();
 
         Response response = api.execute(request);
-        Assert.assertEquals("test-service-response", response.getService());
+        assertEquals("test-service-response", response.getService());
       }
     }
   }

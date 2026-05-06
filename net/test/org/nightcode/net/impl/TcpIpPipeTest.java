@@ -87,17 +87,21 @@ import org.nightcode.net.PacketTxHandler;
 import org.nightcode.net.PacketWriter;
 import org.nightcode.net.PipeContext;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit test for {@link TcpIpPipe}.
  */
 public class TcpIpPipeTest {
 
-  public static class TestInitializer extends ChannelInitializer<SocketChannel> {
+  public static final class TestInitializer extends ChannelInitializer<SocketChannel> {
 
     private final Consumer<ChannelPipeline> pipelineConsumer;
 
@@ -169,7 +173,7 @@ public class TcpIpPipeTest {
       });
       pipe.initialize();
 
-      Assert.assertTrue(negotiateLatch.await(5, SECONDS));
+      assertTrue(negotiateLatch.await(5, SECONDS));
     } finally {
       if (pipe != null) {
         pipe.destroy();
@@ -201,7 +205,7 @@ public class TcpIpPipeTest {
       pipe.destroy();
     }
 
-    Assert.assertEquals(Session.State.TIMEOUT, actual);
+    assertEquals(Session.State.TIMEOUT, actual);
   }
 
   @Test public void testSendAsync() throws Exception {
@@ -216,7 +220,7 @@ public class TcpIpPipeTest {
 
     try (EventLoopGroup eventLoopGroup = new MultiThreadIoEventLoopGroup(2, NioIoHandler.newFactory())) {
       PacketRxHandler<byte[]> handler = new PacketRxHandler<>(new TestPacketReader(), (ctx, context) -> {
-        Assert.assertArrayEquals(request, context.packet());
+        assertArrayEquals(request, context.packet());
         sendLatch.countDown();
       });
       serverBootstrap.group(eventLoopGroup)
@@ -232,7 +236,7 @@ public class TcpIpPipeTest {
       pipe.initialize();
       pipe.sendAsync(request);
 
-      Assert.assertTrue(sendLatch.await(5, SECONDS));
+      assertTrue(sendLatch.await(5, SECONDS));
     } finally {
       if (pipe != null) {
         pipe.destroy();
@@ -249,7 +253,7 @@ public class TcpIpPipeTest {
     random.nextBytes(request);
 
     try (EventLoopGroup eventLoopGroup = new MultiThreadIoEventLoopGroup(2, NioIoHandler.newFactory())) {
-      PacketRxHandler<byte[]> handler = new PacketRxHandler<>(new TestPacketReader(), (ctx, context) -> Assert.assertArrayEquals(request, context.packet()));
+      PacketRxHandler<byte[]> handler = new PacketRxHandler<>(new TestPacketReader(), (ctx, context) -> assertArrayEquals(request, context.packet()));
       serverBootstrap.group(eventLoopGroup)
           .channel(NioServerSocketChannel.class)
           .childHandler(new TestInitializer(p -> p.addLast("in", handler)));
@@ -268,9 +272,9 @@ public class TcpIpPipeTest {
 
       try {
         cf.get(1, SECONDS);
-        Assert.fail("MUST throw ConnectionException");
+        fail("MUST throw ConnectionException");
       } catch (Exception ex) {
-        Assert.assertTrue(ex.getMessage().contains(" expired, channel"));
+        assertTrue(ex.getMessage().contains(" expired, channel"));
       }
     } finally {
       if (pipe != null) {
@@ -297,7 +301,7 @@ public class TcpIpPipeTest {
             p.addLast("out", new PacketTxHandler<>());
             p.addLast("in"
                 , new PacketRxHandler<>(new TestPacketReader(), (ctx, context) -> {
-                  Assert.assertArrayEquals(request, context.packet());
+                  assertArrayEquals(request, context.packet());
                   PacketContext<byte[]> responseContext = new PacketContextImpl<>(new TestPacketWriter(), context.packetId(), response);
                   p.channel().writeAndFlush(responseContext);
                 }));
@@ -312,7 +316,7 @@ public class TcpIpPipeTest {
       pipe.initialize();
       CompletableFuture<byte[]> rf = pipe.sendReceiveAsync(request);
 
-      Assert.assertArrayEquals(response, rf.get(5, SECONDS));
+      assertArrayEquals(response, rf.get(5, SECONDS));
     } finally {
       if (pipe != null) {
         pipe.destroy();
@@ -338,7 +342,7 @@ public class TcpIpPipeTest {
             p.addLast("out", new PacketTxHandler<>());
             p.addLast("in"
                 , new PacketRxHandler<>(new TestPacketReader(), (ctx, context) -> {
-                  Assert.assertArrayEquals(request, context.packet());
+                  assertArrayEquals(request, context.packet());
                   PacketContext<byte[]> responseContext = new PacketContextImpl<>(new TestPacketWriter(), context.packetId(), response
                       , Clock.sys().nanoTime() + SECONDS.toNanos(5));
                   p.channel().writeAndFlush(responseContext);
@@ -358,9 +362,9 @@ public class TcpIpPipeTest {
 
       try {
         cf.get(1, SECONDS);
-        Assert.fail("MUST throw ConnectionException");
+        fail("MUST throw ConnectionException");
       } catch (Exception ex) {
-        Assert.assertTrue(ex.getMessage().contains(" expired, channel"));
+        assertTrue(ex.getMessage().contains(" expired, channel"));
       }
     } finally {
       if (pipe != null) {
@@ -407,7 +411,7 @@ public class TcpIpPipeTest {
       pipe.initialize();
       CompletableFuture<byte[]> rf = pipe.sendReceiveAsync(request);
 
-      Assert.assertArrayEquals(response, rf.get(5, SECONDS));
+      assertArrayEquals(response, rf.get(5, SECONDS));
     } finally {
       if (pipe != null) {
         pipe.destroy();
@@ -457,10 +461,10 @@ public class TcpIpPipeTest {
 
       try {
         rf.get(5, SECONDS);
-        Assert.fail("should throw SSL exception");
+        fail("should throw SSL exception");
       } catch (Exception ex) {
-        Assert.assertTrue(ex instanceof ExecutionException);
-        Assert.assertTrue(ex.getCause() instanceof SSLHandshakeException);
+        assertInstanceOf(ExecutionException.class, ex);
+        assertInstanceOf(SSLHandshakeException.class, ex.getCause());
       }
     } finally {
       if (pipe != null) {
@@ -509,7 +513,7 @@ public class TcpIpPipeTest {
       pipe.initialize();
       CompletableFuture<byte[]> rf = pipe.sendReceiveAsync(request);
 
-      Assert.assertArrayEquals(response, rf.get(5, SECONDS));
+      assertArrayEquals(response, rf.get(5, SECONDS));
     } finally {
       if (pipe != null) {
         pipe.destroy();
@@ -564,7 +568,7 @@ public class TcpIpPipeTest {
       pipe.initialize();
       CompletableFuture<byte[]> rf = pipe.sendReceiveAsync(request);
 
-      Assert.assertArrayEquals(response, rf.get(5, SECONDS));
+      assertArrayEquals(response, rf.get(5, SECONDS));
     } finally {
       if (pipe != null) {
         pipe.destroy();
@@ -623,10 +627,10 @@ public class TcpIpPipeTest {
 
       try {
         rf.get(5, SECONDS);
-        Assert.fail("should throw SSL exception");
+        fail("should throw SSL exception");
       } catch (Exception ex) {
-        Assert.assertTrue(ex instanceof ExecutionException);
-        Assert.assertTrue(ex.getCause() instanceof SSLException);
+        assertInstanceOf(ExecutionException.class, ex);
+        assertInstanceOf(SSLException.class, ex.getCause());
       }
     } finally {
       if (pipe != null) {
@@ -687,7 +691,7 @@ public class TcpIpPipeTest {
       pipe.initialize();
       CompletableFuture<byte[]> rf = pipe.sendReceiveAsync(request);
 
-      Assert.assertArrayEquals(response, rf.get(5, SECONDS));
+      assertArrayEquals(response, rf.get(5, SECONDS));
     } finally {
       if (pipe != null) {
         pipe.destroy();
@@ -753,10 +757,10 @@ public class TcpIpPipeTest {
 
       try {
         rf.get(5, SECONDS);
-        Assert.fail("should throw SSL exception");
+        fail("should throw SSL exception");
       } catch (Exception ex) {
-        Assert.assertTrue(ex instanceof ExecutionException);
-        Assert.assertTrue(ex.getCause() instanceof SSLException);
+        assertInstanceOf(ExecutionException.class, ex);
+        assertInstanceOf(SSLException.class, ex.getCause());
       }
     } finally {
       if (pipe != null) {
@@ -795,23 +799,23 @@ public class TcpIpPipeTest {
 
       Any request  = Any.pack(StringValue.newBuilder().setValue(UUID.randomUUID().toString()).build());
       Any response = pipe.sendReceiveAsync(request).get(5, TimeUnit.SECONDS);
-      Assert.assertEquals(request, response);
+      assertEquals(request, response);
     }
 
     try {
-      Assert.assertEquals(0, pipe.queueSize());
+      assertEquals(0, pipe.queueSize());
 
       Any                    request = Any.pack(StringValue.newBuilder().setValue(UUID.randomUUID().toString()).build());
       CompletableFuture<Any> cf      = pipe.sendReceiveAsync(request);
-      Assert.assertEquals(1, pipe.queueSize());
+      assertEquals(1, pipe.queueSize());
       cf.completeExceptionally(new IOException("timeout"));
-      Assert.assertEquals(0, pipe.queueSize());
+      assertEquals(0, pipe.queueSize());
 
       try {
         cf.get();
-        Assert.fail("should throw ExecutionException");
+        fail("should throw ExecutionException");
       } catch (Exception ex) {
-        Assert.assertEquals("java.io.IOException: timeout", ex.getMessage());
+        assertEquals("java.io.IOException: timeout", ex.getMessage());
       }
     } finally {
       pipe.destroy();
@@ -924,7 +928,7 @@ public class TcpIpPipeTest {
   }
 
   private <Q, R> PipeContext<InetSocketAddress, TcpIpPipe<Q, R>> createPipeContext(Endpoint<InetSocketAddress> endpoint) {
-    return createPipeContext(endpoint, (buffer, offset, length) -> null, new PacketWriter<Q>() {
+    return createPipeContext(endpoint, (buffer, offset, length) -> null, new PacketWriter<>() {
       @Override public int size(Q packet) {
         return 0;
       }

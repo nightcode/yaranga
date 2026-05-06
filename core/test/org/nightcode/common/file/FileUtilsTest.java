@@ -17,8 +17,9 @@ package org.nightcode.common.file;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link FileUtils}.
@@ -27,6 +28,6 @@ public class FileUtilsTest {
 
   @Test public void inode() throws IOException {
     long inode = FileUtils.findInode(Files.createTempFile("test", "tmp").toFile());
-    Assert.assertTrue(inode > 0);
+    assertTrue(inode > 0);
   }
 }

@@ -14,15 +14,15 @@
 
 package org.nightcode.common.service;
 
-import org.nightcode.common.service.Service.State;
-
 import java.util.concurrent.ExecutionException;
 
-import org.junit.Test;
+import org.nightcode.common.service.Service.State;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.nightcode.common.service.Service.State.FAILED;
 import static org.nightcode.common.service.Service.State.NEW;
 import static org.nightcode.common.service.Service.State.RUNNING;
