@@ -23,5 +23,5 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface CompletablePacketContext<P> extends PacketContext<P> {
 
-  CompletableFuture<Void> completion();
+  CompletableFuture<Void> cf();
 }

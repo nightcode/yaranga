@@ -85,6 +85,7 @@ import org.nightcode.net.PacketReader;
 import org.nightcode.net.PacketRxHandler;
 import org.nightcode.net.PacketTxHandler;
 import org.nightcode.net.PacketWriter;
+import org.nightcode.net.Pipe;
 import org.nightcode.net.PipeContext;
 
 import org.junit.jupiter.api.Test;
@@ -92,7 +93,10 @@ import org.junit.jupiter.api.Test;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -373,6 +377,23 @@ public class TcpIpPipeTest {
     }
   }
 
+  @Test void testDestroyPipeCompletesWithEof() {
+    String address  = "10.255.255.1:" + 80;
+    var    endpoint = new InetSocketAddressEndpoint(address);
+    var    context  = createPipeContext(endpoint, new TestPacketReader(), new TestPacketWriter());
+
+    TcpIpPipe<byte[], byte[]> pipe    = new TcpIpPipe<>(context);
+    CompletableFuture<byte[]> pending = pipe.sendReceiveAsync(new byte[]{0x01});
+
+    assertFalse(pending.isDone(), "response future must be in progress");
+
+    pipe.destroy();
+
+    assertTrue(pending.isCompletedExceptionally(), "response future must complete exceptionally");
+    ExecutionException ex = assertThrows(ExecutionException.class, () -> pending.get(1, TimeUnit.SECONDS));
+    assertSame(Pipe.EOF, ex.getCause());
+  }
+
   @Test public void testServerSsl() throws Exception {
     TcpIpPipe<byte[], byte[]> pipe            = null;
     ServerBootstrap           serverBootstrap = new ServerBootstrap();
@@ -459,13 +480,8 @@ public class TcpIpPipeTest {
       pipe.initialize();
       CompletableFuture<byte[]> rf = pipe.sendReceiveAsync(request);
 
-      try {
-        rf.get(5, SECONDS);
-        fail("should throw SSL exception");
-      } catch (Exception ex) {
-        assertInstanceOf(ExecutionException.class, ex);
-        assertInstanceOf(SSLHandshakeException.class, ex.getCause());
-      }
+      ExecutionException ex = assertThrows(ExecutionException.class, () -> rf.get(5, SECONDS));
+      assertInstanceOf(SSLHandshakeException.class, ex.getCause());
     } finally {
       if (pipe != null) {
         pipe.destroy();
@@ -625,13 +641,8 @@ public class TcpIpPipeTest {
       pipe.initialize();
       CompletableFuture<byte[]> rf = pipe.sendReceiveAsync(request);
 
-      try {
-        rf.get(5, SECONDS);
-        fail("should throw SSL exception");
-      } catch (Exception ex) {
-        assertInstanceOf(ExecutionException.class, ex);
-        assertInstanceOf(SSLException.class, ex.getCause());
-      }
+      ExecutionException ex = assertThrows(ExecutionException.class, () -> rf.get(5, SECONDS));
+      assertInstanceOf(SSLException.class, ex.getCause());
     } finally {
       if (pipe != null) {
         pipe.destroy();
@@ -755,13 +766,8 @@ public class TcpIpPipeTest {
       pipe.initialize();
       CompletableFuture<byte[]> rf = pipe.sendReceiveAsync(request);
 
-      try {
-        rf.get(5, SECONDS);
-        fail("should throw SSL exception");
-      } catch (Exception ex) {
-        assertInstanceOf(ExecutionException.class, ex);
-        assertInstanceOf(SSLException.class, ex.getCause());
-      }
+      ExecutionException ex = assertThrows(ExecutionException.class, () -> rf.get(5, SECONDS));
+      assertInstanceOf(SSLException.class, ex.getCause());
     } finally {
       if (pipe != null) {
         pipe.destroy();

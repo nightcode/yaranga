@@ -30,6 +30,10 @@ public class SimpleMessageQueue<T> implements MessageQueue<T> {
     this.consumer = consumer;
   }
 
+  @Override public void clear() {
+    queue.clear();
+  }
+
   @Override public void flush() {
     switch (state.get()) {
       case IDLE -> {

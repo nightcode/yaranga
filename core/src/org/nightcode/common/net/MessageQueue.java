@@ -38,6 +38,8 @@ public interface MessageQueue<M> {
     }
   }
 
+  void clear();
+
   void flush();
 
   int size();

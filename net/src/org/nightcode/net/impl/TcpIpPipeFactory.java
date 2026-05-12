@@ -35,7 +35,7 @@ import org.nightcode.net.PipeFactoryContext;
  * @param <R> the response packet
  * @param <C> the pipe
  */
-public final class TcpIpPipeFactory<Q, R, C extends Pipe<InetSocketAddress, Q, R>>
+public class TcpIpPipeFactory<Q, R, C extends Pipe<InetSocketAddress, Q, R>>
     implements SessionFactory<InetSocketAddress, C>, PipeFactoryContext {
 
   public static final class Builder {
@@ -140,7 +140,7 @@ public final class TcpIpPipeFactory<Q, R, C extends Pipe<InetSocketAddress, Q, R
   private final PacketWriter<?>  packetWriter;
   private final BootstrapFactory bootstrapFactory;
 
-  private TcpIpPipeFactory(Builder builder) {
+  protected TcpIpPipeFactory(Builder builder) {
     autoRead           = builder.autoRead;
     soKeepAlive        = builder.soKeepAlive;
     soReuseAddress     = builder.soReuseAddress;

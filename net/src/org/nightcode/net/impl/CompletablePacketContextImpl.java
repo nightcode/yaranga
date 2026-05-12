@@ -27,19 +27,19 @@ import org.nightcode.net.PacketWriter;
  */
 public class CompletablePacketContextImpl<P> extends PacketContextImpl<P> implements CompletablePacketContext<P> {
 
-  private final CompletableFuture<Void> completion;
+  private final CompletableFuture<Void> cf;
 
   public CompletablePacketContextImpl(PacketWriter<P> packetWriter, long packetId, P packet, long expiredOnNs) {
     super(packetWriter, packetId, packet, expiredOnNs);
-    this.completion = new CompletableFuture<>();
+    this.cf = new CompletableFuture<>();
   }
 
   public CompletablePacketContextImpl(PacketWriter<P> packetWriter, long packetId, P packet, long expiredOnNs, Clock clock) {
     super(packetWriter, packetId, packet, expiredOnNs, clock);
-    this.completion = new CompletableFuture<>();
+    this.cf = new CompletableFuture<>();
   }
 
-  @Override public CompletableFuture<Void> completion() {
-    return completion;
+  @Override public CompletableFuture<Void> cf() {
+    return cf;
   }
 }
