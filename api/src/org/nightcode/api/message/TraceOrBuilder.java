@@ -11,38 +11,36 @@ public interface TraceOrBuilder extends
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <code>string traceId = 1;</code>
-   * @return The traceId.
+   * <code>map&lt;string, string&gt; context = 4;</code>
    */
-  java.lang.String getTraceId();
+  int getContextCount();
   /**
-   * <code>string traceId = 1;</code>
-   * @return The bytes for traceId.
+   * <code>map&lt;string, string&gt; context = 4;</code>
    */
-  com.google.protobuf.ByteString
-      getTraceIdBytes();
-
+  boolean containsContext(
+      java.lang.String key);
   /**
-   * <code>string spanId = 2;</code>
-   * @return The spanId.
+   * Use {@link #getContextMap()} instead.
    */
-  java.lang.String getSpanId();
+  @java.lang.Deprecated
+  java.util.Map<java.lang.String, java.lang.String>
+  getContext();
   /**
-   * <code>string spanId = 2;</code>
-   * @return The bytes for spanId.
+   * <code>map&lt;string, string&gt; context = 4;</code>
    */
-  com.google.protobuf.ByteString
-      getSpanIdBytes();
-
+  java.util.Map<java.lang.String, java.lang.String>
+  getContextMap();
   /**
-   * <code>string parentId = 3;</code>
-   * @return The parentId.
+   * <code>map&lt;string, string&gt; context = 4;</code>
    */
-  java.lang.String getParentId();
+  /* nullable */
+java.lang.String getContextOrDefault(
+      java.lang.String key,
+      /* nullable */
+java.lang.String defaultValue);
   /**
-   * <code>string parentId = 3;</code>
-   * @return The bytes for parentId.
+   * <code>map&lt;string, string&gt; context = 4;</code>
    */
-  com.google.protobuf.ByteString
-      getParentIdBytes();
+  java.lang.String getContextOrThrow(
+      java.lang.String key);
 }

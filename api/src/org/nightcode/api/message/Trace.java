@@ -28,9 +28,6 @@ private static final long serialVersionUID = 0L;
     super(builder);
   }
   private Trace() {
-    traceId_ = "";
-    spanId_ = "";
-    parentId_ = "";
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor
@@ -38,6 +35,18 @@ private static final long serialVersionUID = 0L;
     return org.nightcode.api.message.ApiProto.internal_static_org_nightcode_api_Trace_descriptor;
   }
 
+  @SuppressWarnings({"rawtypes"})
+  @java.lang.Override
+  protected com.google.protobuf.MapFieldReflectionAccessor internalGetMapFieldReflection(
+      int number) {
+    switch (number) {
+      case 4:
+        return internalGetContext();
+      default:
+        throw new RuntimeException(
+            "Invalid map field number: " + number);
+    }
+  }
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internalGetFieldAccessorTable() {
@@ -46,121 +55,83 @@ private static final long serialVersionUID = 0L;
             org.nightcode.api.message.Trace.class, org.nightcode.api.message.Trace.Builder.class);
   }
 
-  public static final int TRACEID_FIELD_NUMBER = 1;
+  public static final int CONTEXT_FIELD_NUMBER = 4;
+  private static final class ContextDefaultEntryHolder {
+    static final com.google.protobuf.MapEntry<
+        java.lang.String, java.lang.String> defaultEntry =
+            com.google.protobuf.MapEntry
+            .<java.lang.String, java.lang.String>newDefaultInstance(
+                org.nightcode.api.message.ApiProto.internal_static_org_nightcode_api_Trace_ContextEntry_descriptor, 
+                com.google.protobuf.WireFormat.FieldType.STRING,
+                "",
+                com.google.protobuf.WireFormat.FieldType.STRING,
+                "");
+  }
   @SuppressWarnings("serial")
-  private volatile java.lang.Object traceId_ = "";
-  /**
-   * <code>string traceId = 1;</code>
-   * @return The traceId.
-   */
-  @java.lang.Override
-  public java.lang.String getTraceId() {
-    java.lang.Object ref = traceId_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      traceId_ = s;
-      return s;
+  private com.google.protobuf.MapField<
+      java.lang.String, java.lang.String> context_;
+  private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+  internalGetContext() {
+    if (context_ == null) {
+      return com.google.protobuf.MapField.emptyMapField(
+          ContextDefaultEntryHolder.defaultEntry);
     }
+    return context_;
+  }
+  public int getContextCount() {
+    return internalGetContext().getMap().size();
   }
   /**
-   * <code>string traceId = 1;</code>
-   * @return The bytes for traceId.
+   * <code>map&lt;string, string&gt; context = 4;</code>
    */
   @java.lang.Override
-  public com.google.protobuf.ByteString
-      getTraceIdBytes() {
-    java.lang.Object ref = traceId_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      traceId_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int SPANID_FIELD_NUMBER = 2;
-  @SuppressWarnings("serial")
-  private volatile java.lang.Object spanId_ = "";
-  /**
-   * <code>string spanId = 2;</code>
-   * @return The spanId.
-   */
-  @java.lang.Override
-  public java.lang.String getSpanId() {
-    java.lang.Object ref = spanId_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      spanId_ = s;
-      return s;
-    }
+  public boolean containsContext(
+      java.lang.String key) {
+    if (key == null) { throw new NullPointerException("map key"); }
+    return internalGetContext().getMap().containsKey(key);
   }
   /**
-   * <code>string spanId = 2;</code>
-   * @return The bytes for spanId.
+   * Use {@link #getContextMap()} instead.
    */
   @java.lang.Override
-  public com.google.protobuf.ByteString
-      getSpanIdBytes() {
-    java.lang.Object ref = spanId_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      spanId_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int PARENTID_FIELD_NUMBER = 3;
-  @SuppressWarnings("serial")
-  private volatile java.lang.Object parentId_ = "";
-  /**
-   * <code>string parentId = 3;</code>
-   * @return The parentId.
-   */
-  @java.lang.Override
-  public java.lang.String getParentId() {
-    java.lang.Object ref = parentId_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      parentId_ = s;
-      return s;
-    }
+  @java.lang.Deprecated
+  public java.util.Map<java.lang.String, java.lang.String> getContext() {
+    return getContextMap();
   }
   /**
-   * <code>string parentId = 3;</code>
-   * @return The bytes for parentId.
+   * <code>map&lt;string, string&gt; context = 4;</code>
    */
   @java.lang.Override
-  public com.google.protobuf.ByteString
-      getParentIdBytes() {
-    java.lang.Object ref = parentId_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      parentId_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
+  public java.util.Map<java.lang.String, java.lang.String> getContextMap() {
+    return internalGetContext().getMap();
+  }
+  /**
+   * <code>map&lt;string, string&gt; context = 4;</code>
+   */
+  @java.lang.Override
+  public /* nullable */
+java.lang.String getContextOrDefault(
+      java.lang.String key,
+      /* nullable */
+java.lang.String defaultValue) {
+    if (key == null) { throw new NullPointerException("map key"); }
+    java.util.Map<java.lang.String, java.lang.String> map =
+        internalGetContext().getMap();
+    return map.containsKey(key) ? map.get(key) : defaultValue;
+  }
+  /**
+   * <code>map&lt;string, string&gt; context = 4;</code>
+   */
+  @java.lang.Override
+  public java.lang.String getContextOrThrow(
+      java.lang.String key) {
+    if (key == null) { throw new NullPointerException("map key"); }
+    java.util.Map<java.lang.String, java.lang.String> map =
+        internalGetContext().getMap();
+    if (!map.containsKey(key)) {
+      throw new java.lang.IllegalArgumentException();
     }
+    return map.get(key);
   }
 
   private byte memoizedIsInitialized = -1;
@@ -177,15 +148,12 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(traceId_)) {
-      com.google.protobuf.GeneratedMessage.writeString(output, 1, traceId_);
-    }
-    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(spanId_)) {
-      com.google.protobuf.GeneratedMessage.writeString(output, 2, spanId_);
-    }
-    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(parentId_)) {
-      com.google.protobuf.GeneratedMessage.writeString(output, 3, parentId_);
-    }
+    com.google.protobuf.GeneratedMessage
+      .serializeStringMapTo(
+        output,
+        internalGetContext(),
+        ContextDefaultEntryHolder.defaultEntry,
+        4);
     getUnknownFields().writeTo(output);
   }
 
@@ -195,14 +163,15 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(traceId_)) {
-      size += com.google.protobuf.GeneratedMessage.computeStringSize(1, traceId_);
-    }
-    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(spanId_)) {
-      size += com.google.protobuf.GeneratedMessage.computeStringSize(2, spanId_);
-    }
-    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(parentId_)) {
-      size += com.google.protobuf.GeneratedMessage.computeStringSize(3, parentId_);
+    for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
+         : internalGetContext().getMap().entrySet()) {
+      com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+      context__ = ContextDefaultEntryHolder.defaultEntry.newBuilderForType()
+          .setKey(entry.getKey())
+          .setValue(entry.getValue())
+          .build();
+      size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(4, context__);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -219,12 +188,8 @@ private static final long serialVersionUID = 0L;
     }
     org.nightcode.api.message.Trace other = (org.nightcode.api.message.Trace) obj;
 
-    if (!getTraceId()
-        .equals(other.getTraceId())) return false;
-    if (!getSpanId()
-        .equals(other.getSpanId())) return false;
-    if (!getParentId()
-        .equals(other.getParentId())) return false;
+    if (!internalGetContext().equals(
+        other.internalGetContext())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -236,12 +201,10 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + TRACEID_FIELD_NUMBER;
-    hash = (53 * hash) + getTraceId().hashCode();
-    hash = (37 * hash) + SPANID_FIELD_NUMBER;
-    hash = (53 * hash) + getSpanId().hashCode();
-    hash = (37 * hash) + PARENTID_FIELD_NUMBER;
-    hash = (53 * hash) + getParentId().hashCode();
+    if (!internalGetContext().getMap().isEmpty()) {
+      hash = (37 * hash) + CONTEXT_FIELD_NUMBER;
+      hash = (53 * hash) + internalGetContext().hashCode();
+    }
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -351,6 +314,28 @@ private static final long serialVersionUID = 0L;
       return org.nightcode.api.message.ApiProto.internal_static_org_nightcode_api_Trace_descriptor;
     }
 
+    @SuppressWarnings({"rawtypes"})
+    protected com.google.protobuf.MapFieldReflectionAccessor internalGetMapFieldReflection(
+        int number) {
+      switch (number) {
+        case 4:
+          return internalGetContext();
+        default:
+          throw new RuntimeException(
+              "Invalid map field number: " + number);
+      }
+    }
+    @SuppressWarnings({"rawtypes"})
+    protected com.google.protobuf.MapFieldReflectionAccessor internalGetMutableMapFieldReflection(
+        int number) {
+      switch (number) {
+        case 4:
+          return internalGetMutableContext();
+        default:
+          throw new RuntimeException(
+              "Invalid map field number: " + number);
+      }
+    }
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
@@ -373,9 +358,7 @@ private static final long serialVersionUID = 0L;
     public Builder clear() {
       super.clear();
       bitField0_ = 0;
-      traceId_ = "";
-      spanId_ = "";
-      parentId_ = "";
+      internalGetMutableContext().clear();
       return this;
     }
 
@@ -410,13 +393,8 @@ private static final long serialVersionUID = 0L;
     private void buildPartial0(org.nightcode.api.message.Trace result) {
       int from_bitField0_ = bitField0_;
       if (((from_bitField0_ & 0x00000001) != 0)) {
-        result.traceId_ = traceId_;
-      }
-      if (((from_bitField0_ & 0x00000002) != 0)) {
-        result.spanId_ = spanId_;
-      }
-      if (((from_bitField0_ & 0x00000004) != 0)) {
-        result.parentId_ = parentId_;
+        result.context_ = internalGetContext();
+        result.context_.makeImmutable();
       }
     }
 
@@ -432,21 +410,9 @@ private static final long serialVersionUID = 0L;
 
     public Builder mergeFrom(org.nightcode.api.message.Trace other) {
       if (other == org.nightcode.api.message.Trace.getDefaultInstance()) return this;
-      if (!other.getTraceId().isEmpty()) {
-        traceId_ = other.traceId_;
-        bitField0_ |= 0x00000001;
-        onChanged();
-      }
-      if (!other.getSpanId().isEmpty()) {
-        spanId_ = other.spanId_;
-        bitField0_ |= 0x00000002;
-        onChanged();
-      }
-      if (!other.getParentId().isEmpty()) {
-        parentId_ = other.parentId_;
-        bitField0_ |= 0x00000004;
-        onChanged();
-      }
+      internalGetMutableContext().mergeFrom(
+          other.internalGetContext());
+      bitField0_ |= 0x00000001;
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
@@ -473,21 +439,15 @@ private static final long serialVersionUID = 0L;
             case 0:
               done = true;
               break;
-            case 10: {
-              traceId_ = input.readStringRequireUtf8();
+            case 34: {
+              com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+              context__ = input.readMessage(
+                  ContextDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
+              internalGetMutableContext().getMutableMap().put(
+                  context__.getKey(), context__.getValue());
               bitField0_ |= 0x00000001;
               break;
-            } // case 10
-            case 18: {
-              spanId_ = input.readStringRequireUtf8();
-              bitField0_ |= 0x00000002;
-              break;
-            } // case 18
-            case 26: {
-              parentId_ = input.readStringRequireUtf8();
-              bitField0_ |= 0x00000004;
-              break;
-            } // case 26
+            } // case 34
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -505,219 +465,130 @@ private static final long serialVersionUID = 0L;
     }
     private int bitField0_;
 
-    private java.lang.Object traceId_ = "";
-    /**
-     * <code>string traceId = 1;</code>
-     * @return The traceId.
-     */
-    public java.lang.String getTraceId() {
-      java.lang.Object ref = traceId_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        traceId_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
+    private com.google.protobuf.MapField<
+        java.lang.String, java.lang.String> context_;
+    private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+        internalGetContext() {
+      if (context_ == null) {
+        return com.google.protobuf.MapField.emptyMapField(
+            ContextDefaultEntryHolder.defaultEntry);
       }
+      return context_;
     }
-    /**
-     * <code>string traceId = 1;</code>
-     * @return The bytes for traceId.
-     */
-    public com.google.protobuf.ByteString
-        getTraceIdBytes() {
-      java.lang.Object ref = traceId_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        traceId_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
+    private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+        internalGetMutableContext() {
+      if (context_ == null) {
+        context_ = com.google.protobuf.MapField.newMapField(
+            ContextDefaultEntryHolder.defaultEntry);
       }
-    }
-    /**
-     * <code>string traceId = 1;</code>
-     * @param value The traceId to set.
-     * @return This builder for chaining.
-     */
-    public Builder setTraceId(
-        java.lang.String value) {
-      if (value == null) { throw new NullPointerException(); }
-      traceId_ = value;
+      if (!context_.isMutable()) {
+        context_ = context_.copy();
+      }
       bitField0_ |= 0x00000001;
       onChanged();
-      return this;
+      return context_;
+    }
+    public int getContextCount() {
+      return internalGetContext().getMap().size();
     }
     /**
-     * <code>string traceId = 1;</code>
-     * @return This builder for chaining.
+     * <code>map&lt;string, string&gt; context = 4;</code>
      */
-    public Builder clearTraceId() {
-      traceId_ = getDefaultInstance().getTraceId();
+    @java.lang.Override
+    public boolean containsContext(
+        java.lang.String key) {
+      if (key == null) { throw new NullPointerException("map key"); }
+      return internalGetContext().getMap().containsKey(key);
+    }
+    /**
+     * Use {@link #getContextMap()} instead.
+     */
+    @java.lang.Override
+    @java.lang.Deprecated
+    public java.util.Map<java.lang.String, java.lang.String> getContext() {
+      return getContextMap();
+    }
+    /**
+     * <code>map&lt;string, string&gt; context = 4;</code>
+     */
+    @java.lang.Override
+    public java.util.Map<java.lang.String, java.lang.String> getContextMap() {
+      return internalGetContext().getMap();
+    }
+    /**
+     * <code>map&lt;string, string&gt; context = 4;</code>
+     */
+    @java.lang.Override
+    public /* nullable */
+java.lang.String getContextOrDefault(
+        java.lang.String key,
+        /* nullable */
+java.lang.String defaultValue) {
+      if (key == null) { throw new NullPointerException("map key"); }
+      java.util.Map<java.lang.String, java.lang.String> map =
+          internalGetContext().getMap();
+      return map.containsKey(key) ? map.get(key) : defaultValue;
+    }
+    /**
+     * <code>map&lt;string, string&gt; context = 4;</code>
+     */
+    @java.lang.Override
+    public java.lang.String getContextOrThrow(
+        java.lang.String key) {
+      if (key == null) { throw new NullPointerException("map key"); }
+      java.util.Map<java.lang.String, java.lang.String> map =
+          internalGetContext().getMap();
+      if (!map.containsKey(key)) {
+        throw new java.lang.IllegalArgumentException();
+      }
+      return map.get(key);
+    }
+    public Builder clearContext() {
       bitField0_ = (bitField0_ & ~0x00000001);
-      onChanged();
+      internalGetMutableContext().getMutableMap()
+          .clear();
       return this;
     }
     /**
-     * <code>string traceId = 1;</code>
-     * @param value The bytes for traceId to set.
-     * @return This builder for chaining.
+     * <code>map&lt;string, string&gt; context = 4;</code>
      */
-    public Builder setTraceIdBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) { throw new NullPointerException(); }
-      checkByteStringIsUtf8(value);
-      traceId_ = value;
+    public Builder removeContext(
+        java.lang.String key) {
+      if (key == null) { throw new NullPointerException("map key"); }
+      internalGetMutableContext().getMutableMap()
+          .remove(key);
+      return this;
+    }
+    /**
+     * Use alternate mutation accessors instead.
+     */
+    @java.lang.Deprecated
+    public java.util.Map<java.lang.String, java.lang.String>
+        getMutableContext() {
       bitField0_ |= 0x00000001;
-      onChanged();
-      return this;
-    }
-
-    private java.lang.Object spanId_ = "";
-    /**
-     * <code>string spanId = 2;</code>
-     * @return The spanId.
-     */
-    public java.lang.String getSpanId() {
-      java.lang.Object ref = spanId_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        spanId_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
+      return internalGetMutableContext().getMutableMap();
     }
     /**
-     * <code>string spanId = 2;</code>
-     * @return The bytes for spanId.
+     * <code>map&lt;string, string&gt; context = 4;</code>
      */
-    public com.google.protobuf.ByteString
-        getSpanIdBytes() {
-      java.lang.Object ref = spanId_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        spanId_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string spanId = 2;</code>
-     * @param value The spanId to set.
-     * @return This builder for chaining.
-     */
-    public Builder setSpanId(
+    public Builder putContext(
+        java.lang.String key,
         java.lang.String value) {
-      if (value == null) { throw new NullPointerException(); }
-      spanId_ = value;
-      bitField0_ |= 0x00000002;
-      onChanged();
+      if (key == null) { throw new NullPointerException("map key"); }
+      if (value == null) { throw new NullPointerException("map value"); }
+      internalGetMutableContext().getMutableMap()
+          .put(key, value);
+      bitField0_ |= 0x00000001;
       return this;
     }
     /**
-     * <code>string spanId = 2;</code>
-     * @return This builder for chaining.
+     * <code>map&lt;string, string&gt; context = 4;</code>
      */
-    public Builder clearSpanId() {
-      spanId_ = getDefaultInstance().getSpanId();
-      bitField0_ = (bitField0_ & ~0x00000002);
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string spanId = 2;</code>
-     * @param value The bytes for spanId to set.
-     * @return This builder for chaining.
-     */
-    public Builder setSpanIdBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) { throw new NullPointerException(); }
-      checkByteStringIsUtf8(value);
-      spanId_ = value;
-      bitField0_ |= 0x00000002;
-      onChanged();
-      return this;
-    }
-
-    private java.lang.Object parentId_ = "";
-    /**
-     * <code>string parentId = 3;</code>
-     * @return The parentId.
-     */
-    public java.lang.String getParentId() {
-      java.lang.Object ref = parentId_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        parentId_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string parentId = 3;</code>
-     * @return The bytes for parentId.
-     */
-    public com.google.protobuf.ByteString
-        getParentIdBytes() {
-      java.lang.Object ref = parentId_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        parentId_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string parentId = 3;</code>
-     * @param value The parentId to set.
-     * @return This builder for chaining.
-     */
-    public Builder setParentId(
-        java.lang.String value) {
-      if (value == null) { throw new NullPointerException(); }
-      parentId_ = value;
-      bitField0_ |= 0x00000004;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string parentId = 3;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearParentId() {
-      parentId_ = getDefaultInstance().getParentId();
-      bitField0_ = (bitField0_ & ~0x00000004);
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string parentId = 3;</code>
-     * @param value The bytes for parentId to set.
-     * @return This builder for chaining.
-     */
-    public Builder setParentIdBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) { throw new NullPointerException(); }
-      checkByteStringIsUtf8(value);
-      parentId_ = value;
-      bitField0_ |= 0x00000004;
-      onChanged();
+    public Builder putAllContext(
+        java.util.Map<java.lang.String, java.lang.String> values) {
+      internalGetMutableContext().getMutableMap()
+          .putAll(values);
+      bitField0_ |= 0x00000001;
       return this;
     }
 

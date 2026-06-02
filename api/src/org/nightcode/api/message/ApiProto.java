@@ -37,6 +37,11 @@ public final class ApiProto extends com.google.protobuf.GeneratedFile {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_org_nightcode_api_Trace_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_org_nightcode_api_Trace_ContextEntry_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_org_nightcode_api_Trace_ContextEntry_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
     internal_static_org_nightcode_api_Metadata_descriptor;
   static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -68,20 +73,21 @@ public final class ApiProto extends com.google.protobuf.GeneratedFile {
       "\n\017proto/api.proto\022\021org.nightcode.api\032\031go" +
       "ogle/protobuf/any.proto\"N\n\006Status\022\014\n\004cod" +
       "e\030\001 \001(\005\022\017\n\007message\030\002 \001(\t\022%\n\007details\030\003 \003(" +
-      "\0132\024.google.protobuf.Any\":\n\005Trace\022\017\n\007trac" +
-      "eId\030\001 \001(\t\022\016\n\006spanId\030\002 \001(\t\022\020\n\010parentId\030\003 " +
-      "\001(\t\"\251\001\n\010Metadata\022\022\n\ngeneration\030\001 \001(\005\022\'\n\005" +
-      "trace\030\002 \001(\0132\030.org.nightcode.api.Trace\0223\n" +
-      "\004tags\030\003 \003(\0132%.org.nightcode.api.Metadata" +
-      ".TagsEntry\032+\n\tTagsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005" +
-      "value\030\002 \001(\t:\0028\001\"p\n\007Request\022\017\n\007service\030\001 " +
-      "\001(\t\022-\n\010metadata\030\002 \001(\0132\033.org.nightcode.ap" +
-      "i.Metadata\022%\n\007payload\030\003 \001(\0132\024.google.pro" +
-      "tobuf.Any\"z\n\010Response\022\017\n\007service\030\001 \001(\t\022*" +
-      "\n\005error\030\002 \001(\0132\031.org.nightcode.api.Status" +
-      "H\000\022\'\n\007content\030\003 \001(\0132\024.google.protobuf.An" +
-      "yH\000B\010\n\006resultB\'\n\031org.nightcode.api.messa" +
-      "geB\010ApiProtoP\001b\006proto3"
+      "\0132\024.google.protobuf.Any\"o\n\005Trace\0226\n\007cont" +
+      "ext\030\004 \003(\0132%.org.nightcode.api.Trace.Cont" +
+      "extEntry\032.\n\014ContextEntry\022\013\n\003key\030\001 \001(\t\022\r\n" +
+      "\005value\030\002 \001(\t:\0028\001\"\251\001\n\010Metadata\022\022\n\ngenerat" +
+      "ion\030\001 \001(\005\022\'\n\005trace\030\002 \001(\0132\030.org.nightcode" +
+      ".api.Trace\0223\n\004tags\030\003 \003(\0132%.org.nightcode" +
+      ".api.Metadata.TagsEntry\032+\n\tTagsEntry\022\013\n\003" +
+      "key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"p\n\007Request\022" +
+      "\017\n\007service\030\001 \001(\t\022-\n\010metadata\030\002 \001(\0132\033.org" +
+      ".nightcode.api.Metadata\022%\n\007payload\030\003 \001(\013" +
+      "2\024.google.protobuf.Any\"z\n\010Response\022\017\n\007se" +
+      "rvice\030\001 \001(\t\022*\n\005error\030\002 \001(\0132\031.org.nightco" +
+      "de.api.StatusH\000\022\'\n\007content\030\003 \001(\0132\024.googl" +
+      "e.protobuf.AnyH\000B\010\n\006resultB\'\n\031org.nightc" +
+      "ode.api.messageB\010ApiProtoP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -99,7 +105,13 @@ public final class ApiProto extends com.google.protobuf.GeneratedFile {
     internal_static_org_nightcode_api_Trace_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_nightcode_api_Trace_descriptor,
-        new java.lang.String[] { "TraceId", "SpanId", "ParentId", });
+        new java.lang.String[] { "Context", });
+    internal_static_org_nightcode_api_Trace_ContextEntry_descriptor =
+      internal_static_org_nightcode_api_Trace_descriptor.getNestedType(0);
+    internal_static_org_nightcode_api_Trace_ContextEntry_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_org_nightcode_api_Trace_ContextEntry_descriptor,
+        new java.lang.String[] { "Key", "Value", });
     internal_static_org_nightcode_api_Metadata_descriptor =
       getDescriptor().getMessageType(2);
     internal_static_org_nightcode_api_Metadata_fieldAccessorTable = new

@@ -12,19 +12,21 @@
  * limitations under the License.
  */
 
-package org.nightcode.api;
+package org.nightcode.api.interceptor;
 
-import com.google.protobuf.Message;
+import java.util.Collections;
 
-import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.context.propagation.TextMapGetter;
+import org.nightcode.api.message.Trace;
 
-/**
- * API interceptor interface.
- */
-public interface ApiInterceptor {
+enum TraceTextMapGetter implements TextMapGetter<Trace> {
+  INSTANCE;
 
-  AttributeKey<String> API_SERVICE = AttributeKey.stringKey("api.service");
-  AttributeKey<String> API_METHOD  = AttributeKey.stringKey("api.method");
+  @Override public String get(Trace carrier, String key) {
+    return carrier == null ? null : carrier.getContextOrDefault(key, null);
+  }
 
-  <A, Q extends Message, R extends Message> ApiCall<Q, R> intercept(ApiContext<A> context, Class<Q> requestClass, Class<R> responseClass);
+  @Override public Iterable<String> keys(Trace carrier) {
+    return carrier == null ? Collections.emptySet() : carrier.getContextMap().keySet();
+  }
 }

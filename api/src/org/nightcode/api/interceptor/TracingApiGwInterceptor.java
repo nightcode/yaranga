@@ -18,16 +18,14 @@ import com.google.protobuf.Message;
 
 import java.util.concurrent.CompletableFuture;
 
+import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.SpanBuilder;
-import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
-import io.opentelemetry.api.trace.TraceFlags;
-import io.opentelemetry.api.trace.TraceState;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
+import io.opentelemetry.context.propagation.TextMapPropagator;
 import org.nightcode.api.ApiGwCall;
 import org.nightcode.api.ApiGwContext;
 import org.nightcode.api.ApiGwInterceptor;
@@ -36,6 +34,9 @@ import org.nightcode.api.SimpleApiGwCall;
 import org.nightcode.api.message.Metadata;
 import org.nightcode.api.message.Trace;
 import org.nightcode.common.trace.opentelemetry.OtelTracerProvider;
+
+import static org.nightcode.api.ApiInterceptor.API_METHOD;
+import static org.nightcode.api.ApiInterceptor.API_SERVICE;
 
 /**
  * Tracing API gateway interceptor.
@@ -53,37 +54,41 @@ public class TracingApiGwInterceptor implements ApiGwInterceptor {
   }
 
   @Override public <Q extends Message, R extends Message> ApiGwCall<Q, R> intercept(ApiGwContext context) {
+    TextMapPropagator propagator = GlobalOpenTelemetry.getPropagators().getTextMapPropagator();
+
     return new SimpleApiGwCall<>(context.newApiCall()) {
       @Override public CompletableFuture<R> executeAsync(String serviceName, MethodHandler<Q, R> methodHandler, Q message,
                                                          Metadata metadata) {
-        SpanBuilder builder = tracer.spanBuilder(message.getDescriptorForType().getFullName())
-            .setSpanKind(SpanKind.SERVER);
+        Context parentContext = metadata.hasTrace()
+            ? propagator.extract(Context.current(), metadata.getTrace(), TraceTextMapGetter.INSTANCE)
+            : Context.current();
 
-        if (metadata.hasTrace()) {
-          SpanContext parentContext = SpanContext.createFromRemoteParent(metadata.getTrace().getTraceId()
-              , metadata.getTrace().getSpanId(), TraceFlags.getSampled(), TraceState.getDefault());
-          Span parentSpan = Span.wrap(parentContext);
-          builder.setParent(Context.current().with(parentSpan));
-        }
+        Span apiCallSpan = tracer.spanBuilder(message.getDescriptorForType().getFullName())
+            .setParent(parentContext)
+            .setSpanKind(SpanKind.SERVER)
+            .setAttribute(API_SERVICE, serviceName)
+            .setAttribute(API_METHOD, message.getClass().getSimpleName())
+            .startSpan();
 
-        Span apiCallSpan = builder.startSpan();
-        try (Scope unused = apiCallSpan.makeCurrent()) {
-          SpanContext spanContext = apiCallSpan.getSpanContext();
+        try (Scope ignored = apiCallSpan.makeCurrent()) {
+          Trace.Builder traceBuilder = Trace.newBuilder();
+          propagator.inject(Context.current(), traceBuilder, TraceTextMapSetter.INSTANCE);
 
-          Trace.Builder tcBuilder = Trace.newBuilder()
-              .setTraceId(spanContext.getTraceId())
-              .setSpanId(spanContext.getSpanId());
-          if (metadata.hasTrace()) {
-            tcBuilder.setParentId(metadata.getTrace().getSpanId());
+          Metadata enrichedMetadata = metadata.toBuilder().setTrace(traceBuilder.build()).build();
+
+          CompletableFuture<R> cf;
+          try {
+            cf = super.executeAsync(serviceName, methodHandler, message, enrichedMetadata);
+          } catch (Throwable t) {
+            apiCallSpan.recordException(t);
+            apiCallSpan.setStatus(StatusCode.ERROR);
+            apiCallSpan.end();
+            throw t;
           }
-
-          metadata = metadata.toBuilder().setTrace(tcBuilder).build();
-
-          CompletableFuture<R> cf = super.executeAsync(serviceName, methodHandler, message, metadata);
           cf.whenComplete((r, t) -> {
             if (t != null) {
               apiCallSpan.recordException(t);
-              apiCallSpan.setStatus(StatusCode.ERROR, t.getClass().getSimpleName());
+              apiCallSpan.setStatus(StatusCode.ERROR);
             }
             apiCallSpan.end();
           });

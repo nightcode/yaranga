@@ -18,11 +18,14 @@ import com.google.protobuf.Message;
 
 import java.util.concurrent.CompletableFuture;
 
+import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
+import io.opentelemetry.context.propagation.TextMapPropagator;
 import org.nightcode.api.ApiCall;
 import org.nightcode.api.ApiContext;
 import org.nightcode.api.ApiInterceptor;
@@ -49,30 +52,40 @@ public class TracingApiInterceptor implements ApiInterceptor {
   @Override public <A, Q extends Message, R extends Message> ApiCall<Q, R> intercept(ApiContext<A> clientApiContext,
                                                                                      Class<Q> requestClass,
                                                                                      Class<R> responseClass) {
+    TextMapPropagator propagator = GlobalOpenTelemetry.getPropagators().getTextMapPropagator();
+
+    String serviceName = clientApiContext.serviceName();
+    String methodName  = requestClass.getSimpleName();
+
     return new SimpleApiCall<>(clientApiContext.newApiCall(requestClass, responseClass)) {
       @Override public CompletableFuture<R> executeAsync(Q message, Metadata metadata) {
-        Span rpcSpan = tracer.spanBuilder(message.getDescriptorForType().getFullName()).setSpanKind(SpanKind.CLIENT).startSpan();
-        if (!rpcSpan.getSpanContext().isSampled()) {
-          try {
-            return super.executeAsync(message, metadata);
-          } finally {
-            rpcSpan.end();
-          }
-        }
+        Span apiCallSpan = tracer.spanBuilder(message.getDescriptorForType().getFullName())
+            .setSpanKind(SpanKind.CLIENT)
+            .setAttribute(API_SERVICE, serviceName)
+            .setAttribute(API_METHOD, methodName)
+            .startSpan();
 
-        try (Scope unused = rpcSpan.makeCurrent()) {
-          metadata = metadata.toBuilder()
-              .setTrace(Trace.newBuilder()
-                  .setTraceId(rpcSpan.getSpanContext().getTraceId())
-                  .setSpanId(rpcSpan.getSpanContext().getSpanId()))
-              .build();
-          CompletableFuture<R> cf = super.executeAsync(message, metadata);
+        try (Scope ignored = apiCallSpan.makeCurrent()) {
+          Trace.Builder traceBuilder = Trace.newBuilder();
+          propagator.inject(Context.current(), traceBuilder, TraceTextMapSetter.INSTANCE);
+
+          Metadata enrichedMetadata = metadata.toBuilder().setTrace(traceBuilder.build()).build();
+
+          CompletableFuture<R> cf;
+          try {
+            cf = super.executeAsync(message, enrichedMetadata);
+          } catch (Throwable t) {
+            apiCallSpan.recordException(t);
+            apiCallSpan.setStatus(StatusCode.ERROR);
+            apiCallSpan.end();
+            throw t;
+          }
           cf.whenComplete((r, t) -> {
             if (t != null) {
-              rpcSpan.recordException(t);
-              rpcSpan.setStatus(StatusCode.ERROR, t.getClass().getSimpleName());
+              apiCallSpan.recordException(t);
+              apiCallSpan.setStatus(StatusCode.ERROR);
             }
-            rpcSpan.end();
+            apiCallSpan.end();
           });
           return cf;
         }

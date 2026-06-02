@@ -15,9 +15,7 @@ message Status {
 }
 
 message Trace {
-  string traceId  = 1;
-  string spanId   = 2;
-  string parentId = 3;
+  map<string, string> context = 4;
 }
 
 message Metadata {
