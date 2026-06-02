@@ -14,8 +14,6 @@
 
 package org.nightcode.common.util;
 
-import java.io.Closeable;
-
 import org.nightcode.common.logging.Log;
 
 /**
@@ -24,7 +22,7 @@ import org.nightcode.common.logging.Log;
 public enum Closeables {
   ;
 
-  public static void close(Closeable closeable) {
+  public static void close(AutoCloseable closeable) {
     if (closeable == null) {
       return;
     }

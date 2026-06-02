@@ -49,10 +49,17 @@ import javax.net.ssl.SSLHandshakeException;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.ConnectTimeoutException;
+import io.netty.channel.DefaultChannelPromise;
+import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.SingleThreadIoEventLoop;
+import io.netty.channel.local.LocalChannel;
+import io.netty.channel.local.LocalIoHandler;
 import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -79,6 +86,8 @@ import org.nightcode.common.pool.SessionPool;
 import org.nightcode.common.pool.metadata.Endpoint;
 import org.nightcode.common.pool.metadata.InetSocketAddressEndpoint;
 import org.nightcode.common.util.Clock;
+import org.nightcode.common.util.Closeables;
+import org.nightcode.common.util.ExecutorUtils;
 import org.nightcode.net.BootstrapFactory;
 import org.nightcode.net.PacketContext;
 import org.nightcode.net.PacketReader;
@@ -141,6 +150,31 @@ public class TcpIpPipeTest {
     private X509Certificate certificate;
   }
 
+  public static final class TcpIpTimeoutCapturingPipe<Q, R> extends TcpIpPipe<Q, R> {
+
+    private volatile EventLoop eventLoop;
+
+    public TcpIpTimeoutCapturingPipe(PipeContext<InetSocketAddress, ? extends Session<InetSocketAddress>> context) {
+      super(context);
+    }
+
+    @Override protected void destroyImpl() {
+      Closeables.close(eventLoop);
+      super.destroyImpl();
+    }
+
+    @Override protected ChannelFuture openChannel() {
+      eventLoop = new SingleThreadIoEventLoop(null, ExecutorUtils.namedThreadFactory("TcpIpTimeoutCapturingPipe"), LocalIoHandler.newFactory());
+      LocalChannel channel = new LocalChannel();
+      eventLoop.register(channel);
+      DefaultChannelPromise channelFuture = new DefaultChannelPromise(channel);
+
+      channelFuture.setFailure(new ConnectTimeoutException("Connection timeout"));
+
+      return channelFuture;
+    }
+  }
+
   private final CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
 
   public TcpIpPipeTest() throws CertificateException {
@@ -193,7 +227,7 @@ public class TcpIpPipeTest {
 
     final CompletableFuture<Session.State> state = new CompletableFuture<>();
 
-    TcpIpPipe<Object, Object> pipe = new TcpIpPipe<>(context);
+    TcpIpPipe<Object, Object> pipe = new TcpIpTimeoutCapturingPipe<>(context);
     pipe.addListener(event -> {
       if (Session.State.CREATING.equals(event.type())) {
         return;
