@@ -17,11 +17,11 @@ package org.nightcode.api;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import org.nightcode.api.message.Request;
@@ -41,23 +41,15 @@ import org.nightcode.net.Pipe;
  */
 public class ApiCallHandler<A> {
 
-  private final class TimeoutTask implements Runnable {
-    private final Request message;
-
-    TimeoutTask(Request message) {
-      this.message = message;
-    }
-
+  private record TimeoutTask(Pipe<?, Request, Response> pipe, CompletableFuture<?> messageFuture, Request message) implements Runnable {
     @Override public void run() {
-      onTimeout(new IOException("[" + current + "] request timed out for message:\n\n" + message));
+      if (!messageFuture.isDone()) {
+        messageFuture.completeExceptionally(new IOException("[" + pipe + "] request timed out for message:\n\n" + message));
+      }
     }
   }
 
   private static final CompletableFuture<Void> NIL = CompletableFuture.completedFuture(null);
-
-  private volatile Pipe<A, Request, Response> current;
-  private volatile CompletableFuture<?>       messageFuture;
-  private volatile TimerTask                  timeout;
 
   private volatile Throwable lastExceptionCause;
 
@@ -90,24 +82,16 @@ public class ApiCallHandler<A> {
 
   public CompletableFuture<Void> sendAsync() {
     return send(conn -> conn.sendAsync(request), (r, t) -> {
-      cancelTimeout();
       if (t != null) {
         lastExceptionCause = t;
-
-        RetryPolicy.Decision decision = retryPolicy.onRequestError(t);
-        return switch (decision) {
-          case RETRY -> sendAsync();
-          default -> CompletableFuture.failedFuture(t);
-        };
+        return retryOrFail(t, this::sendAsync);
       }
-
       return NIL;
     });
   }
 
   public CompletableFuture<Response> sendReceiveAsync() {
     return send(conn -> conn.sendReceiveAsync(request), (r, t) -> {
-      cancelTimeout();
       if (r != null && r.hasContent()) {
         return CompletableFuture.completedFuture(r);
       }
@@ -115,60 +99,53 @@ public class ApiCallHandler<A> {
         t = responseException(r);
       }
       lastExceptionCause = t;
-
-      RetryPolicy.Decision decision = retryPolicy.onRequestError(t);
-      return switch (decision) {
-        case RETRY -> sendReceiveAsync();
-        default -> CompletableFuture.failedFuture(t);
-      };
+      return retryOrFail(t, this::sendReceiveAsync);
     });
   }
 
   private <T> CompletableFuture<T> send(Function<Pipe<A, Request, Response>, CompletableFuture<T>> sendFn,
                                         BiFunction<? super T, Throwable, ? extends CompletableFuture<T>> handler) {
-    if (attempts.incrementAndGet() > maxAttempts) {
-      return CompletableFuture.failedFuture(new CompletionException("too many retries", lastExceptionCause));
+    int attempt = attempts.incrementAndGet();
+    if (attempt > maxAttempts) {
+      return CompletableFuture.failedFuture(new IOException("too many retries", lastExceptionCause));
     }
 
-    if (deadlineNs > 0) {
-      long diff = deadlineNs - clock.nanoTime();
-      timeout = timer.schedule(new TimeoutTask(request), diff, TimeUnit.NANOSECONDS);
+    long remainingNs = deadlineNs - clock.nanoTime();
+    if (remainingNs <= 0) {
+      return CompletableFuture.failedFuture(new IOException("execute timeout exceeded for message:\n\n" + request));
     }
+
     Pipe<A, Request, Response> connection = null;
     if (connections.hasNext()) {
       connection = connections.next();
     }
     if (connection == null) {
-      if (attempts.get() == 1) {
+      if (attempt == 1) {
         return CompletableFuture.failedFuture(new IOException("no connection available"));
-      } else {
-        return CompletableFuture.failedFuture(lastExceptionCause);
       }
+      return CompletableFuture.failedFuture(lastExceptionCause);
     }
-    current = connection;
 
     CompletableFuture<T> messageFuture = sendFn.apply(connection);
-    this.messageFuture = messageFuture;
 
-    return messageFuture.handle(handler).thenCompose(UnaryOperator.identity());
+    TimerTask timeout = timer.schedule(new TimeoutTask(connection, messageFuture, request), remainingNs, TimeUnit.NANOSECONDS);
+
+    return messageFuture
+        .whenComplete((r, t) -> timeout.cancel())
+        .handle(handler)
+        .thenCompose(UnaryOperator.identity());
   }
 
-  private Exception responseException(Response response) {
+  private Throwable responseException(Response response) {
     Status status = response.getError();
     return new ApiException(status.getCode(), status.getMessage());
   }
 
-  private void cancelTimeout() {
-    final TimerTask t = timeout;
-    if (t != null) {
-      t.cancel();
-    }
-  }
-
-  private void onTimeout(Exception cause) {
-    final CompletableFuture<?> cf = messageFuture;
-    if (cf != null) {
-      cf.completeExceptionally(cause);
-    }
+  private <T> CompletableFuture<T> retryOrFail(Throwable cause, Supplier<CompletableFuture<T>> retry) {
+    RetryPolicy.Decision decision = retryPolicy.onRequestError(cause);
+    return switch (decision) {
+      case RETRY, TRY_NEXT -> retry.get();
+      default -> CompletableFuture.failedFuture(cause);
+    };
   }
 }

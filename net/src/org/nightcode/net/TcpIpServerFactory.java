@@ -66,7 +66,6 @@ class TcpIpServerFactory implements BootstrapServerFactory {
             , new MultiThreadIoEventLoopGroup(nThreads, workerTf, factorySupplier.get()))
         .channel(channelClass);
 
-
     String prefix = "org.nightcode.net.tcp." + name + '.';
 
     sb.option(ChannelOption.SO_BACKLOG, Properties.instance().getInt(prefix + "backlog", 1024));
