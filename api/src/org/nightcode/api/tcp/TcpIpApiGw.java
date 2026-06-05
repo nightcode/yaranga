@@ -17,7 +17,7 @@ package org.nightcode.api.tcp;
 import java.util.function.Consumer;
 
 import io.netty.channel.ChannelPipeline;
-import org.nightcode.api.AbstractApiGw;
+import org.nightcode.api.ApiGw;
 import org.nightcode.api.ApiGwBuilder;
 import org.nightcode.net.PacketRxHandler;
 import org.nightcode.net.PacketTxHandler;
@@ -25,20 +25,16 @@ import org.nightcode.net.PacketTxHandler;
 /**
  * TCP/IP API gateway.
  */
-public final class TcpIpApiGw extends AbstractApiGw {
+public final class TcpIpApiGw extends ApiGw {
 
-  public static TcpIpApiGw build(ApiGwBuilder builder) {
-    return new TcpIpApiGw(builder);
-  }
-
-  private TcpIpApiGw(ApiGwBuilder builder) {
+  public TcpIpApiGw(ApiGwBuilder builder) {
     super(builder);
   }
 
   @Override protected Consumer<ChannelPipeline> pipelineConsumer() {
     return p -> {
       p.addLast("tx", new PacketTxHandler<>());
-      p.addLast("rx", new PacketRxHandler<>(packetReader, TcpIpApiGw.this::consume));
+      p.addLast("rx", new PacketRxHandler<>(packetReader, this::consume));
     };
   }
 }

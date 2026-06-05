@@ -30,6 +30,7 @@ import io.netty.channel.epoll.EpollServerDomainSocketChannel;
 import io.netty.channel.kqueue.KQueue;
 import io.netty.channel.kqueue.KQueueIoHandler;
 import io.netty.channel.kqueue.KQueueServerDomainSocketChannel;
+import io.netty.channel.unix.DomainSocketAddress;
 import org.nightcode.common.logging.Log;
 import org.nightcode.common.props.Properties;
 import org.nightcode.common.util.ExecutorUtils;
@@ -37,7 +38,13 @@ import org.nightcode.common.util.ExecutorUtils;
 /**
  * Unix socket implementation of BootstrapServerFactory.
  */
-class UnixSocketServerFactory implements BootstrapServerFactory {
+class UnixSocketServerFactory implements BootstrapServerFactory<DomainSocketAddress> {
+
+  private final DomainSocketAddress address;
+
+  UnixSocketServerFactory(DomainSocketAddress address) {
+    this.address = address;
+  }
 
   @Override public ServerBootstrap create(String name, int nThreads) {
     Supplier<IoHandlerFactory>     factorySupplier;
@@ -69,6 +76,12 @@ class UnixSocketServerFactory implements BootstrapServerFactory {
 
     sb.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 
+    sb.localAddress(address);
+
     return sb;
+  }
+
+  @Override public DomainSocketAddress localAddress() {
+    return address;
   }
 }

@@ -14,9 +14,6 @@
 
 package org.nightcode.net;
 
-import java.net.Proxy;
-
-import io.netty.handler.ssl.SslContext;
 import org.nightcode.common.pool.Session;
 import org.nightcode.common.pool.SessionContext;
 
@@ -28,25 +25,4 @@ import org.nightcode.common.pool.SessionContext;
  */
 public interface PipeContext<A, C extends Session<A>> extends SessionContext<A, C>, PipeFactoryContext {
 
-  boolean autoRead();
-
-  BootstrapFactory bootstrapFactory();
-
-  int maxBodyLengthBytes();
-
-  int nThreads();
-
-  <P> PacketReader<P> packetReader();
-
-  <P> PacketWriter<P> packetWriter();
-
-  Proxy proxy();
-
-  boolean soKeepAlive();
-
-  boolean soReuseAddress();
-
-  SslContext sslContext();
-
-  boolean tcpNoDelay();
 }

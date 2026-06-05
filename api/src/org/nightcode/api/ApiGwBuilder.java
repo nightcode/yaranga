@@ -14,17 +14,22 @@
 
 package org.nightcode.api;
 
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
+import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SslContext;
 import org.jetbrains.annotations.Nullable;
+import org.nightcode.api.http.HttpApiGw;
 import org.nightcode.api.message.Request;
+import org.nightcode.api.tcp.TcpIpApiGw;
+import org.nightcode.common.util.Throwables;
 import org.nightcode.net.BootstrapServerFactory;
+import org.nightcode.net.SslContextConfig;
 
 /**
  * API gateway builder.
@@ -44,11 +49,9 @@ public final class ApiGwBuilder {
     return typeUrl.substring(0, pos);
   };
 
-  String            name;
-  InetSocketAddress address;
-  SslContext        sslContext;
-
-  BootstrapServerFactory bootstrapFactory = BootstrapServerFactory.tcpIpServerFactory();
+  String                    name;
+  BootstrapServerFactory<?> bootstrapFactory;
+  SslContext                sslContext;
 
   int                       maxBodyLengthBytes  = 1024 * 1024; // 1Mb
   List<ApiGwInterceptor>    interceptors        = Collections.emptyList();
@@ -58,13 +61,15 @@ public final class ApiGwBuilder {
     // do nothing
   }
 
-  public ApiGwBuilder address(InetSocketAddress val) {
-    Objects.requireNonNull(val, "address");
-    address = val;
-    return this;
+  public ApiGw buildHttpApiGw() {
+    return new HttpApiGw(this);
   }
 
-  public ApiGwBuilder bootstrapFactory(BootstrapServerFactory val) {
+  public ApiGw buildTcpIpApiGw() {
+    return new TcpIpApiGw(this);
+  }
+
+  public <A extends SocketAddress> ApiGwBuilder bootstrapFactory(BootstrapServerFactory<A> val) {
     Objects.requireNonNull(val, "BootstrapServerFactory");
     bootstrapFactory = val;
     return this;
@@ -94,6 +99,24 @@ public final class ApiGwBuilder {
 
   public ApiGwBuilder sslContext(@Nullable SslContext val) {
     sslContext = val;
+    return this;
+  }
+
+  public ApiGwBuilder sslContext(SslContextConfig config) {
+    if (config.useSsl()) {
+      char[] keystorePasswd   = config.keystorePassword().toCharArray();
+      char[] truststorePasswd = config.truststorePassword().toCharArray();
+
+      try {
+        sslContext = SslContextBuilder.builder()
+            .keyManager(keystorePasswd, config.keystorePath())
+            .trustManager(truststorePasswd, config.truststorePath())
+            .clientAuth(ClientAuth.REQUIRE)
+            .buildForServer();
+      } catch (Exception ex) {
+        throw Throwables.rethrow(ex);
+      }
+    }
     return this;
   }
 }

@@ -23,11 +23,7 @@ import io.netty.handler.ssl.SslContext;
  */
 public interface PipeFactoryContext {
 
-  boolean autoRead();
-
   BootstrapFactory bootstrapFactory();
-
-  int maxBodyLengthBytes();
 
   int nThreads();
 
@@ -35,13 +31,29 @@ public interface PipeFactoryContext {
 
   <P> PacketWriter<P> packetWriter();
 
-  Proxy proxy();
-
-  boolean soKeepAlive();
-
-  boolean soReuseAddress();
-
   SslContext sslContext();
 
-  boolean tcpNoDelay();
+  default boolean autoRead() {
+    return true;
+  }
+
+  default int maxBodyLengthBytes() {
+    return 1024 * 1024;
+  }
+
+  default Proxy proxy() {
+    return Proxy.NO_PROXY;
+  }
+
+  default boolean soKeepAlive() {
+    return true;
+  }
+
+  default boolean soReuseAddress() {
+    return true;
+  }
+
+  default boolean tcpNoDelay() {
+    return true;
+  }
 }

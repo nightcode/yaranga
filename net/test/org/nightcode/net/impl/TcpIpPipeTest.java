@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -61,7 +60,6 @@ import io.netty.channel.SingleThreadIoEventLoop;
 import io.netty.channel.local.LocalChannel;
 import io.netty.channel.local.LocalIoHandler;
 import io.netty.channel.nio.NioIoHandler;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SslContext;
@@ -114,7 +112,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 public class TcpIpPipeTest {
 
-  public static final class TestInitializer extends ChannelInitializer<SocketChannel> {
+  public static final class TestInitializer extends ChannelInitializer<Channel> {
 
     private final Consumer<ChannelPipeline> pipelineConsumer;
 
@@ -122,7 +120,7 @@ public class TcpIpPipeTest {
       this.pipelineConsumer = pipelineConsumer;
     }
 
-    @Override protected void initChannel(SocketChannel channel) {
+    @Override protected void initChannel(Channel channel) {
       ChannelPipeline pipeline = channel.pipeline();
       pipelineConsumer.accept(pipeline);
     }
@@ -191,8 +189,8 @@ public class TcpIpPipeTest {
     try (EventLoopGroup eventLoopGroup = new MultiThreadIoEventLoopGroup(2, NioIoHandler.newFactory())) {
       serverBootstrap.group(eventLoopGroup)
           .channel(NioServerSocketChannel.class)
-          .childHandler(new ChannelInitializer<SocketChannel>() {
-            @Override protected void initChannel(SocketChannel ch) {
+          .childHandler(new ChannelInitializer<>() {
+            @Override protected void initChannel(Channel ch) {
               // do nothing
             }
           });
@@ -813,8 +811,8 @@ public class TcpIpPipeTest {
     TcpIpPipe<Any, Any> pipe;
     InetSocketAddress   address;
     ServerBootstrap     serverBootstrap = new ServerBootstrap();
-    ChannelInitializer<SocketChannel> channelInitializer = new ChannelInitializer<>() {
-      @Override protected void initChannel(SocketChannel ch) {
+    ChannelInitializer<Channel> channelInitializer = new ChannelInitializer<>() {
+      @Override protected void initChannel(Channel ch) {
         ChannelPipeline p = ch.pipeline();
         p.addLast("out", new PacketTxHandler<>());
         p.addLast("int", new PacketRxHandler<>(new ProtobufPacketReader<>(Any.getDefaultInstance()), (ctx, mh) -> {
@@ -990,9 +988,6 @@ public class TcpIpPipeTest {
                                                                                    PacketWriter<Q> packetWriter,
                                                                                    SslContext sslContext) {
     return new PipeContext<>() {
-      @Override public boolean autoRead() {
-        return true;
-      }
 
       @Override public BootstrapFactory bootstrapFactory() {
         return BootstrapFactory.tcpIpFactory();
@@ -1008,32 +1003,12 @@ public class TcpIpPipeTest {
         return (PacketWriter<M>) packetWriter;
       }
 
-      @Override public int maxBodyLengthBytes() {
-        return 1024 * 1024;
-      }
-
       @Override public int nThreads() {
         return Runtime.getRuntime().availableProcessors();
       }
 
-      @Override public Proxy proxy() {
-        return Proxy.NO_PROXY;
-      }
-
-      @Override public boolean soKeepAlive() {
-        return true;
-      }
-
-      @Override public boolean soReuseAddress() {
-        return true;
-      }
-
       @Override public SslContext sslContext() {
         return sslContext;
-      }
-
-      @Override public boolean tcpNoDelay() {
-        return true;
       }
 
       @Override public Endpoint<InetSocketAddress> endpoint() {

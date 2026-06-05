@@ -14,6 +14,7 @@
 
 package org.nightcode.net;
 
+import java.net.InetSocketAddress;
 import java.util.concurrent.ThreadFactory;
 import java.util.function.Supplier;
 
@@ -39,7 +40,13 @@ import org.nightcode.common.util.ExecutorUtils;
 /**
  * TcpIp implementation of BootstrapServerFactory.
  */
-class TcpIpServerFactory implements BootstrapServerFactory {
+class TcpIpServerFactory implements BootstrapServerFactory<InetSocketAddress> {
+
+  private final InetSocketAddress address;
+
+  TcpIpServerFactory(InetSocketAddress address) {
+    this.address = address;
+  }
 
   @Override public ServerBootstrap create(String name, int nThreads) {
     Supplier<IoHandlerFactory>     factorySupplier;
@@ -77,6 +84,12 @@ class TcpIpServerFactory implements BootstrapServerFactory {
 
     sb.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 
+    sb.localAddress(address);
+
     return sb;
+  }
+
+  @Override public InetSocketAddress localAddress() {
+    return address;
   }
 }

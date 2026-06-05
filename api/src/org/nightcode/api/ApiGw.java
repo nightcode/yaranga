@@ -19,7 +19,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 
 import java.io.Closeable;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -31,12 +31,12 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
@@ -45,12 +45,11 @@ import org.nightcode.api.message.Request;
 import org.nightcode.api.message.Response;
 import org.nightcode.api.message.Status;
 import org.nightcode.common.logging.Log;
-import org.nightcode.common.pool.metadata.Endpoint;
-import org.nightcode.common.pool.metadata.InetSocketAddressEndpoint;
 import org.nightcode.common.props.Properties;
 import org.nightcode.common.service.AbstractService;
 import org.nightcode.common.util.Closeables;
 import org.nightcode.common.util.ExecutorUtils;
+import org.nightcode.net.BootstrapServerFactory;
 import org.nightcode.net.PacketContext;
 import org.nightcode.net.PacketReader;
 import org.nightcode.net.PacketWriter;
@@ -65,7 +64,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 /**
  * Abstract API gateway.
  */
-public abstract class AbstractApiGw extends AbstractService implements ChannelFutureListener, Closeable {
+public abstract class ApiGw extends AbstractService implements ChannelFutureListener, Closeable {
 
   private record InterceptApiGwContext(ApiGwContext delegate, ApiGwInterceptor interceptor) implements ApiGwContext {
 
@@ -106,15 +105,16 @@ public abstract class AbstractApiGw extends AbstractService implements ChannelFu
 
   private volatile ChannelFuture channelFuture;
 
-  private final String                      name;
-  private final Endpoint<InetSocketAddress> endpoint;
-  private final SslContext                  sslContext;
-  private final Function<Request, String>   serviceNameProvider;
+  private final String                    name;
+  private final SslContext                sslContext;
+  private final Function<Request, String> serviceNameProvider;
 
   protected final ApiGwContext context;
 
   private final boolean  loggingEnabled;
   private final LogLevel logLevel;
+
+  private final BootstrapServerFactory<?> serverFactory;
 
   private final ServerBootstrap          serverBootstrap;
   private final ScheduledExecutorService executor;
@@ -126,11 +126,11 @@ public abstract class AbstractApiGw extends AbstractService implements ChannelFu
   protected final PacketReader<Request>  packetReader = new ProtobufPacketReader<>(Request.getDefaultInstance());
   private final   PacketWriter<Response> packetWriter = new ProtobufPacketWriter<>();
 
-  protected AbstractApiGw(ApiGwBuilder builder) {
+  protected ApiGw(ApiGwBuilder builder) {
     name                = builder.name;
     sslContext          = builder.sslContext;
     serviceNameProvider = builder.serviceNameProvider;
-    endpoint            = new InetSocketAddressEndpoint(builder.address);
+    serverFactory       = builder.bootstrapFactory;
 
     ApiGwContext context = new ApiGwContextImpl(builder.maxBodyLengthBytes);
 
@@ -144,7 +144,11 @@ public abstract class AbstractApiGw extends AbstractService implements ChannelFu
 
     int nThreads = Runtime.getRuntime().availableProcessors();
 
-    serverBootstrap = builder.bootstrapFactory.create(name, nThreads).localAddress(endpoint.resolve());
+    serverBootstrap = serverFactory.create(name, nThreads);
+  }
+
+  public void addApiHandler(ApiHandler apiHandler) {
+    addApiHandler(apiHandler.name(), apiHandler);
   }
 
   public void addApiHandler(String name, ApiHandler apiHandler) {
@@ -156,11 +160,11 @@ public abstract class AbstractApiGw extends AbstractService implements ChannelFu
   }
 
   @Override public void close() {
-    stopAsync();
+    stopAsync().join();
   }
 
-  public ScheduledExecutorService executor() {
-    return executor;
+  public SocketAddress localAddress() {
+    return serverFactory.localAddress();
   }
 
   public String name() {
@@ -200,8 +204,8 @@ public abstract class AbstractApiGw extends AbstractService implements ChannelFu
       Closeables.close(context);
       channelFuture = null;
       ExecutorUtils.shutdown(executor);
-      serverBootstrap.config().group().shutdownGracefully();
-      serverBootstrap.config().childGroup().shutdownGracefully();
+      ExecutorUtils.shutdown(serverBootstrap.config().group());
+      ExecutorUtils.shutdown(serverBootstrap.config().childGroup());
       notifyStopped();
     } catch (Exception ex) {
       notifyFailed(ex);
@@ -224,8 +228,8 @@ public abstract class AbstractApiGw extends AbstractService implements ChannelFu
 
   protected void bind() {
     try {
-      ChannelInitializer<SocketChannel> initializer = new ChannelInitializer<SocketChannel>() {
-        @Override protected void initChannel(SocketChannel ch) {
+      ChannelInitializer<Channel> initializer = new ChannelInitializer<>() {
+        @Override protected void initChannel(Channel ch) {
           ChannelPipeline p = ch.pipeline();
           if (sslContext != null) {
             p.addLast("ssl", sslContext.newHandler(ch.alloc()));
@@ -239,10 +243,11 @@ public abstract class AbstractApiGw extends AbstractService implements ChannelFu
       };
       channelFuture = serverBootstrap.childHandler(initializer).bind().sync();
       channelFuture.channel().closeFuture().addListener(this);
-      Log.info().log(getClass(), "listening on address: {}, use SSL: {}", endpoint.resolve(), sslContext != null);
+      Log.info().log(getClass(), "{} listening on address: {}, use SSL: {}"
+          , channelFuture.channel(), serverFactory.localAddress(), sslContext != null);
     } catch (Exception ex) {
       Log.warn().log(getClass(), ex, "unable bind to {}, will try again after {} ms."
-          , endpoint, NANOSECONDS.toMillis(RECONNECT_TIMEOUT_NS));
+          , serverFactory.localAddress(), NANOSECONDS.toMillis(RECONNECT_TIMEOUT_NS));
       executor.schedule(this::bind, RECONNECT_TIMEOUT_NS, NANOSECONDS);
     }
   }
@@ -262,10 +267,10 @@ public abstract class AbstractApiGw extends AbstractService implements ChannelFu
               t = t.getCause();
             }
             if (t instanceof ApiException apiException) {
-              Log.info().log(getClass(), "[{}] {}", ctx.channel(), apiException.getMessage());
+              Log.info().log(getClass(), "{} {}", ctx.channel(), apiException.getMessage());
               return createErrorResponse(request.getService(), apiException.statusCode(), apiException.getMessage());
             }
-            Log.error().log(getClass(), t, "[{}] an unexpected exception occurred", ctx.channel());
+            Log.error().log(getClass(), t, "{} an unexpected exception occurred", ctx.channel());
             return createErrorResponse(request.getService(), 500, "Internal Server Error");
           }
 

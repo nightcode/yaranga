@@ -14,20 +14,35 @@
 
 package org.nightcode.net;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.unix.DomainSocketAddress;
+import org.nightcode.common.pool.metadata.Endpoint;
+import org.nightcode.common.pool.metadata.InetSocketAddressEndpoint;
 
 /**
  * Server bootstrap factory.
+ *
+ * @param <A> address
  */
-public interface BootstrapServerFactory {
+public interface BootstrapServerFactory<A extends SocketAddress> {
 
-  static BootstrapServerFactory tcpIpServerFactory() {
-    return new TcpIpServerFactory();
+  static BootstrapServerFactory<InetSocketAddress> tcpIpServerFactory(String address) {
+    Endpoint<InetSocketAddress> endpoint = new InetSocketAddressEndpoint(address);
+    return new TcpIpServerFactory(endpoint.resolve());
   }
 
-  static BootstrapServerFactory unixSocketServerFactory() {
-    return new UnixSocketServerFactory();
+  static BootstrapServerFactory<InetSocketAddress> tcpIpServerFactory(InetSocketAddress address) {
+    return new TcpIpServerFactory(address);
+  }
+
+  static BootstrapServerFactory<DomainSocketAddress> unixSocketServerFactory(DomainSocketAddress address) {
+    return new UnixSocketServerFactory(address);
   }
 
   ServerBootstrap create(String name, int nThreads);
+
+  A localAddress();
 }

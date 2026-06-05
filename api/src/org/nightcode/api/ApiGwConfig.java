@@ -14,9 +14,7 @@
 
 package org.nightcode.api;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import org.nightcode.net.SslContextConfig;
 
 /**
  * API gateway config.
@@ -25,15 +23,9 @@ public final class ApiGwConfig {
 
   public static final class Builder {
     private String address;
-    private String keystorePath;
-    private String keystorePassword;
-    private String truststorePath;
-    private String truststorePassword;
 
-    private String                 name         = "ApiGw";
-    private boolean                useSsl       = false;
-    private int                    poolSize     = Runtime.getRuntime().availableProcessors();
-    private List<ApiGwInterceptor> interceptors = Collections.emptyList();
+    private String           name       = "ApiGw";
+    private SslContextConfig sslContext = SslContextConfig.builder().build();
 
     private Builder() {
     }
@@ -47,43 +39,13 @@ public final class ApiGwConfig {
       return this;
     }
 
-    public Builder interceptor(ApiGwInterceptor... val) {
-      interceptors = Arrays.asList(val);
-      return this;
-    }
-
-    public Builder keystorePath(String val) {
-      keystorePath = val;
-      return this;
-    }
-
-    public Builder keystorePassword(String val) {
-      keystorePassword = val;
-      return this;
-    }
-
     public Builder name(String val) {
       name = val;
       return this;
     }
 
-    public Builder poolSize(int val) {
-      poolSize = val;
-      return this;
-    }
-
-    public Builder truststorePath(String val) {
-      truststorePath = val;
-      return this;
-    }
-
-    public Builder truststorePassword(String val) {
-      truststorePassword = val;
-      return this;
-    }
-
-    public Builder useSsl(boolean val) {
-      useSsl = val;
+    public Builder sslContext(SslContextConfig val) {
+      sslContext = val;
       return this;
     }
   }
@@ -92,107 +54,41 @@ public final class ApiGwConfig {
     return new Builder();
   }
 
-  private String  name;
-  private String  address;
-  private int     poolSize;
-  private boolean useSsl;
-  private String  keystorePath;
-  private String  keystorePassword;
-  private String  truststorePath;
-  private String  truststorePassword;
-
-  private List<ApiGwInterceptor> interceptors;
+  private String           name;
+  private String           address;
+  private SslContextConfig sslContext;
 
   public ApiGwConfig() {
     this(builder());
   }
 
   private ApiGwConfig(Builder builder) {
-    name               = builder.name;
-    address            = builder.address;
-    poolSize           = builder.poolSize;
-    useSsl             = builder.useSsl;
-    keystorePath       = builder.keystorePath;
-    keystorePassword   = builder.keystorePassword;
-    truststorePath     = builder.truststorePath;
-    truststorePassword = builder.truststorePassword;
-    interceptors       = builder.interceptors;
+    name       = builder.name;
+    address    = builder.address;
+    sslContext = builder.sslContext;
   }
 
   public String address() {
     return address;
   }
 
-  public List<ApiGwInterceptor> interceptors() {
-    return interceptors;
-  }
-
-  public String keystorePath() {
-    return keystorePath;
-  }
-
-  public String keystorePassword() {
-    return keystorePassword;
-  }
-
   public String name() {
     return name;
   }
 
-  public int poolSize() {
-    return poolSize;
-  }
-
-  public String truststorePath() {
-    return truststorePath;
-  }
-
-  public String truststorePassword() {
-    return truststorePassword;
-  }
-
-  public boolean useSsl() {
-    return useSsl;
-  }
-
-  public ApiGwConfig interceptor(ApiGwInterceptor... val) {
-    interceptors = Arrays.asList(val);
-    return this;
+  public SslContextConfig sslContext() {
+    return sslContext;
   }
 
   public void setAddress(String address) {
     this.address = address;
   }
 
-  public void setInterceptors(List<ApiGwInterceptor> interceptors) {
-    this.interceptors = interceptors;
-  }
-
-  public void setKeystorePassword(String keystorePassword) {
-    this.keystorePassword = keystorePassword;
-  }
-
-  public void setKeystorePath(String keystorePath) {
-    this.keystorePath = keystorePath;
-  }
-
   public void setName(String name) {
     this.name = name;
   }
 
-  public void setPoolSize(int poolSize) {
-    this.poolSize = poolSize;
-  }
-
-  public void setTruststorePassword(String truststorePassword) {
-    this.truststorePassword = truststorePassword;
-  }
-
-  public void setTruststorePath(String truststorePath) {
-    this.truststorePath = truststorePath;
-  }
-
-  public void setUseSsl(boolean useSsl) {
-    this.useSsl = useSsl;
+  public void setSslContext(SslContextConfig sslContext) {
+    this.sslContext = sslContext;
   }
 }

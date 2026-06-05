@@ -34,6 +34,7 @@ import org.nightcode.common.pool.SessionPool;
 import org.nightcode.common.pool.SessionPoolBuilder;
 import org.nightcode.common.pool.metadata.InetSocketAddressEndpoint;
 import org.nightcode.common.pool.retry.RetryPolicy;
+import org.nightcode.net.BootstrapServerFactory;
 import org.nightcode.net.impl.ProtobufPacketReader;
 import org.nightcode.net.impl.ProtobufPacketWriter;
 import org.nightcode.net.impl.TcpIpPipeFactory;
@@ -79,7 +80,11 @@ public class TcpIpApiGwTest {
       }
     };
 
-    try (TcpIpApiGw gateway = TcpIpApiGw.build(ApiGwBuilder.builder().name("test-gateway").address(address).serviceNameProvider(Request::getService))) {
+    try (ApiGw gateway = ApiGwBuilder.builder()
+        .name("test-gateway")
+        .bootstrapFactory(BootstrapServerFactory.tcpIpServerFactory(address))
+        .serviceNameProvider(Request::getService)
+        .buildTcpIpApiGw()) {
       gateway.addApiHandler(ah.name(), ah);
       gateway.startAsync().get();
 
@@ -140,15 +145,14 @@ public class TcpIpApiGwTest {
       }
     };
 
-    ApiGwBuilder apiGatewayBuilder = ApiGwBuilder.builder()
-        .name("test-gateway")
-        .address(address);
-
     TcpIpApiPoolBuilder poolBuilder = TcpIpApiPoolBuilder.builder()
         .name(getClass().getSimpleName())
         .address(address);
 
-    try (TcpIpApiGw gateway = TcpIpApiGw.build(apiGatewayBuilder)) {
+    try (ApiGw gateway = ApiGwBuilder.builder()
+        .name("test-gateway")
+        .bootstrapFactory(BootstrapServerFactory.tcpIpServerFactory(address))
+        .buildTcpIpApiGw()) {
       gateway.addApiHandler(ah.name(), ah);
       gateway.startAsync().get();
 
@@ -195,17 +199,16 @@ public class TcpIpApiGwTest {
       }
     };
 
-    ApiGwBuilder apiGatewayBuilder = ApiGwBuilder.builder()
-        .name("test-gateway")
-        .address(address)
-        .sslContext(serverContext(true));
-
     TcpIpApiPoolBuilder poolBuilder = TcpIpApiPoolBuilder.builder()
         .name(getClass().getSimpleName())
         .address(address)
         .sslContext(clientContext(true));
 
-    try (TcpIpApiGw gateway = TcpIpApiGw.build(apiGatewayBuilder)) {
+    try (ApiGw gateway = ApiGwBuilder.builder()
+        .name("test-gateway")
+        .bootstrapFactory(BootstrapServerFactory.tcpIpServerFactory(address))
+        .sslContext(serverContext(true))
+        .buildTcpIpApiGw()) {
       gateway.addApiHandler(ah.name(), ah);
       gateway.startAsync().get();
 
@@ -252,17 +255,16 @@ public class TcpIpApiGwTest {
       }
     };
 
-    ApiGwBuilder apiGatewayBuilder = ApiGwBuilder.builder()
-        .name("test-gateway")
-        .address(address)
-        .sslContext(serverContext(false));
-
     TcpIpApiPoolBuilder poolBuilder = TcpIpApiPoolBuilder.builder()
         .name(getClass().getSimpleName())
         .address(address)
         .sslContext(clientContext(false));
 
-    try (TcpIpApiGw gateway = TcpIpApiGw.build(apiGatewayBuilder)) {
+    try (ApiGw gateway = ApiGwBuilder.builder()
+        .name("test-gateway")
+        .bootstrapFactory(BootstrapServerFactory.tcpIpServerFactory(address))
+        .sslContext(serverContext(false))
+        .buildTcpIpApiGw()) {
       gateway.addApiHandler(ah.name(), ah);
       gateway.startAsync().get();
 

@@ -25,9 +25,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.nightcode.api.message.Metadata;
 import org.nightcode.api.message.Request;
 import org.nightcode.api.message.Response;
-import org.nightcode.api.tcp.TcpIpApiGw;
 import org.nightcode.api.tcp.TcpIpApiPoolBuilder;
 import org.nightcode.common.pool.SessionPool;
+import org.nightcode.net.BootstrapServerFactory;
 
 import org.junit.jupiter.api.Test;
 
@@ -78,7 +78,7 @@ public class ApiInterceptorTest {
 
     ApiGwBuilder apiGatewayBuilder = ApiGwBuilder.builder()
         .name("test-gateway")
-        .address(address)
+        .bootstrapFactory(BootstrapServerFactory.tcpIpServerFactory(address))
         .interceptor(new ApiGwInterceptor() {
           @Override public <Q extends Message, R extends Message> ApiGwCall<Q, R> intercept(ApiGwContext context) {
             return new SimpleApiGwCall<>(context.newApiCall()) {
@@ -94,7 +94,7 @@ public class ApiInterceptorTest {
         .name(getClass().getSimpleName())
         .address(address);
 
-    try (TcpIpApiGw gateway = TcpIpApiGw.build(apiGatewayBuilder)) {
+    try (ApiGw gateway = apiGatewayBuilder.buildTcpIpApiGw()) {
       gateway.addApiHandler(ah.name(), ah);
       gateway.startAsync().get();
 
@@ -103,7 +103,7 @@ public class ApiInterceptorTest {
 
         TestApi api = ApiFactory.def(pool).createApi(ApiConfig.builder(TestApi.class).interceptor(new ApiInterceptor() {
           @Override public <A, Q extends Message, R extends Message> ApiCall<Q, R> intercept(ApiContext<A> context, Class<Q> requestClass, Class<R> responseClass) {
-            return new SimpleApiCall<Q, R>(context.newApiCall(requestClass, responseClass)) {
+            return new SimpleApiCall<>(context.newApiCall(requestClass, responseClass)) {
               @Override public CompletableFuture<R> executeAsync(Q message, Metadata metadata) {
                 metadata = metadata.toBuilder().setGeneration(requestGeneration).build();
                 return super.executeAsync(message, metadata);

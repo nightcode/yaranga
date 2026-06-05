@@ -21,19 +21,15 @@ import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.codec.http.HttpDecoderConfig;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
-import org.nightcode.api.AbstractApiGw;
+import org.nightcode.api.ApiGw;
 import org.nightcode.api.ApiGwBuilder;
 
 /**
  * HTTP API gateway.
  */
-public final class HttpApiGw extends AbstractApiGw {
+public final class HttpApiGw extends ApiGw {
 
-  public static HttpApiGw build(ApiGwBuilder builder) {
-    return new HttpApiGw(builder);
-  }
-
-  private HttpApiGw(ApiGwBuilder builder) {
+  public HttpApiGw(ApiGwBuilder builder) {
     super(builder);
   }
 
@@ -53,7 +49,7 @@ public final class HttpApiGw extends AbstractApiGw {
       p.addLast("aggregator", new LoggableHttpObjectAggregator(context.maxBodyLengthBytes()));
 
       p.addLast("tx", new HttpGwTxHandler());
-      p.addLast("rx", new HttpGwRxHandler(packetReader, HttpApiGw.this::consume));
+      p.addLast("rx", new HttpGwRxHandler(packetReader, this::consume));
     };
   }
 }

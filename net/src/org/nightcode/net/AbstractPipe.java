@@ -39,9 +39,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ConnectTimeoutException;
-import io.netty.channel.MultithreadEventLoopGroup;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.StacklessClosedChannelException;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.proxy.HttpProxyHandler;
 import io.netty.handler.proxy.Socks5ProxyHandler;
@@ -105,9 +104,8 @@ public abstract class AbstractPipe<A, Q, R> extends AbstractSession<A> implement
   protected final boolean  loggingEnabled;
   protected final LogLevel logLevel;
 
-  private final Executor                  executor;
-  private final ScheduledExecutorService  pipeExecutor;
-  private final MultithreadEventLoopGroup workerGroup;
+  private final Executor                 executor;
+  private final ScheduledExecutorService pipeExecutor;
 
   protected final Bootstrap bootstrap;
 
@@ -142,7 +140,6 @@ public abstract class AbstractPipe<A, Q, R> extends AbstractSession<A> implement
     pipeExecutor = ExecutorUtils.scheduledExecutorService(context.sessionName() + "Pipe", 1);
 
     bootstrap   = remoteAddress(context.bootstrapFactory().create(context), context.endpoint());
-    workerGroup = (MultithreadEventLoopGroup) bootstrap.config().group();
   }
 
   public void activate() {
@@ -213,8 +210,8 @@ public abstract class AbstractPipe<A, Q, R> extends AbstractSession<A> implement
     return cf;
   }
 
-  public MultithreadEventLoopGroup eventLoopGroup() {
-    return workerGroup;
+  public EventLoopGroup eventLoopGroup() {
+    return bootstrap.config().group();
   }
 
   public long errorsConnect() {
@@ -311,7 +308,7 @@ public abstract class AbstractPipe<A, Q, R> extends AbstractSession<A> implement
     } catch (Exception ex) {
       Log.info().log(getClass(), ex, "error while closing channel during destroy");
     }
-    workerGroup.shutdownGracefully();
+    ExecutorUtils.shutdown(bootstrap.config().group());
     ExecutorUtils.shutdown(executor);
     ExecutorUtils.shutdown(pipeExecutor);
 
@@ -326,8 +323,8 @@ public abstract class AbstractPipe<A, Q, R> extends AbstractSession<A> implement
   protected abstract boolean initPipeline(Channel channel);
 
   protected ChannelFuture openChannel() {
-    return bootstrap.handler(new ChannelInitializer<SocketChannel>() {
-      @Override protected void initChannel(SocketChannel ch) {
+    return bootstrap.handler(new ChannelInitializer<>() {
+      @Override protected void initChannel(Channel ch) {
         ChannelPipeline p = ch.pipeline();
         if (!Proxy.NO_PROXY.equals(context.proxy())) {
           switch (context.proxy().type()) {

@@ -50,12 +50,12 @@ public enum ApiGwMetrics implements MultiCollector {
       , MN_API_GW_WORKER_EXECUTOR_COUNT
       , MN_API_GW_WORKER_PENDING_TASKS);
 
-  public static <T extends AbstractApiGw> T addApiGw(T apiGateway) {
+  public static ApiGw addApiGw(ApiGw apiGateway) {
     INSTANCE.target.add(apiGateway);
     return apiGateway;
   }
 
-  public static <T extends AbstractApiGw> void removeApiGw(T apiGateway) {
+  public static void removeApiGw(ApiGw apiGateway) {
     INSTANCE.target.remove(apiGateway);
   }
 
@@ -67,11 +67,11 @@ public enum ApiGwMetrics implements MultiCollector {
     registry.register(INSTANCE);
   }
 
-  private final CopyOnWriteArrayList<AbstractApiGw> target = new CopyOnWriteArrayList<>();
+  private final CopyOnWriteArrayList<ApiGw> target = new CopyOnWriteArrayList<>();
 
   @Override public MetricSnapshots collect() {
     // noinspection unchecked
-    List<AbstractApiGw> list = (List<AbstractApiGw>) target.clone();
+    List<ApiGw> list = (List<ApiGw>) target.clone();
     if (list.isEmpty()) {
       return MetricSnapshots.of();
     }
@@ -85,7 +85,7 @@ public enum ApiGwMetrics implements MultiCollector {
     var workerPendingTasks    = CounterSnapshot.builder().name(MN_API_GW_WORKER_PENDING_TASKS);
 
     MetricSnapshots.Builder snapshotsBuilder = MetricSnapshots.builder();
-    for (AbstractApiGw apiGw : list) {
+    for (ApiGw apiGw : list) {
       List<String> apiGwName = Collections.singletonList(apiGw.name());
       Labels       labels    = Labels.of(labelNames, apiGwName);
 
