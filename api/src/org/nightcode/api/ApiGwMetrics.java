@@ -14,8 +14,6 @@
 
 package org.nightcode.api;
 
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -26,6 +24,7 @@ import io.prometheus.metrics.model.registry.MultiCollector;
 import io.prometheus.metrics.model.registry.PrometheusRegistry;
 import io.prometheus.metrics.model.snapshots.CounterSnapshot;
 import io.prometheus.metrics.model.snapshots.CounterSnapshot.CounterDataPointSnapshot;
+import io.prometheus.metrics.model.snapshots.GaugeSnapshot;
 import io.prometheus.metrics.model.snapshots.Labels;
 import io.prometheus.metrics.model.snapshots.MetricSnapshots;
 
@@ -36,6 +35,8 @@ import static java.util.Arrays.asList;
  */
 public enum ApiGwMetrics implements MultiCollector {
   INSTANCE;
+
+  private static final String LABEL_API_GW = "api_gw";
 
   private static final String MN_API_GW_REQUESTS                = "nc_api_gw_requests";
   private static final String MN_API_GW_ACCEPTOR_EXECUTOR_COUNT = "nc_api_gw_acceptor_executor_count";
@@ -51,12 +52,12 @@ public enum ApiGwMetrics implements MultiCollector {
       , MN_API_GW_WORKER_PENDING_TASKS);
 
   public static ApiGw addApiGw(ApiGw apiGateway) {
-    INSTANCE.target.add(apiGateway);
+    INSTANCE.targets.add(apiGateway);
     return apiGateway;
   }
 
   public static void removeApiGw(ApiGw apiGateway) {
-    INSTANCE.target.remove(apiGateway);
+    INSTANCE.targets.remove(apiGateway);
   }
 
   public static void register() {
@@ -67,37 +68,36 @@ public enum ApiGwMetrics implements MultiCollector {
     registry.register(INSTANCE);
   }
 
-  private final CopyOnWriteArrayList<ApiGw> target = new CopyOnWriteArrayList<>();
+  private static CounterDataPointSnapshot counterDataPoint(Labels labels, double value) {
+    return CounterDataPointSnapshot.builder().labels(labels).value(value).build();
+  }
+
+  private static GaugeSnapshot.GaugeDataPointSnapshot gaugeDataPoint(Labels labels, double value) {
+    return GaugeSnapshot.GaugeDataPointSnapshot.builder().labels(labels).value(value).build();
+  }
+
+  private final List<ApiGw> targets = new CopyOnWriteArrayList<>();
 
   @Override public MetricSnapshots collect() {
-    // noinspection unchecked
-    List<ApiGw> list = (List<ApiGw>) target.clone();
-    if (list.isEmpty()) {
+    if (targets.isEmpty()) {
       return MetricSnapshots.of();
     }
 
-    List<String> labelNames = List.of("api_gw");
-
     var requests              = CounterSnapshot.builder().name(MN_API_GW_REQUESTS);
-    var acceptorExecutorCount = CounterSnapshot.builder().name(MN_API_GW_ACCEPTOR_EXECUTOR_COUNT);
-    var acceptorPendingTasks  = CounterSnapshot.builder().name(MN_API_GW_ACCEPTOR_PENDING_TASKS);
-    var workerExecutorCount   = CounterSnapshot.builder().name(MN_API_GW_WORKER_EXECUTOR_COUNT);
-    var workerPendingTasks    = CounterSnapshot.builder().name(MN_API_GW_WORKER_PENDING_TASKS);
+    var acceptorExecutorCount = GaugeSnapshot.builder().name(MN_API_GW_ACCEPTOR_EXECUTOR_COUNT);
+    var acceptorPendingTasks  = GaugeSnapshot.builder().name(MN_API_GW_ACCEPTOR_PENDING_TASKS);
+    var workerExecutorCount   = GaugeSnapshot.builder().name(MN_API_GW_WORKER_EXECUTOR_COUNT);
+    var workerPendingTasks    = GaugeSnapshot.builder().name(MN_API_GW_WORKER_PENDING_TASKS);
 
-    MetricSnapshots.Builder snapshotsBuilder = MetricSnapshots.builder();
-    for (ApiGw apiGw : list) {
-      List<String> apiGwName = Collections.singletonList(apiGw.name());
-      Labels       labels    = Labels.of(labelNames, apiGwName);
+    for (ApiGw apiGw : targets) {
+      Labels labels = Labels.of(LABEL_API_GW, apiGw.name());
 
-      requests.dataPoint(CounterDataPointSnapshot.builder().labels(labels).value(apiGw.requestsCount()).build());
-      acceptorExecutorCount.dataPoint(CounterDataPointSnapshot.builder().labels(labels).value(apiGw.acceptorGroup().executorCount())
-          .build());
-      workerExecutorCount.dataPoint(CounterDataPointSnapshot.builder().labels(labels).value(apiGw.workerGroup().executorCount()).build());
-      addPendingTasksMetric(labels, apiGw.acceptorGroup(), acceptorPendingTasks);
-      addPendingTasksMetric(labels, apiGw.workerGroup(), workerPendingTasks);
+      requests.dataPoint(counterDataPoint(labels, apiGw.requestsCount()));
+      collectGroupMetrics(labels, apiGw.acceptorGroup(), acceptorExecutorCount, acceptorPendingTasks);
+      collectGroupMetrics(labels, apiGw.workerGroup(), workerExecutorCount, workerPendingTasks);
     }
 
-    return snapshotsBuilder
+    return MetricSnapshots.builder()
         .metricSnapshot(requests.build())
         .metricSnapshot(acceptorExecutorCount.build())
         .metricSnapshot(acceptorPendingTasks.build())
@@ -110,17 +110,23 @@ public enum ApiGwMetrics implements MultiCollector {
     return METRIC_NAMES;
   }
 
-  private void addPendingTasksMetric(Labels labels, EventExecutorGroup target, CounterSnapshot.Builder builder) {
-    EventExecutor           eventExecutor;
-    Iterator<EventExecutor> i = target.iterator();
-    if (i.hasNext() && (eventExecutor = i.next()) instanceof SingleThreadEventLoop) {
-      SingleThreadEventLoop eventLoop    = (SingleThreadEventLoop) eventExecutor;
-      int                   pendingTasks = eventLoop.pendingTasks();
-      while (i.hasNext()) {
-        eventLoop = (SingleThreadEventLoop) i.next();
-        pendingTasks += eventLoop.pendingTasks();
+  private void collectGroupMetrics(Labels labels, EventExecutorGroup group, GaugeSnapshot.Builder executorCount,
+                                   GaugeSnapshot.Builder pendingTasks) {
+    int     executors        = 0;
+    long    pending          = 0;
+    boolean pendingSupported = false;
+
+    for (EventExecutor executor : group) {
+      executors++;
+      if (executor instanceof SingleThreadEventLoop eventLoop) {
+        pendingSupported = true;
+        pending += eventLoop.pendingTasks();
       }
-      builder.dataPoint(CounterDataPointSnapshot.builder().labels(labels).value(pendingTasks).build());
+    }
+
+    executorCount.dataPoint(gaugeDataPoint(labels, executors));
+    if (pendingSupported) {
+      pendingTasks.dataPoint(gaugeDataPoint(labels, pending));
     }
   }
 }

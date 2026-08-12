@@ -40,7 +40,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
-import io.netty.util.concurrent.MultithreadEventExecutorGroup;
+import io.netty.util.concurrent.EventExecutorGroup;
 import org.nightcode.api.message.Request;
 import org.nightcode.api.message.Response;
 import org.nightcode.api.message.Status;
@@ -218,12 +218,12 @@ public abstract class ApiGw extends AbstractService implements ChannelFutureList
     return requestsCount.get();
   }
 
-  MultithreadEventExecutorGroup acceptorGroup() {
-    return (MultithreadEventExecutorGroup) serverBootstrap.config().group();
+  EventExecutorGroup acceptorGroup() {
+    return serverBootstrap.config().group();
   }
 
-  MultithreadEventExecutorGroup workerGroup() {
-    return (MultithreadEventExecutorGroup) serverBootstrap.config().childGroup();
+  EventExecutorGroup workerGroup() {
+    return serverBootstrap.config().childGroup();
   }
 
   protected void bind() {

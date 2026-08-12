@@ -110,6 +110,14 @@ public enum ExecutorUtils {
     });
   }
 
+  public static ExecutorService fixedThreadPool(String executorName, int nThreads, ThreadFactory threadFactory) {
+    return intercept(new ThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), threadFactory) {
+      @Override public String toString() {
+        return executorName + "-executor:" + super.toString();
+      }
+    });
+  }
+
   public static ExecutorService fixedThreadPool(String executorName, int nThreads, int queueSize,
                                                 RejectedExecutionHandler rejectedExecutionHandler) {
     ThreadFactory threadFactory = ExecutorUtils.namedThreadFactory(executorName + "-executor");
@@ -154,6 +162,14 @@ public enum ExecutorUtils {
                                                                   RejectedExecutionHandler rejectedExecutionHandler) {
     ThreadFactory threadFactory = ExecutorUtils.namedThreadFactory(executorName + "-executor");
     return intercept(new ScheduledThreadPoolExecutor(nThreads, threadFactory, rejectedExecutionHandler) {
+      @Override public String toString() {
+        return executorName + "-executor:" + super.toString();
+      }
+    });
+  }
+
+  public static ScheduledExecutorService scheduledExecutorService(String executorName, int nThreads, ThreadFactory threadFactory) {
+    return intercept(new ScheduledThreadPoolExecutor(nThreads, threadFactory) {
       @Override public String toString() {
         return executorName + "-executor:" + super.toString();
       }
