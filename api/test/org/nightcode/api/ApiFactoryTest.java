@@ -24,6 +24,7 @@ import org.nightcode.api.message.Response;
 import org.nightcode.common.pool.SessionPool;
 import org.nightcode.common.pool.SessionPoolBuilder;
 import org.nightcode.common.pool.metadata.InetSocketAddressEndpoint;
+import org.nightcode.net.BootstrapFactory;
 import org.nightcode.net.impl.ProtobufPacketReader;
 import org.nightcode.net.impl.ProtobufPacketWriter;
 import org.nightcode.net.impl.TcpIpPipeFactory;
@@ -56,6 +57,7 @@ public class ApiFactoryTest {
     builder
         .addEndpoint(new InetSocketAddressEndpoint(address))
         .sessionFactory(TcpIpPipeFactory.builder()
+            .bootstrapFactory(BootstrapFactory.tcpIpFactory())
             .packetReader(new ProtobufPacketReader<>(Response.getDefaultInstance()))
             .packetWriter(new ProtobufPacketWriter<>())
             .build()

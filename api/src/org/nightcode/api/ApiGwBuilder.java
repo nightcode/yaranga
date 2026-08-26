@@ -21,15 +21,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-import io.netty.handler.ssl.ClientAuth;
-import io.netty.handler.ssl.SslContext;
-import org.jetbrains.annotations.Nullable;
 import org.nightcode.api.http.HttpApiGw;
 import org.nightcode.api.message.Request;
 import org.nightcode.api.tcp.TcpIpApiGw;
-import org.nightcode.common.util.Throwables;
 import org.nightcode.net.BootstrapServerFactory;
-import org.nightcode.net.SslContextConfig;
 
 /**
  * API gateway builder.
@@ -51,7 +46,6 @@ public final class ApiGwBuilder {
 
   String                    name;
   BootstrapServerFactory<?> bootstrapFactory;
-  SslContext                sslContext;
 
   int                       maxBodyLengthBytes  = 1024 * 1024; // 1Mb
   List<ApiGwInterceptor>    interceptors        = Collections.emptyList();
@@ -70,8 +64,7 @@ public final class ApiGwBuilder {
   }
 
   public <A extends SocketAddress> ApiGwBuilder bootstrapFactory(BootstrapServerFactory<A> val) {
-    Objects.requireNonNull(val, "BootstrapServerFactory");
-    bootstrapFactory = val;
+    bootstrapFactory = Objects.requireNonNull(val, "bootstrap server factory");
     return this;
   }
 
@@ -86,37 +79,12 @@ public final class ApiGwBuilder {
   }
 
   public ApiGwBuilder name(String val) {
-    Objects.requireNonNull(val, "name");
-    name = val;
+    name = Objects.requireNonNull(val, "name");
     return this;
   }
 
   public ApiGwBuilder serviceNameProvider(Function<Request, String> val) {
-    Objects.requireNonNull(val, "service name provider");
-    serviceNameProvider = val;
-    return this;
-  }
-
-  public ApiGwBuilder sslContext(@Nullable SslContext val) {
-    sslContext = val;
-    return this;
-  }
-
-  public ApiGwBuilder sslContext(SslContextConfig config) {
-    if (config.useSsl()) {
-      char[] keystorePasswd   = config.keystorePassword().toCharArray();
-      char[] truststorePasswd = config.truststorePassword().toCharArray();
-
-      try {
-        sslContext = SslContextBuilder.builder()
-            .keyManager(keystorePasswd, config.keystorePath())
-            .trustManager(truststorePasswd, config.truststorePath())
-            .clientAuth(ClientAuth.REQUIRE)
-            .buildForServer();
-      } catch (Exception ex) {
-        throw Throwables.rethrow(ex);
-      }
-    }
+    serviceNameProvider = Objects.requireNonNull(val, "service name provider");
     return this;
   }
 }

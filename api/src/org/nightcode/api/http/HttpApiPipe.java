@@ -27,6 +27,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.ssl.SslContext;
 import org.nightcode.api.ApiPipe;
 import org.nightcode.api.message.Request;
 import org.nightcode.api.message.Response;
@@ -52,11 +53,12 @@ public class HttpApiPipe extends AbstractPipe<URI, Request, Response> implements
   @Override protected boolean initPipeline(Channel ch) {
     ChannelPipeline pipeline = ch.pipeline();
 
-    if (context.sslContext() != null) {
+    SslContext sslContext = context.bootstrapFactory().sslContext();
+    if (sslContext != null) {
       URI uri = endpoint.resolve();
       String host = uri.getHost();
       int port = (uri.getPort() != -1) ? uri.getPort() : "http".equalsIgnoreCase(uri.getScheme()) ? 80 : 443;
-      pipeline.addLast("ssl", context.sslContext().newHandler(ch.alloc(), host, port));
+      pipeline.addLast("ssl", sslContext.newHandler(ch.alloc(), host, port));
     }
     if (loggingEnabled) {
       pipeline.addLast("logger", new LoggingHandler(context.sessionName(), logLevel));

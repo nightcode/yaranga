@@ -50,7 +50,7 @@ public class TcpIpPipe<Q, R> extends AbstractPipe<InetSocketAddress, Q, R> {
   @Override protected boolean initPipeline(Channel ch) {
     ChannelPipeline pipeline = ch.pipeline();
 
-    SslContext sslContext = context.sslContext();
+    SslContext sslContext = context.bootstrapFactory().sslContext();
     if (sslContext != null) {
       InetSocketAddress address = endpoint.resolve();
       if (address.isUnresolved()) {

@@ -19,6 +19,9 @@ import java.net.SocketAddress;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.unix.DomainSocketAddress;
+import io.netty.handler.ssl.ClientAuth;
+import io.netty.handler.ssl.SslContext;
+import org.jetbrains.annotations.Nullable;
 import org.nightcode.common.pool.metadata.Endpoint;
 import org.nightcode.common.pool.metadata.InetSocketAddressEndpoint;
 
@@ -42,7 +45,33 @@ public interface BootstrapServerFactory<A extends SocketAddress> {
     return new UnixSocketServerFactory(address);
   }
 
+  default BootstrapServerFactory<A> withSsl(SslContextConfig config) {
+    if (config.useSsl()) {
+      char[] keystorePasswd = config.keystorePassword().toCharArray();
+      SslContextBuilder builder = SslContextBuilder.builder()
+          .keyManager(keystorePasswd, config.keystorePath());
+      if (config.mutualSsl()) {
+        char[] truststorePasswd = config.truststorePassword().toCharArray();
+        builder.trustManager(truststorePasswd, config.truststorePath());
+        builder.clientAuth(ClientAuth.REQUIRE);
+      }
+      return withSsl(builder.buildForServer());
+    }
+    return this;
+  }
+
+  default BootstrapServerFactory<A> withSsl(@Nullable SslContext sslContext) {
+    if (sslContext == null) {
+      return this;
+    }
+    return new SslServerFactory<>(this, sslContext);
+  }
+
   ServerBootstrap create(String name, int nThreads);
 
   A localAddress();
+
+  default @Nullable SslContext sslContext() {
+    return null;
+  }
 }

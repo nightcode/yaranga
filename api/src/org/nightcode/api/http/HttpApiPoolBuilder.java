@@ -32,6 +32,7 @@ import org.nightcode.common.pool.lb.LoadBalancingPolicy;
 import org.nightcode.common.pool.metadata.Endpoint;
 import org.nightcode.common.pool.metadata.UriEndpoint;
 import org.nightcode.common.props.Properties;
+import org.nightcode.net.BootstrapFactory;
 import org.nightcode.net.impl.ProtobufPacketReader;
 import org.nightcode.net.impl.ProtobufPacketWriter;
 
@@ -66,10 +67,10 @@ public final class HttpApiPoolBuilder {
     rebuildTimeoutMs = Properties.instance().getLong(name + ".rebuildTimeoutMs", REBUILD_TIMEOUT_MS);
 
     HttpApiPipeFactory.Builder builder = HttpApiPipeFactory.builder()
+        .bootstrapFactory(BootstrapFactory.tcpIpFactory().withSsl(sslContext))
         .packetReader(new ProtobufPacketReader<>(Response.getDefaultInstance()))
         .packetWriter(new ProtobufPacketWriter<>())
-        .proxy(proxy)
-        .sslContext(sslContext);
+        .proxy(proxy);
 
     return SessionPoolBuilder.<URI, ApiPipe<URI>>instance(name)
         .addEndpoints(endpoints)

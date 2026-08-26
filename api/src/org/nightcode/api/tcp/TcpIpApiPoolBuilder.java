@@ -31,6 +31,7 @@ import org.nightcode.common.pool.lb.LoadBalancingPolicy;
 import org.nightcode.common.pool.metadata.Endpoint;
 import org.nightcode.common.pool.metadata.InetSocketAddressEndpoint;
 import org.nightcode.common.props.Properties;
+import org.nightcode.net.BootstrapFactory;
 import org.nightcode.net.impl.ProtobufPacketReader;
 import org.nightcode.net.impl.ProtobufPacketWriter;
 import org.nightcode.net.impl.TcpIpPipeFactory;
@@ -66,10 +67,10 @@ public final class TcpIpApiPoolBuilder {
     rebuildTimeoutMs = Properties.instance().getLong(name + ".rebuildTimeoutMs", REBUILD_TIMEOUT_MS);
 
     TcpIpPipeFactory.Builder builder = TcpIpPipeFactory.builder()
+        .bootstrapFactory(BootstrapFactory.tcpIpFactory().withSsl(sslContext))
         .packetReader(new ProtobufPacketReader<>(Response.getDefaultInstance()))
         .packetWriter(new ProtobufPacketWriter<>())
-        .proxy(proxy)
-        .sslContext(sslContext);
+        .proxy(proxy);
 
     return SessionPoolBuilder.<InetSocketAddress, ApiPipe<InetSocketAddress>>instance(name)
         .addEndpoints(endpoints)

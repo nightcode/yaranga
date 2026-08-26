@@ -106,7 +106,6 @@ public abstract class ApiGw extends AbstractService implements ChannelFutureList
   private volatile ChannelFuture channelFuture;
 
   private final String                    name;
-  private final SslContext                sslContext;
   private final Function<Request, String> serviceNameProvider;
 
   protected final ApiGwContext context;
@@ -128,7 +127,6 @@ public abstract class ApiGw extends AbstractService implements ChannelFutureList
 
   protected ApiGw(ApiGwBuilder builder) {
     name                = builder.name;
-    sslContext          = builder.sslContext;
     serviceNameProvider = builder.serviceNameProvider;
     serverFactory       = builder.bootstrapFactory;
 
@@ -180,7 +178,7 @@ public abstract class ApiGw extends AbstractService implements ChannelFutureList
   }
 
   public boolean withSsl() {
-    return sslContext != null;
+    return serverFactory.sslContext() != null;
   }
 
   @Override protected void doStart() {
@@ -228,6 +226,7 @@ public abstract class ApiGw extends AbstractService implements ChannelFutureList
 
   protected void bind() {
     try {
+      final SslContext sslContext = serverFactory.sslContext();
       ChannelInitializer<Channel> initializer = new ChannelInitializer<>() {
         @Override protected void initChannel(Channel ch) {
           ChannelPipeline p = ch.pipeline();

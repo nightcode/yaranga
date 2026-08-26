@@ -22,7 +22,8 @@ public class SslContextConfig {
     private String truststorePath;
     private String truststorePassword;
 
-    private boolean useSsl = false;
+    private boolean useSsl    = false;
+    private boolean mutualSsl = false;
 
     private Builder() {
     }
@@ -38,6 +39,11 @@ public class SslContextConfig {
 
     public Builder keystorePassword(String val) {
       keystorePassword = val;
+      return this;
+    }
+
+    public Builder mutualSsl(boolean val) {
+      mutualSsl = val;
       return this;
     }
 
@@ -66,7 +72,7 @@ public class SslContextConfig {
   private String  keystorePassword;
   private String  truststorePath;
   private String  truststorePassword;
-
+  private boolean mutualSsl;
 
   public SslContextConfig() {
     this(builder());
@@ -78,6 +84,7 @@ public class SslContextConfig {
     keystorePassword   = builder.keystorePassword;
     truststorePath     = builder.truststorePath;
     truststorePassword = builder.truststorePassword;
+    mutualSsl          = builder.mutualSsl;
   }
 
   public String keystorePath() {
@@ -86,6 +93,10 @@ public class SslContextConfig {
 
   public String keystorePassword() {
     return keystorePassword;
+  }
+
+  public boolean mutualSsl() {
+    return mutualSsl;
   }
 
   public String truststorePath() {
@@ -106,6 +117,10 @@ public class SslContextConfig {
 
   public void setKeystorePath(String keystorePath) {
     this.keystorePath = keystorePath;
+  }
+
+  public void setMutualSsl(boolean mutualSsl) {
+    this.mutualSsl = mutualSsl;
   }
 
   public void setTruststorePassword(String truststorePassword) {

@@ -16,7 +16,6 @@ package org.nightcode.net.impl;
 
 import java.net.Proxy;
 
-import io.netty.handler.ssl.SslContext;
 import org.nightcode.common.pool.Session;
 import org.nightcode.common.pool.SessionContext;
 import org.nightcode.common.pool.SessionContextImpl;
@@ -75,10 +74,6 @@ public class PipeContextImpl<A, S extends Session<A>> extends SessionContextImpl
 
   @Override public boolean soReuseAddress() {
     return factoryContext.soReuseAddress();
-  }
-
-  @Override public SslContext sslContext() {
-    return factoryContext.sslContext();
   }
 
   @Override public boolean tcpNoDelay() {

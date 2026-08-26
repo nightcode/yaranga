@@ -18,7 +18,6 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.Objects;
 
-import io.netty.handler.ssl.SslContext;
 import org.nightcode.common.pool.SessionContext;
 import org.nightcode.common.pool.SessionFactory;
 import org.nightcode.net.BootstrapFactory;
@@ -39,13 +38,11 @@ public class TcpIpPipeFactory<Q, R, C extends Pipe<InetSocketAddress, Q, R>>
     implements SessionFactory<InetSocketAddress, C>, PipeFactoryContext {
 
   public static final class Builder {
-    private SslContext      sslContext;
-    private PacketReader<?> packetReader;
-    private PacketWriter<?> packetWriter;
+    private BootstrapFactory bootstrapFactory;
+    private PacketReader<?>  packetReader;
+    private PacketWriter<?>  packetWriter;
 
     private Proxy proxy = Proxy.NO_PROXY;
-
-    private BootstrapFactory bootstrapFactory = BootstrapFactory.tcpIpFactory();
 
     private int maxBodyLengthBytes = 1024 * 1024;
     private int nThreads           = Runtime.getRuntime().availableProcessors();
@@ -65,7 +62,7 @@ public class TcpIpPipeFactory<Q, R, C extends Pipe<InetSocketAddress, Q, R>>
     }
 
     public Builder bootstrapFactory(BootstrapFactory val) {
-      bootstrapFactory = val;
+      bootstrapFactory = Objects.requireNonNull(val, "bootstrap factory");
       return this;
     }
 
@@ -79,14 +76,12 @@ public class TcpIpPipeFactory<Q, R, C extends Pipe<InetSocketAddress, Q, R>>
     }
 
     public Builder packetReader(PacketReader<?> val) {
-      Objects.requireNonNull(val, "packet reader");
-      packetReader = val;
+      packetReader = Objects.requireNonNull(val, "packet reader");
       return this;
     }
 
     public Builder packetWriter(PacketWriter<?> val) {
-      Objects.requireNonNull(val, "packet writer");
-      packetWriter = val;
+      packetWriter = Objects.requireNonNull(val, "packet writer");
       return this;
     }
 
@@ -96,8 +91,7 @@ public class TcpIpPipeFactory<Q, R, C extends Pipe<InetSocketAddress, Q, R>>
     }
 
     public Builder proxy(Proxy val) {
-      Objects.requireNonNull(val, "proxy");
-      proxy = val;
+      proxy = Objects.requireNonNull(val, "proxy");
       return this;
     }
 
@@ -108,11 +102,6 @@ public class TcpIpPipeFactory<Q, R, C extends Pipe<InetSocketAddress, Q, R>>
 
     public Builder soKeepAlive(boolean val) {
       soKeepAlive = val;
-      return this;
-    }
-
-    public Builder sslContext(SslContext val) {
-      sslContext = val;
       return this;
     }
 
@@ -135,7 +124,6 @@ public class TcpIpPipeFactory<Q, R, C extends Pipe<InetSocketAddress, Q, R>>
   private final int nThreads;
 
   private final Proxy            proxy;
-  private final SslContext       sslContext;
   private final PacketReader<?>  packetReader;
   private final PacketWriter<?>  packetWriter;
   private final BootstrapFactory bootstrapFactory;
@@ -148,10 +136,9 @@ public class TcpIpPipeFactory<Q, R, C extends Pipe<InetSocketAddress, Q, R>>
     maxBodyLengthBytes = builder.maxBodyLengthBytes;
     nThreads           = builder.nThreads;
     proxy              = builder.proxy;
-    sslContext       = builder.sslContext;
-    packetReader     = builder.packetReader;
-    packetWriter     = builder.packetWriter;
-    bootstrapFactory = builder.bootstrapFactory;
+    packetReader       = builder.packetReader;
+    packetWriter       = builder.packetWriter;
+    bootstrapFactory   = builder.bootstrapFactory;
   }
 
   @Override public boolean autoRead() {
@@ -200,10 +187,6 @@ public class TcpIpPipeFactory<Q, R, C extends Pipe<InetSocketAddress, Q, R>>
 
   @Override public boolean soReuseAddress() {
     return soReuseAddress;
-  }
-
-  @Override public SslContext sslContext() {
-    return sslContext;
   }
 
   @Override public boolean tcpNoDelay() {

@@ -988,9 +988,8 @@ public class TcpIpPipeTest {
                                                                                    PacketWriter<Q> packetWriter,
                                                                                    SslContext sslContext) {
     return new PipeContext<>() {
-
       @Override public BootstrapFactory bootstrapFactory() {
-        return BootstrapFactory.tcpIpFactory();
+        return BootstrapFactory.tcpIpFactory().withSsl(sslContext);
       }
 
       @Override public <M> PacketReader<M> packetReader() {
@@ -1005,10 +1004,6 @@ public class TcpIpPipeTest {
 
       @Override public int nThreads() {
         return Runtime.getRuntime().availableProcessors();
-      }
-
-      @Override public SslContext sslContext() {
-        return sslContext;
       }
 
       @Override public Endpoint<InetSocketAddress> endpoint() {

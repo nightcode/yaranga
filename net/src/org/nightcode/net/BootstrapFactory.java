@@ -15,6 +15,8 @@
 package org.nightcode.net;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.handler.ssl.SslContext;
+import org.jetbrains.annotations.Nullable;
 import org.nightcode.common.pool.Session;
 
 /**
@@ -30,5 +32,30 @@ public interface BootstrapFactory {
     return new UnixSocketFactory();
   }
 
+  default BootstrapFactory withSsl(SslContextConfig config) {
+    if (config.useSsl()) {
+      char[] truststorePasswd = config.truststorePassword().toCharArray();
+      SslContextBuilder builder = SslContextBuilder.builder()
+          .trustManager(truststorePasswd, config.truststorePath());
+      if (config.mutualSsl()) {
+        char[] keystorePasswd = config.keystorePassword().toCharArray();
+        builder.keyManager(keystorePasswd, config.keystorePath());
+      }
+      return withSsl(builder.buildForClient());
+    }
+    return this;
+  }
+
+  default BootstrapFactory withSsl(@Nullable SslContext sslContext) {
+    if (sslContext == null) {
+      return this;
+    }
+    return new SslFactory(this, sslContext);
+  }
+
   Bootstrap create(PipeContext<?, ? extends Session<?>> context);
+
+  default @Nullable SslContext sslContext() {
+    return null;
+  }
 }

@@ -34,7 +34,9 @@ import org.nightcode.common.pool.SessionPool;
 import org.nightcode.common.pool.SessionPoolBuilder;
 import org.nightcode.common.pool.metadata.InetSocketAddressEndpoint;
 import org.nightcode.common.pool.retry.RetryPolicy;
+import org.nightcode.net.BootstrapFactory;
 import org.nightcode.net.BootstrapServerFactory;
+import org.nightcode.net.SslContextBuilder;
 import org.nightcode.net.impl.ProtobufPacketReader;
 import org.nightcode.net.impl.ProtobufPacketWriter;
 import org.nightcode.net.impl.TcpIpPipeFactory;
@@ -92,6 +94,7 @@ public class TcpIpApiGwTest {
       builder
           .addEndpoint(new InetSocketAddressEndpoint(address))
           .sessionFactory(TcpIpPipeFactory.builder()
+              .bootstrapFactory(BootstrapFactory.tcpIpFactory())
               .packetReader(new ProtobufPacketReader<>(Response.getDefaultInstance()))
               .packetWriter(new ProtobufPacketWriter<>())
               .build()
@@ -206,8 +209,7 @@ public class TcpIpApiGwTest {
 
     try (ApiGw gateway = ApiGwBuilder.builder()
         .name("test-gateway")
-        .bootstrapFactory(BootstrapServerFactory.tcpIpServerFactory(address))
-        .sslContext(serverContext(true))
+        .bootstrapFactory(BootstrapServerFactory.tcpIpServerFactory(address).withSsl(serverContext(true)))
         .buildTcpIpApiGw()) {
       gateway.addApiHandler(ah.name(), ah);
       gateway.startAsync().get();
@@ -262,8 +264,7 @@ public class TcpIpApiGwTest {
 
     try (ApiGw gateway = ApiGwBuilder.builder()
         .name("test-gateway")
-        .bootstrapFactory(BootstrapServerFactory.tcpIpServerFactory(address))
-        .sslContext(serverContext(false))
+        .bootstrapFactory(BootstrapServerFactory.tcpIpServerFactory(address).withSsl(serverContext(false)))
         .buildTcpIpApiGw()) {
       gateway.addApiHandler(ah.name(), ah);
       gateway.startAsync().get();

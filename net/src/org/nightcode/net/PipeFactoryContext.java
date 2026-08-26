@@ -16,8 +16,6 @@ package org.nightcode.net;
 
 import java.net.Proxy;
 
-import io.netty.handler.ssl.SslContext;
-
 /**
  * Connection factory context.
  */
@@ -30,8 +28,6 @@ public interface PipeFactoryContext {
   <P> PacketReader<P> packetReader();
 
   <P> PacketWriter<P> packetWriter();
-
-  SslContext sslContext();
 
   default boolean autoRead() {
     return true;

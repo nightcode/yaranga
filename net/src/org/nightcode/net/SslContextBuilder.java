@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.nightcode.api;
+package org.nightcode.net;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
