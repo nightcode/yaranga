@@ -44,7 +44,7 @@
     <netty-bom.version>4.2.17.Final</netty-bom.version>
     <protobuf.version>4.35.1</protobuf.version>
     <bouncycastle.version>1.84</bouncycastle.version>
-    <freemarker.version>2.3.34</freemarker.version>
+    <freemarker.version>2.3.35</freemarker.version>
     <snakeyaml.version>2.6</snakeyaml.version>
 
     <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
